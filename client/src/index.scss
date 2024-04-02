@@ -18,6 +18,9 @@
   .page-container {
     @apply w-full max-w-[1220px] px-5 mx-auto;
   }
+  .carousel-item {
+    margin-right: 20px;
+  }
   .blog-content {
     h1 {
       @apply text-xl font-bold text-blue-gray-900 mb-2;

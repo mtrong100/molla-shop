@@ -1,7 +1,5 @@
-import Slide1 from "../assets/slides/slide-1.jpg";
-import Slide2 from "../assets/slides/slide-2.jpg";
+import sampleProduct from "../assets/samples/sample-product.jpg";
 
-export const SLIDES = {
-  Slide1,
-  Slide2,
+export const SAMPLE_IMAGES = {
+  sampleProduct,
 };

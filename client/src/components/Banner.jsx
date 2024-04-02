@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const Banner = () => {
   return (
-    <div className="my-5">
+    <div className="mt-5">
       <div className="grid grid-cols-[minmax(0,_1fr)_400px] gap-5">
         {/* Slides */}
         <Carousel

@@ -7,7 +7,7 @@ import { SAMPLE_IMAGES } from "../utils/project-images";
 
 const ProductCard = () => {
   return (
-    <div className="group relative max-w-[400px] w-full h-[500px] border border-gray border-opacity-15 bg-light">
+    <div className="group relative h-[500px] border-2">
       <div className="relative -z-20 bg-blue-gray-100 overflow-hidden">
         <img
           className="w-full h-[276px] object-cover"

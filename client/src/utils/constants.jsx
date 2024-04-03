@@ -2,6 +2,14 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { IoCartOutline, IoWalletOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 
+export const SORT_CATEGORIES = [
+  "All",
+  "Computers and Laptops",
+  "Smartphones and Tablets",
+  "Accessories",
+  "Gaming Accessories",
+];
+
 export const PRODUCT_CATEGORIES = [
   "Computers and Laptops",
   "Smartphones and Tablets",

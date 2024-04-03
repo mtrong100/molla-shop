@@ -15,6 +15,7 @@ module.exports = withMT({
         "banner-1": "url('./src/assets/banners/banner-1.jpg')",
         "banner-2": "url('./src/assets/banners/banner-2.jpg')",
         "banner-3": "url('./src/assets/banners/banner-3.jpg')",
+        "banner-4": "url('./src/assets/images/bg-1.jpg')",
       },
     },
   },

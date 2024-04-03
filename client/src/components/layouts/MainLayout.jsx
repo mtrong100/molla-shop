@@ -12,7 +12,7 @@ const MainLayout = () => {
         <Outlet />
       </section>
       <Scrolltop />
-      {/* <Footer /> */}
+      <Footer />
     </>
   );
 };

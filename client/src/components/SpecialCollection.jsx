@@ -9,7 +9,7 @@ const SpecialCollection = () => {
   const tabTitles = ["Featured", "On Sale", "Top Rated"];
 
   return (
-    <div className="mt-16">
+    <div className="mt-20">
       <Tabs value={activeTab}>
         <TabsHeader
           className="rounded-none border-b w-full max-w-xl mx-auto border-blue-gray-50 bg-transparent p-0"

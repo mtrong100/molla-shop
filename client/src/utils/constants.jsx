@@ -62,7 +62,7 @@ export const PROFILE_SIDEBAR = [
   {
     name: "Dashboard",
     icon: <LuLayoutDashboard size={20} />,
-    link: "/dashboard",
+    link: "/admin/dashboard",
   },
   {
     name: "My Orders",

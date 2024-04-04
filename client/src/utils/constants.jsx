@@ -3,20 +3,51 @@ import { IoCartOutline, IoWalletOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 
 export const SORT_CATEGORIES = [
-  "All",
-  "Computers and Laptops",
-  "Smartphones and Tablets",
-  "Accessories",
-  "Gaming Accessories",
+  "all",
+  "computers and laptops",
+  "smartphones and tablets",
+  "accessories",
+  "gaming accessories",
+];
+
+export const SORT_STATUS = [
+  {
+    label: "Lastest",
+    value: "desc",
+  },
+  {
+    label: "Oldest",
+    value: "asc",
+  },
 ];
 
 export const PRODUCT_CATEGORIES = [
-  "Computers and Laptops",
-  "Smartphones and Tablets",
-  "Accessories",
-  "Audio Equipment",
-  "Gaming Accessories",
-  "Computer Components",
+  "computers and laptops",
+  "smartphones and tablets",
+  "accessories",
+  "audio equipment",
+  "gaming accessories",
+  "computer components",
+];
+
+export const PRODUCT_SIZES = ["small", "medium", "large"];
+
+export const PRODUCT_COLORS = ["blue", "red", "green", "amber", "teal"];
+
+export const PRODUCT_BRANDS = [
+  "apple",
+  "samsung",
+  "google pixel",
+  "asus",
+  "acer",
+  "hp",
+  "microsoft",
+  "sony",
+  "nintendo",
+  "bose",
+  "razer",
+  "corsair",
+  "logitech",
 ];
 
 export const DEFAULT_AVATAR =

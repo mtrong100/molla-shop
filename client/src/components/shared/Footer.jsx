@@ -26,9 +26,19 @@ const Footer = () => {
     <footer className="relative w-full pt-20 mt-5">
       <div className="mx-auto w-full max-w-7xl px-8">
         <div className="grid grid-cols-1 justify-between gap-4 md:grid-cols-2">
-          <Typography variant="h2" color="amber" className="mb-6">
-            Molla
-          </Typography>
+          <div>
+            <Typography variant="h2" color="amber" className="mb-2">
+              Molla
+            </Typography>
+
+            <Typography
+              variant="paragraph"
+              className="w-full max-w-sm opacity-50"
+            >
+              Praesent dapibus, neque id cursus ucibus, tortor neque egestas
+              augue, eu vulputate magna eros eu erat.
+            </Typography>
+          </div>
           <div className="grid grid-cols-4 justify-between gap-4">
             {LINKS.map(({ title, items }) => (
               <ul key={title}>

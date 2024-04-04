@@ -193,7 +193,7 @@ function FilterSidebar() {
   const handleOpenAcc4 = () => setOpenAcc4((cur) => !cur);
 
   return (
-    <Card className="p-4 sticky top-0 shadow-xl shadow-blue-gray-900/5 h-fit">
+    <Card className="p-4 sticky top-[90px] border-2 shadow-xl shadow-blue-gray-900/5 h-fit">
       <div className="flex items-center justify-between text-sm p-4">
         <p>Filter</p>
         <p className="text-amber-600 cursor-pointer">Clean All</p>

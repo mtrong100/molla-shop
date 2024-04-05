@@ -3,16 +3,18 @@ import { persistStore, persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import userSlice from "./slices/userSlice";
 import sortSlice from "./slices/sortSlice";
+import createProductSlice from "./slices/createProductSlice";
 
 const rootReducer = combineReducers({
   user: userSlice,
   sort: sortSlice,
+  createProduct: createProductSlice,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["sort"],
+  blacklist: ["sort", "createProduct"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

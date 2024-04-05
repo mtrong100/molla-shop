@@ -75,3 +75,5 @@ export const PROFILE_SIDEBAR = [
     link: "/my-cart",
   },
 ];
+
+export const PRODUCT_RATING = [1, 2, 3, 4, 5];

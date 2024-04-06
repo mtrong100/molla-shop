@@ -8,7 +8,7 @@ const FieldTexarea = ({ labelText, register, name, errorMessage }) => {
         size="lg"
         {...register(`${name}`)}
         label={labelText}
-        className="min-h-[150px] !text-lg"
+        className="min-h-[150px] "
       />
 
       {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}

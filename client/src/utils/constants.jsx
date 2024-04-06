@@ -76,4 +76,4 @@ export const PROFILE_SIDEBAR = [
   },
 ];
 
-export const PRODUCT_RATING = [1, 2, 3, 4, 5];
+export const PRODUCT_RATING = ["1", "2", "3", "4", "5"];

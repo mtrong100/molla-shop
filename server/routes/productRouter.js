@@ -9,6 +9,7 @@ import {
 } from "../controllers/productController.js";
 import { verifyAdmin } from "../middlewares/verifyAdmin.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
+import { createProductValidationRule } from "../validations/productValidationRules.js";
 
 const router = express.Router();
 
@@ -17,7 +18,7 @@ router.get("/all", getAllProducts);
 router.get("/:id", getProductDetail);
 
 /* CRUD */
-router.post("/create", verifyAdmin, createProduct);
+router.post("/create", createProductValidationRule(), createProduct);
 router.put("/update/:id", verifyAdmin, updateProduct);
 router.delete("/delete/:id", verifyAdmin, deleteProduct);
 

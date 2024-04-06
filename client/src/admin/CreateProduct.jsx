@@ -1,7 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import TitleSection from "../components/TitleSection";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "@material-tailwind/react";
 import { toast } from "sonner";
@@ -26,6 +25,7 @@ import {
 } from "firebase/storage";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  removeImage,
   resetAll,
   selectedBrand,
   selectedCategory,
@@ -35,6 +35,8 @@ import {
   setImages,
   setInfo,
 } from "../redux/slices/createProductSlice";
+import { createProductApi } from "../api/productApi";
+import { IoMdClose } from "react-icons/io";
 
 const CreateProduct = () => {
   const {
@@ -58,7 +60,6 @@ const CreateProduct = () => {
   const dispatch = useDispatch();
   const editor = useRef(null);
   const { currentUser } = useSelector((state) => state.user);
-
   const { images, size, color, brand, category, info, rating } = useSelector(
     (state) => state.createProduct
   );
@@ -87,17 +88,18 @@ const CreateProduct = () => {
     try {
       const req = {
         ...values,
+        price: Number(values.price),
         images,
         size,
         color,
         brand,
         category,
         info,
-        rating,
+        rating: Number(rating),
       };
 
-      // CALL API HERE !!!
-      // const res = await
+      const res = await createProductApi(currentUser?.token, req);
+      toast.success(res?.message);
 
       reset();
       dispatch(resetAll());
@@ -159,7 +161,7 @@ const CreateProduct = () => {
           />
 
           <FieldInput
-            type="number"
+            type="text"
             labelText="Price"
             register={register}
             name="price"
@@ -288,7 +290,7 @@ const CreateProduct = () => {
               onChange={handleUploadImages}
             />
             <Carousel
-              className="rounded-xl mt-5"
+              className="rounded-xl mt-5 border bg-gray-100"
               navigation={({ setActiveIndex, activeIndex, length }) => (
                 <div className="absolute bottom-4 left-2/4 z-50 flex -translate-x-2/4 gap-2">
                   {new Array(length).fill("").map((_, i) => (
@@ -309,7 +311,7 @@ const CreateProduct = () => {
                   color="white"
                   size="lg"
                   onClick={handlePrev}
-                  className="!absolute top-2/4 left-4 -translate-y-2/4"
+                  className="!absolute top-2/4 left-4 -translate-y-2/4 bg-amber-50 hover:bg-amber-100 text-amber-600"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -334,7 +336,7 @@ const CreateProduct = () => {
                   color="white"
                   size="lg"
                   onClick={handleNext}
-                  className="!absolute top-2/4 !right-4 -translate-y-2/4"
+                  className="!absolute top-2/4 !right-4 -translate-y-2/4 bg-amber-50 hover:bg-amber-100 text-amber-600"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -353,21 +355,23 @@ const CreateProduct = () => {
                 </IconButton>
               )}
             >
-              <img
-                src="https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2560&q=80"
-                alt="image 1"
-                className="h-full w-full object-cover"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2940&q=80"
-                alt="image 2"
-                className="h-full w-full object-cover"
-              />
-              <img
-                src="https://images.unsplash.com/photo-1518623489648-a173ef7824f3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2762&q=80"
-                alt="image 3"
-                className="h-full w-full object-cover"
-              />
+              {images.length > 0 &&
+                images.map((item, index) => (
+                  <div key={index} className="w-full h-[500px]">
+                    <img
+                      src={item}
+                      alt={index}
+                      className="w-full h-full object-contain"
+                    />
+
+                    <span
+                      onClick={() => dispatch(removeImage(item))}
+                      className="flex absolute top-3 right-3 items-center justify-center w-[40px] h-[40px] bg-red-500 text-white rounded-full cursor-pointer"
+                    >
+                      <IoMdClose size={22} />
+                    </span>
+                  </div>
+                ))}
             </Carousel>
           </div>
 

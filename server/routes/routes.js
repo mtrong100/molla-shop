@@ -7,7 +7,7 @@ import userRouter from "./userRouter.js";
 const router = express.Router();
 
 router.use("/auth", authRouter);
-// router.use("/product", productRouter);
+router.use("/product", productRouter);
 // router.use("/user", userRouter);
 // router.use("/order", orderRouter);
 

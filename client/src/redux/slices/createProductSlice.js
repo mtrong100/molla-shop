@@ -31,7 +31,10 @@ export const createProductSlice = createSlice({
       state.info = action.payload;
     },
     setImages: (state, action) => {
-      state.images = action.payload;
+      state.images = [...state.images, ...action.payload];
+    },
+    removeImage: (state, action) => {
+      state.images = state.images.filter((item) => item !== action.payload);
     },
     resetAll: () => {
       return {
@@ -55,6 +58,7 @@ export const {
   selectedRating,
   setInfo,
   setImages,
+  removeImage,
   resetAll,
 } = createProductSlice.actions;
 

@@ -21,19 +21,19 @@ export const capitalizeFirstLetter = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-export const displayRating = (number) => {
-  if (!number) return;
+export const displayRating = (value) => {
+  if (!value) return;
 
-  switch (number) {
-    case 1:
+  switch (value) {
+    case "1":
       return "⭐";
-    case 2:
+    case "2":
       return "⭐⭐";
-    case 3:
+    case "3":
       return "⭐⭐⭐";
-    case 4:
+    case "4":
       return "⭐⭐⭐⭐";
-    case 5:
+    case "5":
       return "⭐⭐⭐⭐⭐";
     default:
       return "";

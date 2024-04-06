@@ -18,7 +18,12 @@ router.get("/all", getAllProducts);
 router.get("/:id", getProductDetail);
 
 /* CRUD */
-router.post("/create", createProductValidationRule(), createProduct);
+router.post(
+  "/create",
+  verifyAdmin,
+  createProductValidationRule(),
+  createProduct
+);
 router.put("/update/:id", verifyAdmin, updateProduct);
 router.delete("/delete/:id", verifyAdmin, deleteProduct);
 

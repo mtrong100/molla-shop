@@ -42,9 +42,10 @@ export const verifyEmailApi = async (token) => {
   return res.data;
 };
 
-export const googleLogin = async () => {
+export const googleLogin = async (req) => {
   const res = await axios.post(
-    `${import.meta.env.VITE_SERVER_URL}/auth/google-login`
+    `${import.meta.env.VITE_SERVER_URL}/auth/google-login`,
+    req
   );
 
   return res.data;

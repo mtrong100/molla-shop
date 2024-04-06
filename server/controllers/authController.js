@@ -136,7 +136,10 @@ export const googleLogin = async (req, res, next) => {
 
       await newUser.save();
 
-      const token = await generateToken({ id: user._id, role: user.role });
+      const token = await generateToken({
+        id: newUser._id,
+        role: newUser.role,
+      });
 
       const userResponse = {
         _id: newUser._id,

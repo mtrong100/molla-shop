@@ -4,10 +4,11 @@ import { LuLayoutDashboard } from "react-icons/lu";
 
 export const SORT_CATEGORIES = [
   "all",
-  "computers and laptops",
-  "smartphones and tablets",
-  "accessories",
-  "gaming accessories",
+  "laptop",
+  "smartphone",
+  "tablet",
+  "mouse",
+  "keyboard",
 ];
 
 export const SORT_STATUS = [
@@ -22,15 +23,23 @@ export const SORT_STATUS = [
 ];
 
 export const PRODUCT_CATEGORIES = [
-  "computers and laptops",
-  "smartphones and tablets",
-  "accessories",
-  "audio equipment",
-  "gaming accessories",
-  "computer components",
+  "laptop",
+  "smartphone",
+  "tablet",
+  "mouse",
+  "keyboard",
 ];
 
 export const PRODUCT_SIZES = ["small", "medium", "large"];
+
+export const PHONE_SIZES = ["1TB", "128GB", "256GB", "512GB", "64GB"];
+
+export const LAPTOP_SIZES = [
+  "8GB RAM, 512GB SSD",
+  "16GB RAM, 512GB SSD",
+  "32GB RAM, 512GB SSD",
+  "32GB RAM, 1TB SSD",
+];
 
 export const PRODUCT_COLORS = ["blue", "red", "green", "amber", "teal"];
 
@@ -43,7 +52,6 @@ export const PRODUCT_BRANDS = [
   "hp",
   "microsoft",
   "sony",
-  "nintendo",
   "bose",
   "razer",
   "corsair",

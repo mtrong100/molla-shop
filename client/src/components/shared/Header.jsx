@@ -372,7 +372,6 @@ function GoogleLogin() {
         name: user?.displayName,
         email: user?.email,
         avatar: user?.photoURL,
-        provider: "google",
       };
 
       const res = await googleLogin(req);

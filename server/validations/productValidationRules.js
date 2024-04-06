@@ -16,6 +16,9 @@ export const createProductValidationRule = () => [
   body("images")
     .isArray({ min: 1, max: 5 })
     .withMessage("At least one image is required"),
+  body("thumbnails")
+    .isArray({ min: 2, max: 2 })
+    .withMessage("Two images are required"),
   body("category")
     .isString()
     .notEmpty()
@@ -25,7 +28,7 @@ export const createProductValidationRule = () => [
   body("rating").isNumeric().withMessage("Rating must be a number"),
   body("size")
     .isString()
-    .notEmpty()   
+    .notEmpty()
     .withMessage("Size must be a non-empty string"),
   body("color")
     .isString()

@@ -4,6 +4,7 @@ export const createProductSlice = createSlice({
   name: "createProduct",
   initialState: {
     images: [],
+    thumbnails: [],
     size: "",
     color: "",
     brand: "",
@@ -36,9 +37,18 @@ export const createProductSlice = createSlice({
     removeImage: (state, action) => {
       state.images = state.images.filter((item) => item !== action.payload);
     },
+    setThumbnails: (state, action) => {
+      state.thumbnails = [...state.thumbnails, ...action.payload];
+    },
+    removeThumbnail: (state, action) => {
+      state.thumbnails = state.thumbnails.filter(
+        (item) => item !== action.payload
+      );
+    },
     resetAll: () => {
       return {
         images: [],
+        thumbnials: [],
         size: "",
         color: "",
         brand: "",
@@ -60,6 +70,8 @@ export const {
   setImages,
   removeImage,
   resetAll,
+  setThumbnails,
+  removeThumbnail,
 } = createProductSlice.actions;
 
 export default createProductSlice.reducer;

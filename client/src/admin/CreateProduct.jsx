@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import TitleSection from "../components/TitleSection";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -29,7 +29,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   removeImage,
   removeThumbnail,
-  resetAll,
   selectedBrand,
   selectedCategory,
   selectedColor,
@@ -46,7 +45,6 @@ const CreateProduct = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { isSubmitting, errors },
   } = useForm({
     mode: "onchange",

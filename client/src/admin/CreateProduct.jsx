@@ -115,8 +115,7 @@ const CreateProduct = () => {
       const res = await createProductApi(currentUser?.token, req);
       toast.success(res?.message);
 
-      reset();
-      dispatch(resetAll());
+      window.location.reload();
     } catch (error) {
       toast.error(error?.response?.data?.message);
       console.log("Failed to create new product: ", error);
@@ -453,7 +452,6 @@ function UploadProductImages() {
 function UploadProductThumbnials() {
   const dispatch = useDispatch();
   const { thumbnails } = useSelector((state) => state.createProduct);
-  console.log(thumbnails);
 
   const handleUploadThumbnail = async (event) => {
     const files = event.target.files;

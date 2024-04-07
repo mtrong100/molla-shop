@@ -41,7 +41,20 @@ export const LAPTOP_SIZES = [
   "32GB RAM, 1TB SSD",
 ];
 
-export const PRODUCT_COLORS = ["blue", "red", "green", "amber", "teal"];
+export const PRODUCT_COLORS = [
+  "blue",
+  "red",
+  "green",
+  "amber",
+  "teal",
+  "blue-gray",
+  "gray",
+  "indigo",
+  "lime",
+  "pink",
+  "purple",
+  "orange",
+];
 
 export const PRODUCT_BRANDS = [
   "apple",

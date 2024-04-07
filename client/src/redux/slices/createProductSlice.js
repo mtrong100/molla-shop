@@ -48,7 +48,7 @@ export const createProductSlice = createSlice({
     resetAll: () => {
       return {
         images: [],
-        thumbnials: [],
+        thumbnails: [],
         size: "",
         color: "",
         brand: "",

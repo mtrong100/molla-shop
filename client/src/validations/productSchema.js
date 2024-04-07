@@ -5,7 +5,7 @@ export const productSchema = yup.object().shape({
     .string()
     .required("Product name is required")
     .min(2, "Product name must be at least 2 characters")
-    .max(50, "Product name must be at most 50 characters"),
+    .max(255, "Product name must be at most 255 characters"),
   desc: yup
     .string()
     .required("Product description is required")

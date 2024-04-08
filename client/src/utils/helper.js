@@ -54,6 +54,20 @@ export const displayTextColor = (color) => {
       return "text-amber-600";
     case "teal":
       return "text-teal-600";
+    case "blue-gray":
+      return "text-blue-gray-600";
+    case "gray":
+      return "text-gray-600";
+    case "indigo":
+      return "text-indigo-600";
+    case "lime":
+      return "text-lime-600";
+    case "pink":
+      return "text-pink-600";
+    case "purple":
+      return "text-purple-600";
+    case "orange":
+      return "text-orange-600";
     default:
       return "";
   }

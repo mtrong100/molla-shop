@@ -24,7 +24,13 @@ router.post(
   createProductValidationRule(),
   createProduct
 );
-router.put("/update/:id", verifyAdmin, updateProduct);
+router.put(
+  "/update/:id",
+  verifyAdmin,
+  createProductValidationRule(),
+  updateProduct
+);
+
 router.delete("/delete/:id", verifyAdmin, deleteProduct);
 
 /* OTHERS */

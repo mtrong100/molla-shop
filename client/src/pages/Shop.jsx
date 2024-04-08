@@ -35,6 +35,7 @@ import { FiGrid } from "react-icons/fi";
 import { IoFilterOutline } from "react-icons/io5";
 import ProductCard from "../components/ProductCard";
 import ProductCardHorizontal from "../components/ProductCardHorizontal";
+import { displayTextColor } from "../utils/helper";
 
 const Shop = () => {
   const dispatch = useDispatch();
@@ -321,7 +322,7 @@ function FilterSidebar() {
                     checked={item === color}
                     onChange={() => dispatch(checkedColor(item))}
                   />
-                  {item}
+                  <span className={`${displayTextColor(item)}`}>{item}</span>
                 </ListItem>
               ))}
             </List>

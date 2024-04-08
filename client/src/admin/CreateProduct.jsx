@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import TitleSection from "../components/TitleSection";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -19,27 +19,11 @@ import {
 import { displayRating, displayTextColor } from "../utils/helper";
 import FieldTexarea from "../components/form/FieldTexarea";
 import JoditEditor from "jodit-react";
-import {
-  getDownloadURL,
-  getStorage,
-  ref,
-  uploadBytesResumable,
-} from "firebase/storage";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  removeImage,
-  removeThumbnail,
-  selectedBrand,
-  selectedCategory,
-  selectedColor,
-  selectedRating,
-  selectedSize,
-  setImages,
-  setInfo,
-  setThumbnails,
-} from "../redux/slices/createProductSlice";
+import { useSelector } from "react-redux";
 import { createProductApi } from "../api/productApi";
 import { IoMdClose } from "react-icons/io";
+import useUploadImages from "../hooks/useUploadImages";
+import useUploadThumbnails from "../hooks/useUploadThumbnails";
 
 const CreateProduct = () => {
   const {
@@ -54,16 +38,22 @@ const CreateProduct = () => {
       desc: "",
       price: "",
       discount: "",
-      rating: "",
       stock: "",
     },
   });
 
-  const dispatch = useDispatch();
   const editor = useRef(null);
   const { currentUser } = useSelector((state) => state.user);
-  const { images, color, brand, category, info, rating, thumbnails, size } =
-    useSelector((state) => state.createProduct);
+  const { handleUploadImages, images, setImages } = useUploadImages();
+  const { handleUploadThumbnails, thumbnails, setThumbnails } =
+    useUploadThumbnails();
+
+  const [category, setCategory] = useState("");
+  const [size, setSize] = useState("");
+  const [brand, setBrand] = useState("");
+  const [color, setColor] = useState("");
+  const [rating, setRating] = useState("");
+  const [info, setInfo] = useState("");
 
   const onSubmit = async (values) => {
     if (!(size || color || brand || category || rating)) {
@@ -196,7 +186,7 @@ const CreateProduct = () => {
               className="capitalize"
               size="lg"
               label="Select Category"
-              onChange={(val) => dispatch(selectedCategory(val))}
+              onChange={(val) => setCategory(val)}
             >
               {PRODUCT_CATEGORIES.map((item) => (
                 <Option
@@ -216,7 +206,7 @@ const CreateProduct = () => {
               className="capitalize"
               size="lg"
               label="Select Size"
-              onChange={(val) => dispatch(selectedSize(val))}
+              onChange={(val) => setSize(val)}
             >
               {renderSizeOption()}
             </Select>
@@ -225,7 +215,7 @@ const CreateProduct = () => {
           <div>
             <h1 className="mb-2 font-bold text-lg">Choose brand</h1>
             <Select
-              onChange={(val) => dispatch(selectedBrand(val))}
+              onChange={(val) => setBrand(val)}
               className="capitalize"
               size="lg"
               label="Select Brand"
@@ -245,7 +235,7 @@ const CreateProduct = () => {
           <div>
             <h1 className="mb-2 font-bold text-lg">Choose color</h1>
             <Select
-              onChange={(val) => dispatch(selectedColor(val))}
+              onChange={(val) => setColor(val)}
               className="capitalize"
               size="lg"
               label="Select Color"
@@ -267,7 +257,7 @@ const CreateProduct = () => {
           <div>
             <h1 className="mb-2 font-bold text-lg">Overall rating</h1>
             <Select
-              onChange={(val) => dispatch(selectedRating(val))}
+              onChange={(val) => setRating(val)}
               className="capitalize"
               size="lg"
               label="Select Rating"
@@ -289,13 +279,21 @@ const CreateProduct = () => {
             <JoditEditor
               ref={editor}
               value={info}
-              onChange={(newContent) => dispatch(setInfo(newContent))}
+              onChange={(newContent) => setInfo(newContent)}
             />
           </div>
 
-          <UploadProductThumbnials />
+          <UploadProductThumbnials
+            onChange={handleUploadThumbnails}
+            thumbnails={thumbnails}
+            setThumbnails={setThumbnails}
+          />
 
-          <UploadProductImages />
+          <UploadProductImages
+            onChange={handleUploadImages}
+            images={images}
+            setImages={setImages}
+          />
 
           <Button
             disabled={isSubmitting}
@@ -314,39 +312,10 @@ const CreateProduct = () => {
 
 export default CreateProduct;
 
-function UploadProductImages() {
-  const dispatch = useDispatch();
-  const { images } = useSelector((state) => state.createProduct);
-
-  const handleUploadImages = async (event) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    const storage = getStorage();
-    const uploadedImages = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const storageRef = ref(storage, "pictures/" + file.name + Date.now());
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        "state_changed",
-        () => {},
-        (error) => {
-          console.log("Failed to upload images: ", error);
-          toast.error("Failed to upload images");
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            uploadedImages.push(downloadURL);
-            if (uploadedImages.length === files.length) {
-              dispatch(setImages(uploadedImages));
-            }
-          });
-        }
-      );
-    }
+function UploadProductImages({ onChange, images = [], setImages }) {
+  const handleDeleteImage = (url) => {
+    const newImages = images.filter((item) => item !== url);
+    setImages(newImages);
   };
 
   return (
@@ -358,7 +327,7 @@ function UploadProductImages() {
         className="border border-gray-300 p-3 w-full rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
         multiple
         accept="image/*"
-        onChange={handleUploadImages}
+        onChange={onChange}
       />
       <Carousel
         className="rounded-xl mt-5 border bg-gray-100"
@@ -435,7 +404,7 @@ function UploadProductImages() {
             />
 
             <span
-              onClick={() => dispatch(removeImage(item))}
+              onClick={() => handleDeleteImage(item)}
               className="flex absolute top-3 right-3 items-center justify-center w-[40px] h-[40px] bg-red-500 text-white rounded-full cursor-pointer"
             >
               <IoMdClose size={22} />
@@ -447,39 +416,10 @@ function UploadProductImages() {
   );
 }
 
-function UploadProductThumbnials() {
-  const dispatch = useDispatch();
-  const { thumbnails } = useSelector((state) => state.createProduct);
-
-  const handleUploadThumbnail = async (event) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    const storage = getStorage();
-    const uploadedImages = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const storageRef = ref(storage, "pictures/" + file.name + Date.now());
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        "state_changed",
-        () => {},
-        (error) => {
-          console.log("Failed to upload images: ", error);
-          toast.error("Failed to upload images");
-        },
-        () => {
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            uploadedImages.push(downloadURL);
-            if (uploadedImages.length === files.length) {
-              dispatch(setThumbnails(uploadedImages));
-            }
-          });
-        }
-      );
-    }
+function UploadProductThumbnials({ onChange, thumbnails = [], setThumbnails }) {
+  const handleDeleteImage = (url) => {
+    const newImages = thumbnails.filter((item) => item !== url);
+    setThumbnails(newImages);
   };
 
   return (
@@ -491,7 +431,7 @@ function UploadProductThumbnials() {
         className="border border-gray-300 p-3 w-full rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
         multiple
         accept="image/*"
-        onChange={handleUploadThumbnail}
+        onChange={onChange}
       />
       <Carousel
         className="rounded-xl mt-5 border bg-gray-100"
@@ -568,7 +508,7 @@ function UploadProductThumbnials() {
             />
 
             <span
-              onClick={() => dispatch(removeThumbnail(item))}
+              onClick={() => handleDeleteImage(item)}
               className="flex absolute top-3 right-3 items-center justify-center w-[40px] h-[40px] bg-red-500 text-white rounded-full cursor-pointer"
             >
               <IoMdClose size={22} />

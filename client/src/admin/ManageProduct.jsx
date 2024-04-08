@@ -15,6 +15,7 @@ import { getAllProductsApi } from "../api/productApi";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { displayRating } from "../utils/helper";
+import { useNavigate } from "react-router-dom";
 
 const TABLE_HEAD = [
   "ID",
@@ -110,8 +111,10 @@ const ManageProduct = () => {
 export default ManageProduct;
 
 const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
+  const navigate = useNavigate();
+
   return (
-    <Card className="h-full w-full overflow-scroll">
+    <Card className="h-full w-full ">
       <table ref={ref} className="w-full min-w-max table-auto text-left">
         <thead>
           <tr>
@@ -210,6 +213,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="green"
+                  onClick={() => navigate(`/admin/update-product/${item?._id}`)}
                   className="font-medium cursor-pointer"
                 >
                   Edit

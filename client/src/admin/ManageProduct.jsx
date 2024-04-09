@@ -60,8 +60,8 @@ const ManageProduct = () => {
       <div className="flex items-center justify-between">
         <TitleSection>Manage products</TitleSection>
         <DownloadTableExcel
-          filename="SF Girls Excel Character"
-          sheet="excel characters"
+          filename="Product Excel Table"
+          sheet="product sheet"
           currentTableRef={tableRef.current}
         >
           <Button
@@ -139,8 +139,8 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
   };
 
   return (
-    <Card className="h-full w-full ">
-      <table ref={ref} className="w-full min-w-max table-auto text-left">
+    <Card className="h-full w-full">
+      <table ref={ref} className="w-full  text-left">
         <thead>
           <tr>
             {TABLE_HEAD.map((head) => (
@@ -234,23 +234,27 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                   {displayRating(item?.rating)}
                 </Typography>
               </td>
-              <td className="p-4 flex items-center gap-3">
-                <Typography
-                  variant="small"
-                  color="green"
-                  onClick={() => navigate(`/admin/update-product/${item?._id}`)}
-                  className="font-medium cursor-pointer"
-                >
-                  Edit
-                </Typography>
-                <Typography
-                  onClick={() => handleDeleteProduct(item?._id)}
-                  variant="small"
-                  color="red"
-                  className="font-medium cursor-pointer"
-                >
-                  Delete
-                </Typography>
+              <td className="p-4 ">
+                <div className="flex items-center gap-3">
+                  <Typography
+                    variant="small"
+                    color="green"
+                    onClick={() =>
+                      navigate(`/admin/update-product/${item?._id}`)
+                    }
+                    className="font-medium cursor-pointer"
+                  >
+                    Edit
+                  </Typography>
+                  <Typography
+                    onClick={() => handleDeleteProduct(item?._id)}
+                    variant="small"
+                    color="red"
+                    className="font-medium cursor-pointer"
+                  >
+                    Delete
+                  </Typography>
+                </div>
               </td>
             </tr>
           ))}

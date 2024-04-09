@@ -66,3 +66,14 @@ export const updateProductApi = async (id, req, token) => {
 
   return res.data;
 };
+
+export const deleteProductApi = async (id, token) => {
+  const res = await axios.delete(
+    `${import.meta.env.VITE_SERVER_URL}/product/delete/${id}`,
+    {
+      headers: { token: `Bearer ${token}` },
+    }
+  );
+
+  return res.data;
+};

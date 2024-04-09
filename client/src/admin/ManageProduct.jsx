@@ -11,11 +11,13 @@ import {
   Button,
 } from "@material-tailwind/react";
 import { PRODUCT_CATEGORIES } from "../utils/constants";
-import { getAllProductsApi } from "../api/productApi";
+import { deleteProductApi, getAllProductsApi } from "../api/productApi";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { displayRating } from "../utils/helper";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 const TABLE_HEAD = [
   "ID",
@@ -112,6 +114,29 @@ export default ManageProduct;
 
 const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
   const navigate = useNavigate();
+
+  // DELETE
+  const handleDeleteProduct = (productId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await deleteProductApi(productId);
+          toast.success(res?.message);
+          Swal.fire("Deleted!", "Your file has been deleted.", "success");
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    });
+  };
 
   return (
     <Card className="h-full w-full ">
@@ -219,6 +244,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                   Edit
                 </Typography>
                 <Typography
+                  onClick={() => handleDeleteProduct(item?._id)}
                   variant="small"
                   color="red"
                   className="font-medium cursor-pointer"

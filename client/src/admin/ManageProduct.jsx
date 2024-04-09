@@ -33,7 +33,7 @@ const TABLE_HEAD = [
 
 const ManageProduct = () => {
   const tableRef = useRef(null);
-  const [products, setproducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
@@ -44,11 +44,11 @@ const ManageProduct = () => {
       try {
         setIsLoading(true);
         const res = await getAllProductsApi({ category, query: searchQuery });
-        setproducts(res?.docs);
+        setProducts(res?.docs);
         setIsLoading(false);
       } catch (error) {
         console.log("Failed to fetch products: ", error);
-        setproducts([]);
+        setProducts([]);
         setIsLoading(false);
       }
     }
@@ -184,7 +184,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="blue-gray"
-                  className="font-normal"
+                  className="font-normal capitalize"
                 >
                   {item?.category}
                 </Typography>
@@ -202,7 +202,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="blue-gray"
-                  className="font-normal"
+                  className="font-normal "
                 >
                   {item?.size}
                 </Typography>
@@ -211,7 +211,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="blue-gray"
-                  className="font-normal"
+                  className="font-normal capitalize"
                 >
                   {item?.brand}
                 </Typography>
@@ -220,7 +220,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="blue-gray"
-                  className="font-normal"
+                  className="font-normal capitalize"
                 >
                   {item?.color}
                 </Typography>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   Typography,
@@ -16,6 +16,8 @@ import {
 } from "@material-tailwind/react";
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import {
+  LAPTOP_SIZES,
+  PHONE_SIZES,
   PRODUCT_BRANDS,
   PRODUCT_CATEGORIES,
   PRODUCT_COLORS,
@@ -36,14 +38,32 @@ import { IoFilterOutline } from "react-icons/io5";
 import ProductCard from "../components/ProductCard";
 import ProductCardHorizontal from "../components/ProductCardHorizontal";
 import { displayTextColor } from "../utils/helper";
+import { getAllProductsApi } from "../api/productApi";
 
 const Shop = () => {
   const dispatch = useDispatch();
   const [displayUi, setDisplayUi] = useState("grid");
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState([]);
   const { category, color, size, brand, order } = useSelector(
     (state) => state.sort
   );
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setIsLoading(true);
+        const res = await getAllProductsApi();
+        setProducts(res?.docs);
+        setIsLoading(false);
+      } catch (error) {
+        console.log("Failed to fetch products: ", error);
+        setProducts([]);
+        setIsLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   const handleToggleDisplay = () => {
     setDisplayUi((prevDisplayUi) =>
@@ -155,10 +175,9 @@ const Shop = () => {
           <section className="mt-5">
             {displayUi === "grid" ? (
               <ul className="grid grid-cols-3 gap-2">
-                {Array(10)
-                  .fill(0)
-                  .map((item, index) => (
-                    <ProductCard key={index} />
+                {products.length > 0 &&
+                  products.map((item) => (
+                    <ProductCard key={item?._id} p={item} />
                   ))}
               </ul>
             ) : (
@@ -192,6 +211,31 @@ function FilterSidebar() {
   const handleOpenAcc2 = () => setOpenAcc2((cur) => !cur);
   const handleOpenAcc3 = () => setOpenAcc3((cur) => !cur);
   const handleOpenAcc4 = () => setOpenAcc4((cur) => !cur);
+
+  function renderSizeOption() {
+    let sizeOptions = [];
+
+    switch (category) {
+      case "laptop":
+        sizeOptions = LAPTOP_SIZES;
+        break;
+      case "smartphone":
+        sizeOptions = PHONE_SIZES;
+        break;
+      default:
+        sizeOptions = PRODUCT_SIZES;
+    }
+
+    return sizeOptions.map((item) => (
+      <ListItem className="p-0 capitalize" key={item}>
+        <Checkbox
+          checked={item === size}
+          onChange={() => dispatch(checkedSize(item))}
+        />
+        {item}
+      </ListItem>
+    ));
+  }
 
   return (
     <Card className="p-4 sticky top-[90px] border-2 shadow-xl shadow-blue-gray-900/5 h-fit">
@@ -271,17 +315,7 @@ function FilterSidebar() {
             </AccordionHeader>
           </ListItem>
           <AccordionBody className="py-1">
-            <List className="p-0">
-              {PRODUCT_SIZES.map((item) => (
-                <ListItem className="p-0 capitalize" key={item}>
-                  <Checkbox
-                    checked={item === size}
-                    onChange={() => dispatch(checkedSize(item))}
-                  />
-                  {item}
-                </ListItem>
-              ))}
-            </List>
+            <List className="p-0">{renderSizeOption()}</List>
           </AccordionBody>
         </Accordion>
       </List>

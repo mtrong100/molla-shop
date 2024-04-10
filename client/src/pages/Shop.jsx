@@ -270,7 +270,7 @@ const Shop = () => {
               }
             >
               {isLoading &&
-                Array(10)
+                Array(12)
                   .fill(0)
                   .map((_, index) =>
                     displayUi === "grid" ? (
@@ -292,7 +292,7 @@ const Shop = () => {
           </section>
 
           {/* Pagination */}
-          {products?.totalDocs > 10 && (
+          {products?.totalDocs > 12 && (
             <div className="mt-8 mb-3">
               <ReactPaginate
                 breakLabel="..."

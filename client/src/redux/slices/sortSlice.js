@@ -8,7 +8,7 @@ export const sortSlice = createSlice({
     size: "",
     brand: "",
     order: "desc",
-    minPrice: 20,
+    minPrice: 0,
     maxPrice: 1000,
     filterPrice: false,
     nextPage: 1,

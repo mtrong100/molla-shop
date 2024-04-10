@@ -21,7 +21,6 @@
   .carousel-item {
     margin-right: 20px;
   }
-
   .blog-content {
     h1 {
       @apply text-xl font-bold text-blue-gray-900 mb-2;
@@ -40,5 +39,16 @@
     img {
       @apply my-3 rounded-xl;
     }
+  }
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #ccc;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: gray;
   }
 }

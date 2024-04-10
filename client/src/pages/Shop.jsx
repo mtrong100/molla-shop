@@ -30,30 +30,70 @@ import {
   checkedCategory,
   checkedColor,
   checkedSize,
+  resetFilter,
   selectedOrder,
+  setMaxPrice,
+  setMinPrice,
+  startFilterPrice,
 } from "../redux/slices/sortSlice";
 import { FaList } from "react-icons/fa6";
 import { FiGrid } from "react-icons/fi";
 import { IoFilterOutline } from "react-icons/io5";
-import ProductCard from "../components/ProductCard";
-import ProductCardHorizontal from "../components/ProductCardHorizontal";
+import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
+import ProductCardHorizontal, {
+  ProductCardHorizontalSkeleton,
+} from "../components/ProductCardHorizontal";
 import { displayTextColor } from "../utils/helper";
 import { getAllProductsApi } from "../api/productApi";
+import useDebounce from "../hooks/useDebounce";
 
 const Shop = () => {
   const dispatch = useDispatch();
   const [displayUi, setDisplayUi] = useState("grid");
   const [isLoading, setIsLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const { category, color, size, brand, order } = useSelector(
-    (state) => state.sort
-  );
+  const [query, setQuery] = useState("");
+  const searchQuery = useDebounce(query, 500);
+
+  const {
+    category,
+    color,
+    size,
+    brand,
+    order,
+    minPrice,
+    maxPrice,
+    filterPrice,
+  } = useSelector((state) => state.sort);
 
   useEffect(() => {
     async function fetchProducts() {
       try {
         setIsLoading(true);
-        const res = await getAllProductsApi();
+        let res;
+
+        if (filterPrice) {
+          res = await getAllProductsApi({
+            category,
+            color,
+            size,
+            brand,
+            order,
+            minPrice,
+            maxPrice,
+            query: searchQuery,
+          });
+        } else {
+          res = await getAllProductsApi({
+            category,
+            color,
+            size,
+            brand,
+            order,
+            query: searchQuery,
+          });
+        }
+
         setProducts(res?.docs);
         setIsLoading(false);
       } catch (error) {
@@ -63,7 +103,17 @@ const Shop = () => {
       }
     }
     fetchProducts();
-  }, []);
+  }, [
+    brand,
+    category,
+    color,
+    maxPrice,
+    minPrice,
+    order,
+    searchQuery,
+    size,
+    filterPrice,
+  ]);
 
   const handleToggleDisplay = () => {
     setDisplayUi((prevDisplayUi) =>
@@ -80,7 +130,7 @@ const Shop = () => {
           {/* Order & Layout */}
           <div className="flex items-center justify-between">
             <p>
-              Showing <strong>4 of 50</strong> products
+              Showing <strong>4 of {products?.length}</strong> products
             </p>
 
             <div className="flex items-center gap-5">
@@ -130,6 +180,8 @@ const Shop = () => {
               size="lg"
               label="Search"
               placeholder="What are you looking for?"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
 
             <Popover placement="bottom">
@@ -138,57 +190,84 @@ const Shop = () => {
                   <IoFilterOutline size={20} />
                 </Button>
               </PopoverHandler>
-              <PopoverContent className="w-[250px] border-gray-500 !left-[1100px]">
-                <div>
-                  <Typography
-                    variant="lead"
-                    color="blue-gray"
-                    className="mr-auto font-medium"
-                  >
-                    Filter price
-                  </Typography>
+              <PopoverContent className="w-[250px] z-30 border-gray-500 !left-[1100px]">
+                <Typography
+                  variant="lead"
+                  color="blue-gray"
+                  className="mr-auto font-medium"
+                >
+                  Filter price
+                </Typography>
 
-                  <div className="space-y-6 mt-5">
-                    <Input
-                      type="number"
-                      min={0}
-                      max={1000}
-                      variant="static"
-                      label="Min Price"
-                      placeholder="Choose min price"
-                    />
-                    <Input
-                      type="number"
-                      min={0}
-                      max={1000}
-                      variant="static"
-                      label="Max Price"
-                      placeholder="Choose max price"
-                    />
-                  </div>
+                <div className="space-y-6 mt-5">
+                  <Input
+                    type="number"
+                    min={20}
+                    max={1000}
+                    variant="static"
+                    label="Min Price"
+                    placeholder="Choose min price"
+                    value={minPrice}
+                    onChange={(e) => dispatch(setMinPrice(e.target.value))}
+                  />
+                  <Input
+                    type="number"
+                    min={0}
+                    max={1000}
+                    variant="static"
+                    label="Max Price"
+                    placeholder="Choose max price"
+                    value={maxPrice}
+                    onChange={(e) => dispatch(setMaxPrice(e.target.value))}
+                  />
                 </div>
+
+                <Button
+                  onClick={() => dispatch(startFilterPrice(true))}
+                  variant="gradient"
+                  className="w-full mt-3"
+                >
+                  Filter
+                </Button>
               </PopoverContent>
             </Popover>
           </div>
 
           {/* Render Products */}
           <section className="mt-5">
-            {displayUi === "grid" ? (
-              <ul className="grid grid-cols-3 gap-2">
-                {products.length > 0 &&
-                  products.map((item) => (
-                    <ProductCard key={item?._id} p={item} />
-                  ))}
-              </ul>
-            ) : (
-              <ul className="flex flex-col gap-5">
-                {Array(10)
-                  .fill(0)
-                  .map((item, index) => (
-                    <ProductCardHorizontal key={index} />
-                  ))}
-              </ul>
+            {!isLoading && products.length === 0 && (
+              <p className="text-center my-5 text-lg opacity-50 font-semibold">
+                Product not found
+              </p>
             )}
+
+            <ul
+              className={
+                displayUi === "grid"
+                  ? "grid grid-cols-3 gap-2"
+                  : "flex flex-col gap-5"
+              }
+            >
+              {isLoading &&
+                Array(10)
+                  .fill(0)
+                  .map((_, index) =>
+                    displayUi === "grid" ? (
+                      <ProductCardSkeleton key={index} />
+                    ) : (
+                      <ProductCardHorizontalSkeleton key={index} />
+                    )
+                  )}
+
+              {!isLoading &&
+                products.map((item) =>
+                  displayUi === "grid" ? (
+                    <ProductCard key={item?._id} p={item} />
+                  ) : (
+                    <ProductCardHorizontal key={item?._id} p={item} />
+                  )
+                )}
+            </ul>
           </section>
         </section>
       </div>
@@ -238,10 +317,15 @@ function FilterSidebar() {
   }
 
   return (
-    <Card className="p-4 sticky top-[90px] border-2 shadow-xl shadow-blue-gray-900/5 h-fit">
+    <Card className="p-4 sticky overflow-y-auto top-[90px] border-2 shadow-xl shadow-blue-gray-900/5 h-[700px]">
       <div className="flex items-center justify-between text-sm p-4">
         <p>Filter</p>
-        <p className="text-amber-600 cursor-pointer">Clean All</p>
+        <div
+          onClick={() => dispatch(resetFilter())}
+          className="text-amber-600 cursor-pointer"
+        >
+          Clean All
+        </div>
       </div>
 
       {/* Category Filter */}

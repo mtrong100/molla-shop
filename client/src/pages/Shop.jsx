@@ -32,8 +32,11 @@ import {
   checkedSize,
   resetFilter,
   selectedOrder,
+  setCurrentPage,
   setMaxPrice,
   setMinPrice,
+  setNextPage,
+  setTotalPages,
   startFilterPrice,
 } from "../redux/slices/sortSlice";
 import { FaList } from "react-icons/fa6";
@@ -46,6 +49,8 @@ import ProductCardHorizontal, {
 import { displayTextColor } from "../utils/helper";
 import { getAllProductsApi } from "../api/productApi";
 import useDebounce from "../hooks/useDebounce";
+import ReactPaginate from "react-paginate";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 
 const Shop = () => {
   const dispatch = useDispatch();
@@ -64,6 +69,9 @@ const Shop = () => {
     minPrice,
     maxPrice,
     filterPrice,
+    nextPage,
+    currentPage,
+    totalPages,
   } = useSelector((state) => state.sort);
 
   useEffect(() => {
@@ -82,6 +90,7 @@ const Shop = () => {
             minPrice,
             maxPrice,
             query: searchQuery,
+            page: nextPage,
           });
         } else {
           res = await getAllProductsApi({
@@ -91,15 +100,18 @@ const Shop = () => {
             brand,
             order,
             query: searchQuery,
+            page: nextPage,
           });
         }
 
+        dispatch(setTotalPages(res?.totalPages));
         setProducts(res?.docs);
         setIsLoading(false);
       } catch (error) {
         console.log("Failed to fetch products: ", error);
         setProducts([]);
         setIsLoading(false);
+        dispatch(setTotalPages(1));
       }
     }
     fetchProducts();
@@ -113,6 +125,8 @@ const Shop = () => {
     searchQuery,
     size,
     filterPrice,
+    nextPage,
+    dispatch,
   ]);
 
   const handleToggleDisplay = () => {
@@ -120,6 +134,17 @@ const Shop = () => {
       prevDisplayUi === "grid" ? "list" : "grid"
     );
   };
+
+  // CLICK PAGE
+  const handlePageClick = (event) => {
+    dispatch(setCurrentPage(event.selected));
+    dispatch(setNextPage(event.selected + 1));
+  };
+
+  // FIX SCROLL BUG
+  useEffect(() => {
+    document.body.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   return (
     <div className="mt-10">
@@ -269,6 +294,22 @@ const Shop = () => {
                 )}
             </ul>
           </section>
+
+          {/* Pagination */}
+          {products.length < 10 && (
+            <div className="mt-8 mb-3">
+              <ReactPaginate
+                breakLabel="..."
+                nextLabel={<LuChevronRight />}
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={5}
+                pageCount={totalPages}
+                previousLabel={<LuChevronLeft />}
+                renderOnZeroPageCount={null}
+                forcePage={currentPage}
+              />
+            </div>
+          )}
         </section>
       </div>
     </div>

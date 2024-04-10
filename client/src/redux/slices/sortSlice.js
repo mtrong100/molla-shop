@@ -11,6 +11,9 @@ export const sortSlice = createSlice({
     minPrice: 20,
     maxPrice: 1000,
     filterPrice: false,
+    nextPage: 1,
+    totalPages: 1,
+    currentPage: 0,
   },
   reducers: {
     checkedCategory: (state, action) => {
@@ -37,6 +40,15 @@ export const sortSlice = createSlice({
     startFilterPrice: (state, action) => {
       state.filterPrice = action.payload;
     },
+    setNextPage: (state, action) => {
+      state.nextPage = action.payload;
+    },
+    setTotalPages: (state, action) => {
+      state.totalPages = action.payload;
+    },
+    setCurrentPage: (state, action) => {
+      state.currentPage = action.payload;
+    },
     resetFilter: () => {
       return {
         category: "",
@@ -61,6 +73,9 @@ export const {
   setMinPrice,
   setMaxPrice,
   startFilterPrice,
+  setNextPage,
+  setCurrentPage,
+  setTotalPages,
   resetFilter,
 } = sortSlice.actions;
 

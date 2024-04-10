@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const getAllProductsApi = async ({
   page = 1,
-  limit = 10,
+  limit = 3,
   sort = "name",
   order = "desc",
   query,

@@ -60,6 +60,7 @@ export const PRODUCT_BRANDS = [
   "apple",
   "samsung",
   "google pixel",
+  "lenovo",
   "asus",
   "acer",
   "msi",

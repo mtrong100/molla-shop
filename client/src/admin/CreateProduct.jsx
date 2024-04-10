@@ -37,8 +37,8 @@ const CreateProduct = () => {
       name: "",
       desc: "",
       price: "",
-      discount: "",
-      stock: "",
+      discount: 0,
+      stock: 1000,
     },
   });
 
@@ -89,6 +89,8 @@ const CreateProduct = () => {
     try {
       const req = {
         ...values,
+        discount: Number(values.discount) || 0,
+        stock: Number(values.stock) || 1000,
         price: Number(values.price),
         images,
         thumbnails,
@@ -118,6 +120,9 @@ const CreateProduct = () => {
         sizeOptions = LAPTOP_SIZES;
         break;
       case "smartphone":
+        sizeOptions = PHONE_SIZES;
+        break;
+      case "tablet":
         sizeOptions = PHONE_SIZES;
         break;
       default:

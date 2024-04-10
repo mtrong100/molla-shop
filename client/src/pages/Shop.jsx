@@ -36,7 +36,6 @@ import {
   setMaxPrice,
   setMinPrice,
   setNextPage,
-  setTotalPages,
   startFilterPrice,
 } from "../redux/slices/sortSlice";
 import { FaList } from "react-icons/fa6";
@@ -71,7 +70,6 @@ const Shop = () => {
     filterPrice,
     nextPage,
     currentPage,
-    totalPages,
   } = useSelector((state) => state.sort);
 
   useEffect(() => {
@@ -104,14 +102,12 @@ const Shop = () => {
           });
         }
 
-        dispatch(setTotalPages(res?.totalPages));
-        setProducts(res?.docs);
+        setProducts(res);
         setIsLoading(false);
       } catch (error) {
         console.log("Failed to fetch products: ", error);
         setProducts([]);
         setIsLoading(false);
-        dispatch(setTotalPages(1));
       }
     }
     fetchProducts();
@@ -260,7 +256,7 @@ const Shop = () => {
 
           {/* Render Products */}
           <section className="mt-5">
-            {!isLoading && products.length === 0 && (
+            {!isLoading && products?.docs?.length === 0 && (
               <p className="text-center my-5 text-lg opacity-50 font-semibold">
                 Product not found
               </p>
@@ -285,7 +281,7 @@ const Shop = () => {
                   )}
 
               {!isLoading &&
-                products.map((item) =>
+                products?.docs?.map((item) =>
                   displayUi === "grid" ? (
                     <ProductCard key={item?._id} p={item} />
                   ) : (
@@ -296,14 +292,14 @@ const Shop = () => {
           </section>
 
           {/* Pagination */}
-          {products.length < 10 && (
+          {products?.totalDocs > 10 && (
             <div className="mt-8 mb-3">
               <ReactPaginate
                 breakLabel="..."
                 nextLabel={<LuChevronRight />}
                 onPageChange={handlePageClick}
                 pageRangeDisplayed={5}
-                pageCount={totalPages}
+                pageCount={products?.totalPages}
                 previousLabel={<LuChevronLeft />}
                 renderOnZeroPageCount={null}
                 forcePage={currentPage}

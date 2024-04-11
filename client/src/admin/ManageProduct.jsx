@@ -18,6 +18,14 @@ import { displayRating } from "../utils/helper";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
+import ReactPaginate from "react-paginate";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  checkedCategory,
+  setCurrentPage,
+  setNextPage,
+} from "../redux/slices/sortSlice";
 
 const TABLE_HEAD = [
   "ID",
@@ -33,18 +41,27 @@ const TABLE_HEAD = [
 
 const ManageProduct = () => {
   const tableRef = useRef(null);
+  const dispatch = useDispatch();
+
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("");
   const searchQuery = useDebounce(query, 500);
+
+  const { category, nextPage, currentPage } = useSelector(
+    (state) => state.sort
+  );
 
   useEffect(() => {
     async function fetchProducts() {
       try {
         setIsLoading(true);
-        const res = await getAllProductsApi({ category, query: searchQuery });
-        setProducts(res?.docs);
+        const res = await getAllProductsApi({
+          page: nextPage,
+          category,
+          query: searchQuery,
+        });
+        setProducts(res);
         setIsLoading(false);
       } catch (error) {
         console.log("Failed to fetch products: ", error);
@@ -53,7 +70,18 @@ const ManageProduct = () => {
       }
     }
     fetchProducts();
-  }, [category, searchQuery]);
+  }, [category, nextPage, searchQuery]);
+
+  // CLICK PAGE
+  const handlePageClick = (event) => {
+    dispatch(setCurrentPage(event.selected));
+    dispatch(setNextPage(event.selected + 1));
+  };
+
+  // FIX SCROLL BUG
+  useEffect(() => {
+    document.body.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   return (
     <div>
@@ -82,7 +110,11 @@ const ManageProduct = () => {
           label="Tìm kiếm"
           size="lg"
         />
-        <Select onChange={(val) => setCategory(val)} size="lg" label="Filter">
+        <Select
+          onChange={(val) => dispatch(checkedCategory(val))}
+          size="lg"
+          label="Filter"
+        >
           {PRODUCT_CATEGORIES.map((item) => (
             <Option value={item} key={item}>
               <span className={`capitalize font-semibold`}>{item}</span>
@@ -98,14 +130,30 @@ const ManageProduct = () => {
           </p>
         )}
 
-        {!isLoading && products.length === 0 ? (
+        {!isLoading && products?.docs?.length === 0 ? (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Product not found
           </p>
         ) : (
-          <TableWithStripedRows ref={tableRef} results={products} />
+          <TableWithStripedRows ref={tableRef} results={products?.docs} />
         )}
       </div>
+
+      {/* Pagination */}
+      {products?.totalDocs > 12 && (
+        <div className="mt-8 mb-3">
+          <ReactPaginate
+            breakLabel="..."
+            nextLabel={<LuChevronRight />}
+            onPageChange={handlePageClick}
+            pageRangeDisplayed={5}
+            pageCount={products?.totalPages}
+            previousLabel={<LuChevronLeft />}
+            renderOnZeroPageCount={null}
+            forcePage={currentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -193,7 +241,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="blue-gray"
-                  className="font-normal"
+                  className="font-normal capitalize"
                 >
                   {item?.price}
                 </Typography>
@@ -202,7 +250,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="blue-gray"
-                  className="font-normal "
+                  className="font-normal capitalize"
                 >
                   {item?.size}
                 </Typography>
@@ -229,7 +277,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 <Typography
                   variant="small"
                   color="blue-gray"
-                  className="font-normal"
+                  className="font-normal capitalize"
                 >
                   {displayRating(item?.rating)}
                 </Typography>

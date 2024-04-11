@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import useGetBlogDetail from "../hooks/useGetProductDetail";
-import { Typography, Button } from "@material-tailwind/react";
+import { Typography, Button, Rating } from "@material-tailwind/react";
 import { displayRating } from "../components/displayRating";
 import BoxQuantityProduct from "../components/BoxQuantityProduct";
 import { BsCart3 } from "react-icons/bs";
@@ -115,10 +115,81 @@ const ProductDetail = () => {
         </div>
       </section>
 
-      <div className="mt-5">
-        <Typography variant="lead">Additional Information</Typography>
+      <div className="mt-5 space-y-10">
+        <div className="space-y-5">
+          <Typography variant="h5">Additional Information</Typography>
+          <div>{parse(p?.info || "")}</div>
+        </div>
 
-        <div className="mt-5">{parse(p?.info || "")}</div>
+        <div className="space-y-3">
+          <Typography variant="h5">Write your reviews</Typography>
+          <div className="flex items-center gap-2">
+            <p className="text-lg">Your rating: </p>
+            <Rating value={4} />
+          </div>
+
+          <textarea
+            className="min-h-[200px] focus:border-amber-600 border-gray-300 resize-none outline-none w-full border-2 p-4 rounded-lg text-lg"
+            placeholder="Write your comments"
+          ></textarea>
+
+          <Button
+            color="amber"
+            className="ml-auto flex px-14"
+            size="lg"
+            type="submit"
+          >
+            {"Submit"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="mt-3 space-y-7">
+        <Typography variant="lead">Total Reviews (5)</Typography>
+
+        <ul className="space-y-5">
+          {Array(5)
+            .fill(0)
+            .map((item, index) => (
+              <li key={index} className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-[50px] h-[50px]">
+                  <img
+                    src="https://source.unsplash.com/random"
+                    alt=""
+                    className="img-cover rounded-full"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <div className="space-y-1">
+                    <Typography variant="h6">username</Typography>
+                    <Rating value={4} />
+                    <Typography variant="small">Posted: 12/4/2023</Typography>
+                  </div>
+
+                  <Typography variant="paragraph">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel
+                    omnis sequi enim id, quasi vero quis laborum? Aliquid qui
+                    quaerat pariatur. Voluptate dolorem animi accusantium
+                    maiores quia tempora temporibus ex. Minima libero
+                    recusandae, dolor consequuntur veniam, odit laudantium, qui
+                    similique repellendus earum at consequatur. Error, sunt
+                    sequi quis iste excepturi quia nesciunt neque libero
+                    aspernatur voluptates illo, voluptas labore id.
+                  </Typography>
+                </div>
+              </li>
+            ))}
+        </ul>
+
+        <Button
+          color="amber"
+          className="mx-auto flex justify-center items-center"
+          size="lg"
+          type="submit"
+        >
+          {"Load more comments"}
+        </Button>
       </div>
 
       <div className="mt-16">

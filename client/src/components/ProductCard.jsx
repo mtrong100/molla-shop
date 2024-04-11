@@ -4,6 +4,7 @@ import { BiSolidBinoculars } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { displayRating } from "./displayRating";
 import { Typography } from "@material-tailwind/react";
+import { Link } from "react-router-dom";
 
 const ProductCard = ({ p }) => {
   const [hovered, setHovered] = useState(false);
@@ -26,11 +27,15 @@ const ProductCard = ({ p }) => {
       className="group relative  border-2"
     >
       <div className="relative overflow-hidden">
-        <img
-          className="w-full h-[276px] object-contain image select-none"
-          src={hovered ? thumbnailHover || p?.thumbnails[1] : p?.thumbnails[0]}
-          alt={p?.name}
-        />
+        <Link to={`/product/${p?._id}`}>
+          <img
+            className="w-full h-[276px] object-contain image select-none"
+            src={
+              hovered ? thumbnailHover || p?.thumbnails[1] : p?.thumbnails[0]
+            }
+            alt={p?.name}
+          />
+        </Link>
 
         <div className="absolute flex justify-center items-center w-[40px] h-[40px] rounded-full right-3 top-3 bg-amber-600 transition-all opacity-0 group-hover:opacity-90 -translate-x-[50%] group-hover:translate-x-[5%] ">
           <FaRegHeart />

@@ -151,7 +151,7 @@ const Shop = () => {
           {/* Order & Layout */}
           <div className="flex items-center justify-between">
             <p>
-              Showing <strong>4 of {products?.length}</strong> products
+              Showing <strong>12 of {products?.totalDocs}</strong> products
             </p>
 
             <div className="flex items-center gap-5">

@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import useGetBlogDetail from "../hooks/useGetProductDetail";
 import { Typography, Button, Rating } from "@material-tailwind/react";
 import { displayRating } from "../components/displayRating";
@@ -14,11 +14,30 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
 import { toast } from "sonner";
+import {
+  increaseLimit,
+  listComments,
+  loadingCmt,
+  setCommentVal,
+  setRating,
+} from "../redux/slices/commentSlice";
+import {
+  createCommentApi,
+  deleteCommentApi,
+  getCommentsFromProductApi,
+} from "../api/reviewApi";
+import { formatDate } from "../utils/helper";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const { currentUser } = useSelector((state) => state.user);
+  const { comments, commentVal, rating, limit, isLoadingCmt } = useSelector(
+    (state) => state.comment
+  );
+
   const { product: p } = useGetBlogDetail(id);
   const { relatedProducts, isLoading } = useGeRealtedProducts(p?.category);
   const [selectedImage, setSelectedImage] = useState("");
@@ -29,6 +48,61 @@ const ProductDetail = () => {
 
   const addProductToWishlist = () => {
     toast.info("Product added to wishlist", { position: "top-right" });
+  };
+
+  useEffect(() => {
+    async function fetchComments() {
+      try {
+        dispatch(loadingCmt(true));
+        const res = await getCommentsFromProductApi(id, { limit: limit });
+        dispatch(listComments(res));
+        dispatch(loadingCmt(false));
+      } catch (error) {
+        dispatch(listComments([]));
+        dispatch(loadingCmt(false));
+      }
+    }
+    fetchComments();
+  }, [dispatch, id, limit]);
+
+  const handleAddCmt = async () => {
+    if (!commentVal.trim()) {
+      toast.info("Please type something before send");
+      return;
+    }
+
+    if (!rating) {
+      toast.info("Please rate this product");
+      return;
+    }
+
+    try {
+      const req = {
+        user: currentUser?._id,
+        product: id,
+        comment: commentVal.trim(),
+        rate: rating,
+      };
+
+      await createCommentApi(currentUser?.token, req);
+      const res = await getCommentsFromProductApi(id, { limit: limit });
+      dispatch(listComments(res));
+
+      dispatch(setCommentVal(""));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDeleteCmt = async (cmtId) => {
+    try {
+      await deleteCommentApi(cmtId, currentUser?.token);
+      const res = await getCommentsFromProductApi(id, { limit: limit });
+      dispatch(listComments(res));
+      toast("Comment deleted");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -72,7 +146,7 @@ const ProductDetail = () => {
           </span>
 
           <Typography className="font-medium text-2xl hover:text-amber-600 transition-all">
-            {p?.name}
+            {p?.name || ""}
           </Typography>
 
           <div className="flex items-center gap-5 opacity-50">
@@ -125,15 +199,21 @@ const ProductDetail = () => {
           <Typography variant="h5">Write your reviews</Typography>
           <div className="flex items-center gap-2">
             <p className="text-lg">Your rating: </p>
-            <Rating value={4} />
+            <Rating
+              onChange={(val) => dispatch(setRating(val))}
+              value={rating || 1}
+            />
           </div>
 
           <textarea
+            value={commentVal}
+            onChange={(e) => dispatch(setCommentVal(e.target.value))}
             className="min-h-[200px] focus:border-amber-600 border-gray-300 resize-none outline-none w-full border-2 p-4 rounded-lg text-lg"
             placeholder="Write your comments"
           ></textarea>
 
           <Button
+            onClick={handleAddCmt}
             color="amber"
             className="ml-auto flex px-14"
             size="lg"
@@ -145,51 +225,35 @@ const ProductDetail = () => {
       </div>
 
       <div className="mt-3 space-y-7">
-        <Typography variant="lead">Total Reviews (5)</Typography>
+        <Typography variant="lead">
+          Total Reviews ({comments?.totalDocs})
+        </Typography>
 
         <ul className="space-y-5">
-          {Array(5)
-            .fill(0)
-            .map((item, index) => (
-              <li key={index} className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-[50px] h-[50px]">
-                  <img
-                    src="https://source.unsplash.com/random"
-                    alt=""
-                    className="img-cover rounded-full"
-                  />
-                </div>
+          {isLoadingCmt && <p>Loading...</p>}
 
-                <div className="space-y-1">
-                  <div className="space-y-1">
-                    <Typography variant="h6">username</Typography>
-                    <Rating value={4} />
-                    <Typography variant="small">Posted: 12/4/2023</Typography>
-                  </div>
-
-                  <Typography variant="paragraph">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Vel
-                    omnis sequi enim id, quasi vero quis laborum? Aliquid qui
-                    quaerat pariatur. Voluptate dolorem animi accusantium
-                    maiores quia tempora temporibus ex. Minima libero
-                    recusandae, dolor consequuntur veniam, odit laudantium, qui
-                    similique repellendus earum at consequatur. Error, sunt
-                    sequi quis iste excepturi quia nesciunt neque libero
-                    aspernatur voluptates illo, voluptas labore id.
-                  </Typography>
-                </div>
-              </li>
+          {!isLoadingCmt &&
+            comments?.docs?.length > 0 &&
+            comments?.docs?.map((item) => (
+              <UserComment
+                key={item?._id}
+                item={item}
+                onDelete={handleDeleteCmt}
+              />
             ))}
         </ul>
 
-        <Button
-          color="amber"
-          className="mx-auto flex justify-center items-center"
-          size="lg"
-          type="submit"
-        >
-          {"Load more comments"}
-        </Button>
+        {comments?.totalDocs < 5 && (
+          <Button
+            onClick={() => dispatch(increaseLimit())}
+            color="amber"
+            className="mx-auto flex justify-center items-center"
+            size="lg"
+            type="submit"
+          >
+            {"Load more comments"}
+          </Button>
+        )}
       </div>
 
       <div className="mt-16">
@@ -269,3 +333,36 @@ const ProductDetail = () => {
 };
 
 export default ProductDetail;
+
+function UserComment({ item, onDelete }) {
+  return (
+    <li className="flex items-start gap-3">
+      <div className="flex-shrink-0 w-[50px] h-[50px]">
+        <img
+          src={item?.user?.avatar || "https://source.unsplash.com/random"}
+          alt={item?.user?.name}
+          className="img-cover rounded-full"
+        />
+      </div>
+
+      <div className="space-y-1">
+        <div className="space-y-1">
+          <Typography variant="h6">{item?.user?.name}</Typography>
+          <Rating value={Number(item?.rate)} />
+          <Typography variant="small">
+            Posted: {formatDate(item?.createdAt)}
+          </Typography>
+        </div>
+
+        <Typography variant="paragraph">{item?.comment}</Typography>
+
+        <p
+          onClick={() => onDelete(item?._id)}
+          className=" cursor-pointer text-red-600 hover:underline font-medium"
+        >
+          Delete
+        </p>
+      </div>
+    </li>
+  );
+}

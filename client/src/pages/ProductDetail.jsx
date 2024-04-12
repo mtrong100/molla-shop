@@ -207,6 +207,7 @@ const ProductDetail = () => {
 
           <textarea
             value={commentVal}
+            required
             onChange={(e) => dispatch(setCommentVal(e.target.value))}
             className="min-h-[200px] focus:border-amber-600 border-gray-300 resize-none outline-none w-full border-2 p-4 rounded-lg text-lg"
             placeholder="Write your comments"
@@ -230,7 +231,17 @@ const ProductDetail = () => {
         </Typography>
 
         <ul className="space-y-5">
-          {isLoadingCmt && <p>Loading...</p>}
+          {isLoadingCmt && (
+            <p className="text-lg font-medium opacity-60 text-center">
+              Loading comments...
+            </p>
+          )}
+
+          {!isLoadingCmt && comments?.docs?.length === 0 && (
+            <p className="text-lg font-medium opacity-60 text-center">
+              There is no comments yet
+            </p>
+          )}
 
           {!isLoadingCmt &&
             comments?.docs?.length > 0 &&
@@ -243,7 +254,7 @@ const ProductDetail = () => {
             ))}
         </ul>
 
-        {comments?.totalDocs < 5 && (
+        {comments?.docs?.length > 0 && comments?.totalDocs < 5 && (
           <Button
             onClick={() => dispatch(increaseLimit())}
             color="amber"

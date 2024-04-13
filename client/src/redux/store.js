@@ -5,12 +5,16 @@ import userSlice from "./slices/userSlice";
 import sortSlice from "./slices/sortSlice";
 import createProductSlice from "./slices/createProductSlice";
 import commentSlice from "./slices/commentSlice";
+import wishlistSlice from "./slices/wishlistSlice";
+import productSlice from "./slices/productSlice";
 
 const rootReducer = combineReducers({
   user: userSlice,
   sort: sortSlice,
   createProduct: createProductSlice,
   comment: commentSlice,
+  wishlist: wishlistSlice,
+  product: productSlice,
 });
 
 const persistConfig = {

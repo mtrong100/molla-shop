@@ -42,13 +42,18 @@ export const getUserDetail = async (req, res, next) => {
     const { id } = req.params;
 
     const user = await User.findById(id, {
+      _id: 1,
       name: 1,
       email: 1,
+      avatar: 1,
       address: 1,
+      provider: 1,
       phone: 1,
+      role: 1,
+      verified: 1,
       favorites: 1,
-      _id: 1,
       createdAt: 1,
+      updatedAt: 1,
     });
 
     if (!user) {

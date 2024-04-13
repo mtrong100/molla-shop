@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export const registerApi = async (req) => {
-  const res = await axios.post(
-    `${import.meta.env.VITE_SERVER_URL}/auth/register`,
-    req
-  );
+export const getUserDetailApi = async (id, token) => {
+  const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user/${id}`, {
+    headers: { token: `Bearer ${token}` },
+  });
+
   return res.data;
 };

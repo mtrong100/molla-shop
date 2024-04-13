@@ -77,3 +77,15 @@ export const deleteProductApi = async (id, token) => {
 
   return res.data;
 };
+
+export const favoriteProductApi = async (id, token) => {
+  const res = await axios.post(
+    `${import.meta.env.VITE_SERVER_URL}/product/favorite/${id}`,
+    {},
+    {
+      headers: { token: `Bearer ${token}` },
+    }
+  );
+
+  return res.data;
+};

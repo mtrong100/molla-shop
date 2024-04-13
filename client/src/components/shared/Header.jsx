@@ -41,12 +41,12 @@ const navLinks = [
     link: "/about",
   },
   {
-    name: "Contact",
-    link: "/contact",
-  },
-  {
     name: "FAQ",
     link: "/faq",
+  },
+  {
+    name: "Wishlist",
+    link: "/wishlist",
   },
   {
     name: "My Account",

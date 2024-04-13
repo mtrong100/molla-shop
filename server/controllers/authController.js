@@ -95,6 +95,7 @@ export const login = async (req, res, next) => {
       verified: user.verified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      favorites: user.favorites,
     };
 
     return res.status(200).json({
@@ -153,6 +154,7 @@ export const googleLogin = async (req, res, next) => {
         verified: newUser.verified,
         createdAt: newUser.createdAt,
         updatedAt: newUser.updatedAt,
+        favorites: newUser.favorites,
       };
 
       return res.status(201).json({
@@ -176,6 +178,7 @@ export const googleLogin = async (req, res, next) => {
       verified: user.verified,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      favorites: user.favorites,
     };
 
     return res.status(200).json({

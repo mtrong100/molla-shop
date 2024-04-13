@@ -10,7 +10,7 @@ const router = express.Router();
 router.use("/auth", authRouter);
 router.use("/product", productRouter);
 router.use("/comment", commentRouter);
-// router.use("/user", userRouter);
+router.use("/user", userRouter);
 // router.use("/order", orderRouter);
 
 export default router;

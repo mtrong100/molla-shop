@@ -143,7 +143,7 @@ export const favoriteProduct = async (req, res, next) => {
       );
 
       await currentUser.save();
-      return res.json({ message: "Remove product from wishlist success" });
+      return res.json({ message: "Remove product from your wishlist" });
     } else {
       currentUser.favorites.push(id);
       await currentUser.save();

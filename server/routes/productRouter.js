@@ -17,6 +17,8 @@ const router = express.Router();
 router.get("/all", getAllProducts);
 router.get("/:id", getProductDetail);
 
+router.post("/favorite/:id", verifyToken, favoriteProduct);
+
 /* CRUD */
 router.post(
   "/create",

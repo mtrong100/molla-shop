@@ -7,7 +7,7 @@ import { Typography, Button, Rating } from "@material-tailwind/react";
 import { displayRating } from "../components/displayRating";
 import BoxQuantityProduct from "../components/BoxQuantityProduct";
 import { BsCart3 } from "react-icons/bs";
-import { FaRegHeart } from "react-icons/fa6";
+import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import parse from "html-react-parser";
 import useGeRealtedProducts from "../hooks/useGeRealtedProducts";
 import Carousel from "react-multi-carousel";
@@ -27,6 +27,9 @@ import {
   getCommentsFromProductApi,
 } from "../api/reviewApi";
 import { formatDate } from "../utils/helper";
+import { favoriteProductApi } from "../api/productApi";
+import { getUserDetailApi } from "../api/userApi";
+import { storeCurrentUser } from "../redux/slices/userSlice";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -42,14 +45,6 @@ const ProductDetail = () => {
   const { relatedProducts, isLoading } = useGeRealtedProducts(p?.category);
   const [selectedImage, setSelectedImage] = useState("");
 
-  const addProductToCart = () => {
-    toast.info("Product added to cart", { position: "top-right" });
-  };
-
-  const addProductToWishlist = () => {
-    toast.info("Product added to wishlist", { position: "top-right" });
-  };
-
   useEffect(() => {
     async function fetchComments() {
       try {
@@ -64,6 +59,22 @@ const ProductDetail = () => {
     }
     fetchComments();
   }, [dispatch, id, limit]);
+
+  const addProductToCart = async () => {
+    toast.info("Product added to cart", { position: "top-right" });
+  };
+
+  const addProductToWishlist = async () => {
+    try {
+      const res = await favoriteProductApi(id, currentUser?.token);
+      const user = await getUserDetailApi(currentUser?._id, currentUser?.token);
+      const token = JSON.parse(localStorage.getItem("MOLLA_TOKEN") || "");
+      dispatch(storeCurrentUser({ ...user, token }));
+      toast.info(res?.message, { position: "top-right" });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const handleAddCmt = async () => {
     if (!commentVal.trim()) {
@@ -104,6 +115,8 @@ const ProductDetail = () => {
       console.log(error);
     }
   };
+
+  const isFavorited = currentUser?.favorites?.includes(id);
 
   return (
     <div className="my-10">
@@ -176,15 +189,28 @@ const ProductDetail = () => {
               <BsCart3 size={20} />
               Add to cart
             </Button>
-            <Button
-              onClick={addProductToWishlist}
-              variant="text"
-              color="amber"
-              className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
-            >
-              <FaRegHeart size={20} />
-              Add to wishlist
-            </Button>
+
+            {isFavorited ? (
+              <Button
+                onClick={addProductToWishlist}
+                variant="text"
+                color="amber"
+                className="flex rounded-none items-center gap-3  w-full justify-center"
+              >
+                <FaHeart size={20} />
+                Added to wishlist
+              </Button>
+            ) : (
+              <Button
+                onClick={addProductToWishlist}
+                variant="text"
+                color="amber"
+                className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
+              >
+                <FaRegHeart size={20} />
+                Add to wishlist
+              </Button>
+            )}
           </div>
         </div>
       </section>

@@ -6,6 +6,7 @@ import {
   getAllProducts,
   getProductDetail,
   updateProduct,
+  viewProduct,
 } from "../controllers/productController.js";
 import { verifyAdmin } from "../middlewares/verifyAdmin.js";
 import { verifyToken } from "../middlewares/verifyToken.js";
@@ -18,6 +19,7 @@ router.get("/all", getAllProducts);
 router.get("/:id", getProductDetail);
 
 router.post("/favorite/:id", verifyToken, favoriteProduct);
+router.post("/view/:id", viewProduct);
 
 /* CRUD */
 router.post(

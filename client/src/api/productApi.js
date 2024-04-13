@@ -89,3 +89,11 @@ export const favoriteProductApi = async (id, token) => {
 
   return res.data;
 };
+
+export const viewProductApi = async (id) => {
+  const res = await axios.post(
+    `${import.meta.env.VITE_SERVER_URL}/product/view/${id}`
+  );
+
+  return res.data;
+};

@@ -5,8 +5,11 @@ import { BsCart3 } from "react-icons/bs";
 import { BiSolidBinoculars } from "react-icons/bi";
 import { Typography } from "@material-tailwind/react";
 import { displayRating } from "./displayRating";
+import { useNavigate } from "react-router-dom";
+import { viewProductApi } from "../api/productApi";
 
 const ProductCardHorizontal = ({ p }) => {
+  const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
   const [thumbnailHover, setThumbnailHover] = useState(null);
 
@@ -20,10 +23,20 @@ const ProductCardHorizontal = ({ p }) => {
     }
   }, [p?.thumbnails[1]]);
 
+  const handleViewProduct = async () => {
+    try {
+      await viewProductApi(p?._id);
+      navigate(`/product/${p?._id}`);
+    } catch (error) {
+      console.log("Failed to update view count ->", error);
+    }
+  };
+
   return (
     <div className="grid grid-cols-[minmax(0,_1fr)_220px] gap-5 items-center">
       <div className="flex items-center gap-5">
         <div
+          onClick={handleViewProduct}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
           className="w-[200px] h-[200px] flex-shrink-0  overflow-hidden"
@@ -41,7 +54,10 @@ const ProductCardHorizontal = ({ p }) => {
           <span className="opacity-50 text-sm hover:text-amber-600 capitalize transition-all cursor-pointer">
             {p?.category}
           </span>
-          <h1 className="text-xl hover:text-amber-600 transition-all cursor-pointer line-clamp-2 capitalize">
+          <h1
+            onClick={handleViewProduct}
+            className="text-xl hover:text-amber-600 transition-all cursor-pointer line-clamp-2 capitalize"
+          >
             {p?.name}
           </h1>
           <p className="mt-2 opacity-60 font-normal line-clamp-3">{p?.desc}</p>
@@ -61,7 +77,10 @@ const ProductCardHorizontal = ({ p }) => {
         </div>
 
         <div className="grid grid-cols-2 gap-5 text-xs opacity-60 items-center">
-          <div className="flex items-center gap-2 hover:text-amber-600 cursor-pointer">
+          <div
+            onClick={handleViewProduct}
+            className="flex items-center gap-2 hover:text-amber-600 cursor-pointer"
+          >
             <BiSolidBinoculars size={18} className="hover:text-yellow" />
             Quick View
           </div>

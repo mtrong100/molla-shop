@@ -4,9 +4,11 @@ import { BiSolidBinoculars } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { displayRating } from "./displayRating";
 import { Typography } from "@material-tailwind/react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { viewProductApi } from "../api/productApi";
 
 const ProductCard = ({ p }) => {
+  const navigate = useNavigate();
   const [hovered, setHovered] = useState(false);
   const [thumbnailHover, setThumbnailHover] = useState(null);
 
@@ -20,6 +22,15 @@ const ProductCard = ({ p }) => {
     }
   }, [p?.thumbnails[1]]);
 
+  const handleViewProduct = async () => {
+    try {
+      await viewProductApi(p?._id);
+      navigate(`/product/${p?._id}`);
+    } catch (error) {
+      console.log("Failed to update view count ->", error);
+    }
+  };
+
   return (
     <div
       onMouseEnter={() => setHovered(true)}
@@ -27,7 +38,7 @@ const ProductCard = ({ p }) => {
       className="group relative  border-2"
     >
       <div className="relative overflow-hidden">
-        <Link to={`/product/${p?._id}`}>
+        <div onClick={handleViewProduct}>
           <img
             className="w-full h-[276px] object-contain image select-none"
             src={
@@ -35,7 +46,7 @@ const ProductCard = ({ p }) => {
             }
             alt={p?.name}
           />
-        </Link>
+        </div>
 
         <div className="absolute flex justify-center items-center w-[40px] h-[40px] rounded-full right-3 top-3 bg-amber-600 transition-all opacity-0 group-hover:opacity-90 -translate-x-[50%] group-hover:translate-x-[5%] ">
           <FaRegHeart />
@@ -44,7 +55,10 @@ const ProductCard = ({ p }) => {
         <div className="absolute bottom-0 left-0 right-0 text-white text-xl flex items-center justify-evenly h-[45px] bg-black translate-y-[100%] group-hover:opacity-100 group-hover:translate-y-0 transition-all z-20">
           <FaCartPlus className=" cursor-pointer hover:text-amber-600" />
           <hr className="h-[60%] w-[1px] bg-white" />
-          <BiSolidBinoculars className=" cursor-pointer hover:text-amber-600" />
+          <BiSolidBinoculars
+            onClick={handleViewProduct}
+            className=" cursor-pointer hover:text-amber-600"
+          />
         </div>
       </div>
 
@@ -53,7 +67,10 @@ const ProductCard = ({ p }) => {
         <span className="opacity-50 text-sm hover:text-amber-600 transition-all cursor-pointer capitalize">
           {p?.category}
         </span>
-        <h1 className="text-lg hover:text-amber-600 transition-all cursor-pointer line-clamp-2 capitalize">
+        <h1
+          onClick={handleViewProduct}
+          className="text-lg hover:text-amber-600 transition-all cursor-pointer line-clamp-2 capitalize"
+        >
           {p?.name}
         </h1>
         <h2 className="text-2xl text-amber-600 font-bold">${p?.price}</h2>

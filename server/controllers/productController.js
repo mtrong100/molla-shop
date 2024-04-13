@@ -153,3 +153,22 @@ export const favoriteProduct = async (req, res, next) => {
     next(error);
   }
 };
+
+export const viewProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const p = await Product.findById(id);
+
+    if (!p) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    p.view += 1;
+
+    await p.save();
+
+    return res.status(200).json({ message: "View count updated" });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -30,6 +30,7 @@ import { formatDate } from "../utils/helper";
 import { favoriteProductApi } from "../api/productApi";
 import { getUserDetailApi } from "../api/userApi";
 import { storeCurrentUser } from "../redux/slices/userSlice";
+import useWishlist from "../hooks/useWishlist";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -44,6 +45,14 @@ const ProductDetail = () => {
   const { product: p } = useGetBlogDetail(id);
   const { relatedProducts, isLoading } = useGeRealtedProducts(p?.category);
   const [selectedImage, setSelectedImage] = useState("");
+
+  const { handleWishlist, isInWishlist, userWishlist } = useWishlist({
+    userId: currentUser?._id,
+    productId: id,
+    token: currentUser?.token,
+  });
+
+  console.log(userWishlist);
 
   useEffect(() => {
     async function fetchComments() {
@@ -62,18 +71,6 @@ const ProductDetail = () => {
 
   const addProductToCart = async () => {
     toast.info("Product added to cart", { position: "top-right" });
-  };
-
-  const addProductToWishlist = async () => {
-    try {
-      const res = await favoriteProductApi(id, currentUser?.token);
-      const user = await getUserDetailApi(currentUser?._id, currentUser?.token);
-      const token = JSON.parse(localStorage.getItem("MOLLA_TOKEN") || "");
-      dispatch(storeCurrentUser({ ...user, token }));
-      toast.info(res?.message, { position: "top-right" });
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   const handleAddCmt = async () => {
@@ -116,7 +113,10 @@ const ProductDetail = () => {
     }
   };
 
-  const isFavorited = currentUser?.favorites?.includes(id);
+  // FIX SCROLL BUG
+  useEffect(() => {
+    document.body.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   return (
     <div className="my-10">
@@ -190,9 +190,9 @@ const ProductDetail = () => {
               Add to cart
             </Button>
 
-            {isFavorited ? (
+            {isInWishlist ? (
               <Button
-                onClick={addProductToWishlist}
+                onClick={handleWishlist}
                 variant="text"
                 color="amber"
                 className="flex rounded-none items-center gap-3  w-full justify-center"
@@ -202,7 +202,7 @@ const ProductDetail = () => {
               </Button>
             ) : (
               <Button
-                onClick={addProductToWishlist}
+                onClick={handleWishlist}
                 variant="text"
                 color="amber"
                 className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"

@@ -126,34 +126,6 @@ export const deleteProduct = async (req, res, next) => {
   }
 };
 
-export const favoriteProduct = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const userId = req.user.id;
-
-    const currentUser = await User.findById(userId);
-
-    if (!currentUser) {
-      return next(errorHandler(404, "User not found"));
-    }
-
-    if (currentUser.favorites.includes(id)) {
-      currentUser.favorites = currentUser.favorites.filter(
-        (item) => item !== id
-      );
-
-      await currentUser.save();
-      return res.json({ message: "Remove product from your wishlist" });
-    } else {
-      currentUser.favorites.push(id);
-      await currentUser.save();
-      return res.json({ message: "Product added to your wishlist" });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
 export const viewProduct = async (req, res, next) => {
   try {
     const { id } = req.params;

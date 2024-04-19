@@ -10,12 +10,16 @@ import {
   DialogBody,
   DialogFooter,
 } from "@material-tailwind/react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { GoSearch } from "react-icons/go";
 import { FaRegHeart } from "react-icons/fa";
 import { BsCart3 } from "react-icons/bs";
 import { RxHamburgerMenu } from "react-icons/rx";
-import { DEFAULT_AVATAR, PRODUCT_CATEGORIES } from "../../utils/constants";
+import {
+  DEFAULT_AVATAR,
+  NAV_LINKS,
+  PRODUCT_CATEGORIES,
+} from "../../utils/constants";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -26,40 +30,21 @@ import { storeCurrentUser } from "../../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../utils/firebase";
-
-const navLinks = [
-  {
-    name: "Home",
-    link: "/",
-  },
-  {
-    name: "Shop",
-    link: "/shop",
-  },
-  {
-    name: "About",
-    link: "/about",
-  },
-  {
-    name: "FAQ",
-    link: "/faq",
-  },
-  {
-    name: "Wishlist",
-    link: "/wishlist",
-  },
-  {
-    name: "My Account",
-    link: "/my-account",
-  },
-];
+import { checkedCategory } from "../../redux/slices/sortSlice";
 
 const Header = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("login");
 
   const handleOpen = () => setOpen(!open);
+
+  const handleSetFilter = (cat) => {
+    dispatch(checkedCategory(cat));
+    navigate("/shop");
+  };
 
   return (
     <>
@@ -142,7 +127,11 @@ const Header = () => {
             </MenuHandler>
             <MenuList className="w-[240px]">
               {PRODUCT_CATEGORIES.map((item) => (
-                <MenuItem className="py-3 " key={item}>
+                <MenuItem
+                  onClick={() => handleSetFilter(item)}
+                  className="py-3 capitalize"
+                  key={item}
+                >
                   {item}
                 </MenuItem>
               ))}
@@ -150,7 +139,7 @@ const Header = () => {
           </Menu>
 
           <ul className="flex items-center gap-8">
-            {navLinks.map((item) => {
+            {NAV_LINKS.map((item) => {
               const isActive = item.link === location.pathname;
 
               return (
@@ -193,7 +182,6 @@ const LoginForm = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { isSubmitting, errors },
   } = useForm({
     mode: "onchange",
@@ -217,7 +205,7 @@ const LoginForm = () => {
       localStorage.setItem("MOLLA_TOKEN", JSON.stringify(res?.token));
       dispatch(storeCurrentUser({ ...res.results, token: res?.token }));
 
-      reset();
+      window.location.reload();
     } catch (error) {
       toast.error(error?.response?.data?.message);
       console.log("Failed to login: ", error);
@@ -289,7 +277,6 @@ const RegisterForm = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { isSubmitting, errors },
   } = useForm({
     mode: "onchange",
@@ -312,7 +299,7 @@ const RegisterForm = () => {
 
       toast.success(res?.message);
 
-      reset();
+      window.location.reload();
     } catch (error) {
       toast.error(error?.response?.data?.message);
       console.log("Failed to register: ", error);

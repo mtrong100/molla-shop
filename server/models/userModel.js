@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema(
     phone: { type: String, default: null },
     provider: { type: String, required: true },
     role: { type: String, default: "user", required: true },
-    favorites: { type: Array },
     verified: { type: Boolean, default: false },
     verificationToken: { type: String, default: null },
     resetPasswordOtp: { type: String, default: null },

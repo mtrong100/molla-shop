@@ -1,41 +1,21 @@
 import React, { useEffect } from "react";
 import TitleSection from "../components/TitleSection";
 import { useDispatch, useSelector } from "react-redux";
-import { loadingWishlist, setWishlist } from "../redux/slices/wishlistSlice";
-import { getAllProductsApi, getProductDetailApi } from "../api/productApi";
+import { getAllProductsApi } from "../api/productApi";
 import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
 import { loadingProducts, productList } from "../redux/slices/productSlice";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import useWishlist from "../hooks/useWishlist";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
-  const { wishlist, isLoadingWishlist } = useSelector(
-    (state) => state.wishlist
-  );
   const { products, isLoadingProducts } = useSelector((state) => state.product);
-
-  useEffect(() => {
-    async function fetchWishlist() {
-      try {
-        dispatch(loadingWishlist(true));
-        const lists = [];
-        for (const item of currentUser.favorites) {
-          const res = await getProductDetailApi(item);
-          if (res) {
-            lists.push(res);
-          }
-        }
-        dispatch(setWishlist(lists));
-        dispatch(loadingWishlist(false));
-      } catch (error) {
-        dispatch(setWishlist([]));
-        dispatch(loadingWishlist(false));
-      }
-    }
-    fetchWishlist();
-  }, [currentUser.favorites, dispatch]);
+  const { userWishlist, isLoadingWishlist } = useWishlist({
+    userId: currentUser?._id,
+    token: currentUser?.token,
+  });
 
   useEffect(() => {
     async function fetchProducts() {
@@ -63,15 +43,17 @@ const Wishlist = () => {
               .fill(0)
               .map((item, index) => <ProductCardSkeleton key={index} />)}
 
-          {!isLoadingWishlist && wishlist.length === 0 && (
+          {!isLoadingWishlist && userWishlist.length === 0 && (
             <p className="text-xl font-semibold opacity-50 text-center my-10">
               Your wishlist is currently empty
             </p>
           )}
 
           {!isLoadingWishlist &&
-            wishlist.length > 0 &&
-            wishlist.map((item) => <ProductCard key={item?._id} p={item} />)}
+            userWishlist.length > 0 &&
+            userWishlist.map((item) => (
+              <ProductCard key={item?._id} p={item} />
+            ))}
         </ul>
       </section>
 

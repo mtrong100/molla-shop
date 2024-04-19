@@ -2,7 +2,6 @@ import express from "express";
 import {
   createProduct,
   deleteProduct,
-  favoriteProduct,
   getAllProducts,
   getProductDetail,
   updateProduct,
@@ -14,20 +13,17 @@ import { createProductValidationRule } from "../validations/productValidationRul
 
 const router = express.Router();
 
-/* GET PRODUCT */
 router.get("/all", getAllProducts);
 router.get("/:id", getProductDetail);
-
-router.post("/favorite/:id", verifyToken, favoriteProduct);
 router.post("/view/:id", viewProduct);
 
-/* CRUD */
 router.post(
   "/create",
   verifyAdmin,
   createProductValidationRule(),
   createProduct
 );
+
 router.put(
   "/update/:id",
   verifyAdmin,
@@ -36,8 +32,5 @@ router.put(
 );
 
 router.delete("/delete/:id", verifyAdmin, deleteProduct);
-
-/* OTHERS */
-router.post("/add-wishlist/:id", verifyToken, favoriteProduct);
 
 export default router;

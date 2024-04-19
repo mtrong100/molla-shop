@@ -99,3 +99,30 @@ export const PROFILE_SIDEBAR = [
 ];
 
 export const PRODUCT_RATING = ["1", "2", "3", "4", "5"];
+
+export const NAV_LINKS = [
+  {
+    name: "Home",
+    link: "/",
+  },
+  {
+    name: "Shop",
+    link: "/shop",
+  },
+  {
+    name: "About",
+    link: "/about",
+  },
+  {
+    name: "FAQ",
+    link: "/faq",
+  },
+  {
+    name: "Wishlist",
+    link: "/wishlist",
+  },
+  {
+    name: "My Account",
+    link: "/my-account",
+  },
+];

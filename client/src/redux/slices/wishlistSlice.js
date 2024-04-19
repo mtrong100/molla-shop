@@ -3,17 +3,21 @@ import { createSlice } from "@reduxjs/toolkit";
 export const wishlistSlice = createSlice({
   name: "wishlist",
   initialState: {
+    userWishlist: [],
     isLoadingWishlist: false,
-    wishlist: [],
+    isInWishlist: false,
     limit: 4,
   },
   reducers: {
-    setWishlist: (state, action) => {
-      state.wishlist = action.payload;
+    setUserWishlist: (state, action) => {
+      state.userWishlist = action.payload;
       state.isLoadingWishlist = false;
     },
-    loadingWishlist: (state, action) => {
+    setLoadingWishlist: (state, action) => {
       state.isLoadingWishlist = action.payload;
+    },
+    setIsInWishlist: (state, action) => {
+      state.isInWishlist = action.payload;
     },
     setLimit: (state, action) => {
       state.limit = action.payload;
@@ -24,7 +28,12 @@ export const wishlistSlice = createSlice({
   },
 });
 
-export const { setWishlist, loadingWishlist, setLimit, increaseLimit } =
-  wishlistSlice.actions;
+export const {
+  setUserWishlist,
+  setLoadingWishlist,
+  setIsInWishlist,
+  setLimit,
+  increaseLimit,
+} = wishlistSlice.actions;
 
 export default wishlistSlice.reducer;

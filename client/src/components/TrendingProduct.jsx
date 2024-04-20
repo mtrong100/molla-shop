@@ -1,14 +1,42 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { SORT_CATEGORIES } from "../utils/constants";
 import { Button } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import ProductCard from "./ProductCard";
+import ProductCard, { ProductCardSkeleton } from "./ProductCard";
 import { SAMPLE_IMAGES } from "../utils/project-images";
+import { useDispatch, useSelector } from "react-redux";
+import { loadingProducts, productList } from "../redux/slices/productSlice";
+import { getAllProductsApi } from "../api/productApi";
 
 const TrendingProduct = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { products, isLoadingProducts } = useSelector((state) => state.product);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        let res;
+        dispatch(loadingProducts(true));
+
+        if (selectedCategory === "all") {
+          res = await getAllProductsApi();
+        } else {
+          res = await getAllProductsApi({ category: selectedCategory });
+        }
+
+        dispatch(productList(res?.docs));
+        dispatch(loadingProducts(false));
+      } catch (error) {
+        dispatch(productList([]));
+        dispatch(loadingProducts(false));
+      }
+    }
+    fetchProducts();
+  }, [dispatch, selectedCategory]);
 
   return (
     <div className="mt-20">
@@ -18,7 +46,12 @@ const TrendingProduct = () => {
         <ul className="flex items-center gap-5">
           {SORT_CATEGORIES.map((item) => (
             <li
-              className="opacity-50 text-sm uppercase hover:text-amber-600 cursor-pointer transition-all"
+              onClick={() => setSelectedCategory(item)}
+              className={`${
+                item === selectedCategory
+                  ? "text-amber-600 opacity-100"
+                  : "hover:text-amber-600 opacity-50"
+              }  text-sm uppercase cursor-pointer transition-all`}
               key={item}
             >
               {item}
@@ -28,7 +61,7 @@ const TrendingProduct = () => {
       </div>
 
       <div className="grid grid-cols-[300px_minmax(0,_1fr)] gap-10 mt-5">
-        <div className="h-[500px]">
+        <div>
           <img src={SAMPLE_IMAGES.cardImage} alt="card-image" />
 
           <Button
@@ -109,12 +142,14 @@ const TrendingProduct = () => {
           slidesToSlide={1}
           swipeable
         >
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+          {isLoadingProducts &&
+            Array(12)
+              .fill(0)
+              .map((item, index) => <ProductCardSkeleton key={index} />)}
+
+          {!isLoadingProducts &&
+            products.length > 0 &&
+            products.map((item) => <ProductCard key={item?._id} p={item} />)}
         </Carousel>
       </div>
     </div>

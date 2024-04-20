@@ -6,16 +6,38 @@ import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
 import { loadingProducts, productList } from "../redux/slices/productSlice";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import useWishlist from "../hooks/useWishlist";
+import {
+  setLoadingWishlist,
+  setUserWishlist,
+} from "../redux/slices/wishlistSlice";
+import { getUserWishlistApi } from "../api/wishlistApi";
 
 const Wishlist = () => {
   const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const { products, isLoadingProducts } = useSelector((state) => state.product);
-  const { userWishlist, isLoadingWishlist } = useWishlist({
-    userId: currentUser?._id,
-    token: currentUser?.token,
-  });
+  const { userWishlist, isLoadingWishlist } = useSelector(
+    (state) => state.wishlist
+  );
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        dispatch(setLoadingWishlist(true));
+        const res = await getUserWishlistApi({
+          userId: currentUser?._id,
+          token: currentUser?.token,
+        });
+        dispatch(setUserWishlist(res?.wishlist));
+        dispatch(setLoadingWishlist(false));
+      } catch (error) {
+        console.log(error);
+        setUserWishlist([]);
+        dispatch(setLoadingWishlist(false));
+      }
+    };
+    fetchWishlist();
+  }, [currentUser?._id, currentUser?.token, dispatch]);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -37,7 +59,7 @@ const Wishlist = () => {
       <section>
         <TitleSection>Your wishlist</TitleSection>
 
-        <ul className="grid grid-cols-4 gap-2">
+        <ul className="grid grid-cols-4 gap-2 mt-5">
           {isLoadingWishlist &&
             Array(12)
               .fill(0)

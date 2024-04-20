@@ -1,4 +1,6 @@
+import Product from "../models/productModel.js";
 import Wishlist from "../models/wishlistModel.js";
+import { errorHandler } from "../utils/errorHandler.js";
 
 export const getUserWishlist = async (req, res, next) => {
   try {
@@ -27,16 +29,29 @@ export const toggleWishlist = async (req, res, next) => {
     });
 
     if (existingWishlist) {
-      await existingWishlist.remove();
-      res
-        .status(200)
-        .json({ success: true, message: "Product removed from wishlist" });
+      await Wishlist.deleteOne({
+        _id: existingWishlist._id,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Product removed from wishlist",
+      });
     } else {
       const newWishlist = new Wishlist({ user: userId, product: productId });
       await newWishlist.save();
-      res
-        .status(200)
-        .json({ success: true, message: "Product added to wishlist" });
+
+      const productItem = await Product.findById(productId);
+
+      if (!productItem) {
+        return next(errorHandler(404, "Product not found"));
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Product added to wishlist",
+        result: productItem,
+      });
     }
   } catch (error) {
     next(error);

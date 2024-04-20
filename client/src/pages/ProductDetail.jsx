@@ -27,51 +27,40 @@ import {
   getCommentsFromProductApi,
 } from "../api/reviewApi";
 import { formatDate } from "../utils/helper";
-import { favoriteProductApi } from "../api/productApi";
-import { getUserDetailApi } from "../api/userApi";
-import { storeCurrentUser } from "../redux/slices/userSlice";
-import useWishlist from "../hooks/useWishlist";
+import { getUserWishlistApi, toggleWishlistApi } from "../api/wishlistApi";
+import {
+  setIsInWishlist,
+  setUserWishlist,
+} from "../redux/slices/wishlistSlice";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { currentUser } = useSelector((state) => state.user);
   const { comments, commentVal, rating, limit, isLoadingCmt } = useSelector(
     (state) => state.comment
   );
-
+  const { userWishlist } = useSelector((state) => state.wishlist);
   const { product: p } = useGetBlogDetail(id);
   const { relatedProducts, isLoading } = useGeRealtedProducts(p?.category);
   const [selectedImage, setSelectedImage] = useState("");
 
-  const { handleWishlist, isInWishlist, userWishlist } = useWishlist({
-    userId: currentUser?._id,
-    productId: id,
-    token: currentUser?.token,
-  });
-
-  console.log(userWishlist);
-
-  useEffect(() => {
-    async function fetchComments() {
-      try {
-        dispatch(loadingCmt(true));
-        const res = await getCommentsFromProductApi(id, { limit: limit });
-        dispatch(listComments(res));
-        dispatch(loadingCmt(false));
-      } catch (error) {
-        dispatch(listComments([]));
-        dispatch(loadingCmt(false));
-      }
-    }
-    fetchComments();
-  }, [dispatch, id, limit]);
-
   const addProductToCart = async () => {
     toast.info("Product added to cart", { position: "top-right" });
   };
+
+  async function fetchComments() {
+    try {
+      dispatch(loadingCmt(true));
+      const res = await getCommentsFromProductApi(id, { limit: limit });
+      dispatch(listComments(res));
+      dispatch(loadingCmt(false));
+    } catch (error) {
+      dispatch(listComments([]));
+      dispatch(loadingCmt(false));
+    }
+  }
 
   const handleAddCmt = async () => {
     if (!commentVal.trim()) {
@@ -113,10 +102,35 @@ const ProductDetail = () => {
     }
   };
 
+  const handleWishlist = async () => {
+    try {
+      const res = await toggleWishlistApi({
+        userId: currentUser?._id,
+        productId: p?._id,
+        token: currentUser?.token,
+      });
+      const data = await getUserWishlistApi({
+        userId: currentUser?._id,
+        token: currentUser?.token,
+      });
+      dispatch(setUserWishlist(data?.wishlist));
+      dispatch(setIsInWishlist((prevState) => !prevState));
+      toast.info(res?.message, { position: "top-right" });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // FIX SCROLL BUG
   useEffect(() => {
     document.body.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
+
+  useEffect(() => {
+    fetchComments();
+  }, [dispatch, id, limit]);
+
+  const isInWishlist = userWishlist.find((item) => item?._id === p?._id);
 
   return (
     <div className="my-10">

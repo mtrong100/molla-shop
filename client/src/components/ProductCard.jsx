@@ -1,26 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { FaCartPlus } from "react-icons/fa";
+import React, { useState } from "react";
+import { FaCartPlus, FaHeart } from "react-icons/fa";
 import { BiSolidBinoculars } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { displayRating } from "./displayRating";
 import { Typography } from "@material-tailwind/react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { viewProductApi } from "../api/productApi";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserWishlistApi, toggleWishlistApi } from "../api/wishlistApi";
+import {
+  setIsInWishlist,
+  setUserWishlist,
+} from "../redux/slices/wishlistSlice";
+import { toast } from "sonner";
 
 const ProductCard = ({ p }) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
   const [hovered, setHovered] = useState(false);
-  const [thumbnailHover, setThumbnailHover] = useState(null);
-
-  useEffect(() => {
-    if (p?.thumbnails[1]) {
-      const image = new Image();
-      image.src = p.thumbnails[1];
-      image.onload = () => {
-        setThumbnailHover(image.src);
-      };
-    }
-  }, [p?.thumbnails[1]]);
+  const { userWishlist } = useSelector((state) => state.wishlist);
 
   const handleViewProduct = async () => {
     try {
@@ -30,6 +29,27 @@ const ProductCard = ({ p }) => {
       console.log("Failed to update view count ->", error);
     }
   };
+
+  const handleWishlist = async () => {
+    try {
+      const res = await toggleWishlistApi({
+        userId: currentUser?._id,
+        productId: p?._id,
+        token: currentUser?.token,
+      });
+      const data = await getUserWishlistApi({
+        userId: currentUser?._id,
+        token: currentUser?.token,
+      });
+      dispatch(setUserWishlist(data?.wishlist));
+      dispatch(setIsInWishlist((prevState) => !prevState));
+      toast.info(res?.message, { position: "top-right" });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const isInWishlist = userWishlist.find((item) => item?._id === p?._id);
 
   return (
     <div
@@ -41,16 +61,26 @@ const ProductCard = ({ p }) => {
         <div onClick={handleViewProduct}>
           <img
             className="w-full h-[276px] object-contain image select-none"
-            src={
-              hovered ? thumbnailHover || p?.thumbnails[1] : p?.thumbnails[0]
-            }
+            src={hovered ? p?.thumbnails[1] : p?.thumbnails[0]}
             alt={p?.name}
           />
         </div>
 
-        <div className="absolute flex justify-center items-center w-[40px] h-[40px] rounded-full right-3 top-3 bg-amber-600 transition-all opacity-0 group-hover:opacity-90 -translate-x-[50%] group-hover:translate-x-[5%] ">
-          <FaRegHeart />
-        </div>
+        {isInWishlist ? (
+          <div
+            onClick={handleWishlist}
+            className="cursor-pointer absolute flex justify-center items-center w-[40px] h-[40px] rounded-full right-3 top-3 bg-amber-600 transition-all text-white opacity-0 group-hover:opacity-90 -translate-x-[50%] group-hover:translate-x-[5%] "
+          >
+            <FaHeart size={20} />
+          </div>
+        ) : (
+          <div
+            onClick={handleWishlist}
+            className="cursor-pointer absolute flex justify-center items-center w-[40px] h-[40px] rounded-full right-3 top-3 bg-amber-600 transition-all opacity-0 group-hover:opacity-90 -translate-x-[50%] group-hover:translate-x-[5%] "
+          >
+            <FaRegHeart size={20} />
+          </div>
+        )}
 
         <div className="absolute bottom-0 left-0 right-0 text-white text-xl flex items-center justify-evenly h-[45px] bg-black translate-y-[100%] group-hover:opacity-100 group-hover:translate-y-0 transition-all z-20">
           <FaCartPlus className=" cursor-pointer hover:text-amber-600" />

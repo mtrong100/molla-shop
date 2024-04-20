@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const getUserWishlist = async (userId, token) => {
+export const getUserWishlistApi = async ({ userId, token }) => {
   const res = await axios.get(
     `${import.meta.env.VITE_SERVER_URL}/wishlist/get/${userId}`,
     {
@@ -11,7 +11,7 @@ export const getUserWishlist = async (userId, token) => {
   return res.data;
 };
 
-export const toggleWishlist = async (userId, productId, token) => {
+export const toggleWishlistApi = async ({ userId, productId, token }) => {
   const res = await axios.post(
     `${import.meta.env.VITE_SERVER_URL}/wishlist/toggle/${userId}/${productId}`,
     {},

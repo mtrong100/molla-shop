@@ -27,7 +27,7 @@ import FieldInput from "../form/FieldInput";
 import { googleLogin, loginApi, registerApi } from "../../api/authApi";
 import { toast } from "sonner";
 import { storeCurrentUser } from "../../redux/slices/userSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../utils/firebase";
 import { checkedCategory } from "../../redux/slices/sortSlice";
@@ -38,6 +38,7 @@ const Header = () => {
   const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("login");
+  const { userWishlist } = useSelector((state) => state.wishlist);
 
   const handleOpen = () => setOpen(!open);
 
@@ -108,7 +109,15 @@ const Header = () => {
 
             <div className="flex items-center gap-4 justify-end">
               <div className="flex items-center gap-7 text-white">
-                <FaRegHeart size={25} className="hover:text-amber-600" />
+                <div
+                  onClick={() => navigate("/wishlist")}
+                  className="relative cursor-pointer"
+                >
+                  <FaRegHeart size={25} className="hover:text-amber-600" />
+                  <span className="absolute -top-2 -right-3 h-5 w-5 flex items-center justify-center bg-amber-600  rounded-full  text-sm text-black font-bold pointer-events-none">
+                    {userWishlist.length || 0}
+                  </span>
+                </div>
                 <BsCart3 size={25} className="hover:text-amber-600" />
               </div>
             </div>

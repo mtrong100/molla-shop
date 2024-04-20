@@ -17,8 +17,8 @@ import { toast } from "sonner";
 const ProductCard = ({ p }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state) => state.user);
   const [hovered, setHovered] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
   const { userWishlist } = useSelector((state) => state.wishlist);
 
   const handleViewProduct = async () => {

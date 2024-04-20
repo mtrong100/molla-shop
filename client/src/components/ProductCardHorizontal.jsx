@@ -7,21 +7,21 @@ import { Typography } from "@material-tailwind/react";
 import { displayRating } from "./displayRating";
 import { useNavigate } from "react-router-dom";
 import { viewProductApi } from "../api/productApi";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserWishlistApi, toggleWishlistApi } from "../api/wishlistApi";
+import {
+  setIsInWishlist,
+  setUserWishlist,
+} from "../redux/slices/wishlistSlice";
+import { toast } from "sonner";
+import { FaHeart } from "react-icons/fa";
 
 const ProductCardHorizontal = ({ p }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [hovered, setHovered] = useState(false);
-  const [thumbnailHover, setThumbnailHover] = useState(null);
-
-  useEffect(() => {
-    if (p?.thumbnails[1]) {
-      const image = new Image();
-      image.src = p.thumbnails[1];
-      image.onload = () => {
-        setThumbnailHover(image.src);
-      };
-    }
-  }, [p?.thumbnails[1]]);
+  const { currentUser } = useSelector((state) => state.user);
+  const { userWishlist } = useSelector((state) => state.wishlist);
 
   const handleViewProduct = async () => {
     try {
@@ -31,6 +31,27 @@ const ProductCardHorizontal = ({ p }) => {
       console.log("Failed to update view count ->", error);
     }
   };
+
+  const handleWishlist = async () => {
+    try {
+      const res = await toggleWishlistApi({
+        userId: currentUser?._id,
+        productId: p?._id,
+        token: currentUser?.token,
+      });
+      const data = await getUserWishlistApi({
+        userId: currentUser?._id,
+        token: currentUser?.token,
+      });
+      dispatch(setUserWishlist(data?.wishlist));
+      dispatch(setIsInWishlist((prevState) => !prevState));
+      toast.info(res?.message, { position: "top-right" });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const isInWishlist = userWishlist.find((item) => item?._id === p?._id);
 
   return (
     <div className="grid grid-cols-[minmax(0,_1fr)_220px] gap-5 items-center">
@@ -42,9 +63,7 @@ const ProductCardHorizontal = ({ p }) => {
           className="w-[200px] h-[200px] flex-shrink-0  overflow-hidden"
         >
           <img
-            src={
-              hovered ? thumbnailHover || p?.thumbnails[1] : p?.thumbnails[0]
-            }
+            src={hovered ? p?.thumbnails[1] : p?.thumbnails[0]}
             alt={p?.name}
             className="w-full h-full object-contain rounded-sm "
           />
@@ -84,10 +103,24 @@ const ProductCardHorizontal = ({ p }) => {
             <BiSolidBinoculars size={18} className="hover:text-yellow" />
             Quick View
           </div>
-          <div className="flex items-center gap-2 hover:text-amber-600 cursor-pointer">
-            <FaRegHeart size={18} />
-            Wishlist
-          </div>
+
+          {isInWishlist ? (
+            <div
+              onClick={handleWishlist}
+              className="flex items-center gap-2 hover:opacity-90 text-amber-600 cursor-pointer"
+            >
+              <FaHeart size={18} />
+              Wishlist
+            </div>
+          ) : (
+            <div
+              onClick={handleWishlist}
+              className="flex items-center gap-2 hover:text-amber-600 cursor-pointer"
+            >
+              <FaRegHeart size={18} />
+              Wishlist
+            </div>
+          )}
         </div>
 
         <Button

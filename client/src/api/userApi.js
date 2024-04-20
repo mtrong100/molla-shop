@@ -7,3 +7,15 @@ export const getUserDetailApi = async (id, token) => {
 
   return res.data;
 };
+
+export const updateUserApi = async ({ userId, userToken, req }) => {
+  const res = await axios.put(
+    `${import.meta.env.VITE_SERVER_URL}/user/update/${userId}`,
+    req,
+    {
+      headers: { token: `Bearer ${userToken}` },
+    }
+  );
+
+  return res.data;
+};

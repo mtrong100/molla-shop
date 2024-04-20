@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Card,
@@ -16,6 +16,7 @@ import { PROFILE_SIDEBAR } from "../utils/constants";
 import { Link } from "react-router-dom";
 import { storeCurrentUser } from "../redux/slices/userSlice";
 import { toast } from "sonner";
+import { updateUserApi } from "../api/userApi";
 
 const MyAccount = () => {
   const schema = yup.object().shape({
@@ -56,18 +57,37 @@ const MyAccount = () => {
     },
   });
 
+  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
 
   const onSubmit = async (values) => {
     try {
-      const req = {
-        ...values,
-      };
+      const req = { ...values };
+
+      const res = await updateUserApi({
+        userId: currentUser?._id,
+        userToken: currentUser?.token,
+        req,
+      });
+
+      dispatch(storeCurrentUser({ ...currentUser, ...res.results }));
+      toast.success(res?.message);
     } catch (error) {
       toast.error(error?.response?.data?.message);
-      console.log("Failed to login: ", error);
+      console.log("Failed to update: ", error);
     }
   };
+
+  useEffect(() => {
+    if (currentUser) {
+      reset({
+        name: currentUser?.name,
+        email: currentUser?.email,
+        address: currentUser?.address,
+        phone: currentUser?.phone,
+      });
+    }
+  }, [currentUser, reset]);
 
   return (
     <div>

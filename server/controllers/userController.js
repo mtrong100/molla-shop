@@ -82,8 +82,6 @@ export const updateUser = async (req, res, next) => {
       return next(errorHandler(404, "User not found"));
     }
 
-    user.confirmPassword = null;
-
     const updatedUser = {
       name: user.name,
       phone: user.phone,

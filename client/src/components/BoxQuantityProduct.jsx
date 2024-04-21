@@ -14,24 +14,21 @@ const BoxQuantityProduct = () => {
   };
 
   return (
-    <section className="flex items-center gap-5">
-      <h1>Quanity: </h1>
-      <div className="border border-gray-500 w-fit rounded-md h-[50px] flex items-center ">
-        <button
-          className="text-2xl font-medium w-[50px] h-[50px]"
-          onClick={decreaseQuantity}
-        >
-          -
-        </button>
-        <span className="mx-4">{quantity}</span>
-        <button
-          className="text-2xl font-medium w-[50px] h-[50px]"
-          onClick={increaseQuantity}
-        >
-          +
-        </button>
-      </div>
-    </section>
+    <div className="border border-gray-500 w-fit rounded-md h-[50px] flex items-center ">
+      <button
+        className="text-2xl font-medium w-[50px] h-[50px]"
+        onClick={decreaseQuantity}
+      >
+        -
+      </button>
+      <span className="mx-4">{quantity}</span>
+      <button
+        className="text-2xl font-medium w-[50px] h-[50px]"
+        onClick={increaseQuantity}
+      >
+        +
+      </button>
+    </div>
   );
 };
 

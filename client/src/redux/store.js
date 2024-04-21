@@ -7,6 +7,7 @@ import createProductSlice from "./slices/createProductSlice";
 import commentSlice from "./slices/commentSlice";
 import wishlistSlice from "./slices/wishlistSlice";
 import productSlice from "./slices/productSlice";
+import cartSlice from "./slices/cartSlice";
 
 const rootReducer = combineReducers({
   user: userSlice,
@@ -15,12 +16,20 @@ const rootReducer = combineReducers({
   comment: commentSlice,
   wishlist: wishlistSlice,
   product: productSlice,
+  cart: cartSlice,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["sort", "createProduct", "comment", "product", "wishlist"],
+  blacklist: [
+    "sort",
+    "createProduct",
+    "comment",
+    "product",
+    "wishlist",
+    "cart",
+  ],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

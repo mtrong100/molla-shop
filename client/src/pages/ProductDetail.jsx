@@ -191,7 +191,10 @@ const ProductDetail = () => {
             {p?.desc}
           </p>
 
-          <BoxQuantityProduct />
+          <section className="flex items-center gap-5">
+            <h1>Quanity: </h1>
+            <BoxQuantityProduct />
+          </section>
 
           <div className="flex items-center gap-2">
             <Button
@@ -267,7 +270,7 @@ const ProductDetail = () => {
 
       <div className="mt-3 space-y-7">
         <Typography variant="lead">
-          Total Reviews ({comments?.totalDocs})
+          Total Reviews ({comments?.totalDocs || 0})
         </Typography>
 
         <ul className="space-y-5">

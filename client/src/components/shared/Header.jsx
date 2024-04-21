@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Menu,
@@ -31,6 +31,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../../utils/firebase";
 import { checkedCategory } from "../../redux/slices/sortSlice";
+import {
+  setLoadingWishlist,
+  setUserWishlist,
+} from "../../redux/slices/wishlistSlice";
+import { getUserWishlistApi } from "../../api/wishlistApi";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -39,6 +44,26 @@ const Header = () => {
   const [open, setOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("login");
   const { userWishlist } = useSelector((state) => state.wishlist);
+  const { currentUser } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      try {
+        dispatch(setLoadingWishlist(true));
+        const res = await getUserWishlistApi({
+          userId: currentUser?._id,
+          token: currentUser?.token,
+        });
+        dispatch(setUserWishlist(res?.wishlist));
+        dispatch(setLoadingWishlist(false));
+      } catch (error) {
+        console.log(error);
+        setUserWishlist([]);
+        dispatch(setLoadingWishlist(false));
+      }
+    };
+    fetchWishlist();
+  }, [currentUser?._id, currentUser?.token, dispatch]);
 
   const handleOpen = () => setOpen(!open);
 
@@ -118,7 +143,16 @@ const Header = () => {
                     {userWishlist.length || 0}
                   </span>
                 </div>
-                <BsCart3 size={25} className="hover:text-amber-600" />
+
+                <div
+                  onClick={() => navigate("/cart")}
+                  className="relative cursor-pointer"
+                >
+                  <BsCart3 size={28} className="hover:text-amber-600" />
+                  <span className="absolute -top-2 -right-3 h-5 w-5 flex items-center justify-center bg-amber-600  rounded-full  text-sm text-black font-bold pointer-events-none">
+                    {userWishlist.length || 0}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

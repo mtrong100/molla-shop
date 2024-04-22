@@ -1,5 +1,6 @@
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
+import { sendEmailCompletePurchase } from "../services/emailService.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
 export const getAllOrders = async (req, res, next) => {
@@ -66,7 +67,6 @@ export const getUserOrders = async (req, res, next) => {
   }
 };
 
-/* Fix this shiet */
 export const createOrder = async (req, res, next) => {
   const { orderItems, shippingAddress, total } = req.body;
 
@@ -90,7 +90,7 @@ export const createOrder = async (req, res, next) => {
     const newOrder = new Order(req.body);
     await newOrder.save();
 
-    // await sendEmailCompletePurchase(orderItems, shippingAddress?.email, total);
+    await sendEmailCompletePurchase(orderItems, shippingAddress?.email, total);
 
     return res.status(200).json(newOrder);
   } catch (error) {

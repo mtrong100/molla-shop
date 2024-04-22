@@ -2,6 +2,26 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { IoCartOutline, IoWalletOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 
+export const COUPON_CODES = [
+  {
+    label: "molla",
+    discount: 5,
+  },
+  {
+    label: "cool",
+    discount: 10,
+  },
+  {
+    label: "awesome",
+    discount: 7,
+  },
+];
+
+export const PAYMENT_METHOD = {
+  CASH: "Cash on delivery",
+  CARD: "Pay with card",
+};
+
 export const SORT_CATEGORIES = [
   "all",
   "laptop",

@@ -9,8 +9,8 @@ import Service from "../components/Service";
 import ContactBanner from "../components/ContactBanner";
 
 const Home = () => {
-  const { currentUser } = useSelector((state) => state.user);
-  console.log("🚀 ~ Home ~ currentUser:", currentUser);
+  // const { currentUser } = useSelector((state) => state.user);
+  // console.log("🚀 ~ Home ~ currentUser:", currentUser);
 
   return (
     <div>

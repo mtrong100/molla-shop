@@ -3,43 +3,56 @@ import {
   Button,
   Card,
   Checkbox,
-  IconButton,
-  Input,
+  Option,
+  Select,
   Typography,
 } from "@material-tailwind/react";
-import BoxQuantityProduct from "../components/BoxQuantityProduct";
 import { useSelector, useDispatch } from "react-redux";
 import { IoMdClose } from "react-icons/io";
-import { selectShippingPrice } from "../redux/slices/cartSlice";
-import { TiArrowRight } from "react-icons/ti";
+import {
+  calculateSubTotal,
+  calculateTotal,
+  decreaseProductQuantity,
+  increaseProductQuantity,
+  removeProductFromCart,
+  selectCouponCode,
+  selectShipppingMethod,
+} from "../redux/slices/cartSlice";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+import { COUPON_CODES } from "../utils/constants";
+import { useNavigate } from "react-router-dom";
 
 const TABLE_HEAD = ["Product", "Price", "Quantity", "Total", "Action"];
 const SHIPPING = [
   {
-    label: "Standard:",
-    price: 10,
+    name: "Standard",
+    price: 10.0,
   },
   {
-    label: "Fast Delivery:",
-    price: 20,
+    name: "Fast Delivery",
+    price: 20.0,
   },
 ];
 
 const Cart = () => {
   const dispatch = useDispatch();
-  const { shippingPrice } = useSelector((state) => state.cart);
+  const navigate = useNavigate();
+  const { shippingMethod, cart } = useSelector((state) => state.cart);
+  const subtotal = useSelector(calculateSubTotal);
+  const total = useSelector(calculateTotal);
 
   return (
     <div className="my-10 grid grid-cols-[minmax(0,_1fr)_300px] gap-5 items-start">
-      <Card className="h-full w-full overflow-scroll">
+      <Card className="h-fit w-full overflow-scroll">
         <table className="w-full min-w-max table-auto text-left">
           <thead>
             <tr>
               {TABLE_HEAD.map((head) => (
                 <th
                   key={head}
-                  className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                  className={`${
+                    head === "Product" ? "w-[400px]" : ""
+                  } border-b border-blue-gray-100 bg-blue-gray-50 p-4`}
                 >
                   <Typography
                     variant="small"
@@ -53,16 +66,15 @@ const Cart = () => {
             </tr>
           </thead>
           <tbody>
-            {Array(6)
-              .fill(0)
-              .map((item, index) => (
-                <tr key={index} className="even:bg-blue-gray-50/50">
+            {cart.length > 0 &&
+              cart.map((item) => (
+                <tr key={item.id} className="even:bg-blue-gray-50/50">
                   <td className="p-4">
                     <div className="flex items-center gap-5">
                       <div className="aspect-square w-[60px] h-[60px]">
                         <img
-                          src="https://source.unsplash.com/random"
-                          alt=""
+                          src={item.image}
+                          alt={item.name}
                           className="w-full h-full object-contain"
                         />
                       </div>
@@ -71,7 +83,7 @@ const Cart = () => {
                         color="blue-gray"
                         className="font-normal"
                       >
-                        Sony – Alpha a5100 Mirrorless Camera
+                        {item.name}
                       </Typography>
                     </div>
                   </td>
@@ -81,11 +93,29 @@ const Cart = () => {
                       color="blue-gray"
                       className="font-normal"
                     >
-                      $499,99
+                      ${item.price}
                     </Typography>
                   </td>
                   <td className="p-4">
-                    <BoxQuantityProduct />
+                    <div className="border border-gray-500 w-fit rounded-md h-[50px] flex items-center ">
+                      <button
+                        className="text-2xl font-medium w-[50px] h-[50px]"
+                        onClick={() =>
+                          dispatch(decreaseProductQuantity(item.id))
+                        }
+                      >
+                        -
+                      </button>
+                      <span className="mx-4">{item.quantity}</span>
+                      <button
+                        className="text-2xl font-medium w-[50px] h-[50px]"
+                        onClick={() =>
+                          dispatch(increaseProductQuantity(item.id))
+                        }
+                      >
+                        +
+                      </button>
+                    </div>
                   </td>
                   <td className="p-4">
                     <Typography
@@ -93,11 +123,12 @@ const Cart = () => {
                       color="amber"
                       className="font-medium"
                     >
-                      $499,99
+                      {Number(item.price * item.quantity).toFixed(2)}
                     </Typography>
                   </td>
                   <td className="p-4">
                     <IoMdClose
+                      onClick={() => dispatch(removeProductFromCart(item.id))}
                       size={25}
                       className="cursor-pointer hover:text-amber-600"
                     />
@@ -129,7 +160,7 @@ const Cart = () => {
             color="blue-gray"
             className="font-normal"
           >
-            $914,98
+            ${subtotal.toFixed(2)}
           </Typography>
         </div>
 
@@ -149,11 +180,11 @@ const Cart = () => {
                   <div className="flex items-center">
                     <Checkbox
                       color="amber"
-                      checked={Number(item.price === shippingPrice)}
-                      onChange={() => dispatch(selectShippingPrice(item.price))}
+                      checked={item.name === shippingMethod?.name}
+                      onChange={() => dispatch(selectShipppingMethod(item))}
                       className="rounded-full"
                     />
-                    {item.label}
+                    {item.name}:
                   </div>
 
                   <p>${item.price}.00</p>
@@ -165,12 +196,23 @@ const Cart = () => {
 
         <hr className="my-2 border-gray-500" />
 
-        <div className="flex items-center justify-between my-5 gap-2">
-          <Input variant="outlined" label="Coupon code" />
-
-          <IconButton className=" flex-shrink-0">
-            <TiArrowRight size={20} />
-          </IconButton>
+        <div className="my-5">
+          <Select
+            className="uppercase"
+            size="lg"
+            label="Select Couponcode"
+            onChange={(val) => dispatch(selectCouponCode(val))}
+          >
+            {COUPON_CODES.map((item) => (
+              <Option
+                key={item.label}
+                value={item.label}
+                className="uppercase font-semibold"
+              >
+                {item.label}
+              </Option>
+            ))}
+          </Select>
         </div>
 
         <hr className="my-2 border-gray-500" />
@@ -180,13 +222,14 @@ const Cart = () => {
             Total:
           </Typography>
 
-          <Typography variant="lead" color="amber" className="font-semibold">
-            $914,98
+          <Typography variant="h4" color="amber" className="font-semibold">
+            ${total.toFixed(2)}
           </Typography>
         </div>
 
         <Button
-          variant="outlined"
+          onClick={() => navigate("/checkout")}
+          variant="gradient"
           color="amber"
           className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
         >

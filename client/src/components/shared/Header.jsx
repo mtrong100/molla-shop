@@ -45,6 +45,7 @@ const Header = () => {
   const [activeTab, setActiveTab] = React.useState("login");
   const { userWishlist } = useSelector((state) => state.wishlist);
   const { currentUser } = useSelector((state) => state.user);
+  const { cart } = useSelector((state) => state.cart);
 
   useEffect(() => {
     const fetchWishlist = async () => {
@@ -150,7 +151,7 @@ const Header = () => {
                 >
                   <BsCart3 size={28} className="hover:text-amber-600" />
                   <span className="absolute -top-2 -right-3 h-5 w-5 flex items-center justify-center bg-amber-600  rounded-full  text-sm text-black font-bold pointer-events-none">
-                    {userWishlist.length || 0}
+                    {cart.length || 0}
                   </span>
                 </div>
               </div>

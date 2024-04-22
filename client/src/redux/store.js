@@ -28,7 +28,7 @@ const persistConfig = {
     "comment",
     "product",
     "wishlist",
-    "cart",
+    // "cart",
   ],
 };
 

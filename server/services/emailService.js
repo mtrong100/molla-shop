@@ -110,21 +110,25 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
             color: #4CAF50;
           }
 
-          ul {
-            list-style-type: none;
-            padding: 0;
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
           }
 
-          li {
-            margin-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-            display: flex;
-            align-items: center;
+          th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+
+          th {
+            background-color: #f2f2f2;
           }
 
           img {
-            margin-right: 10px;
+            max-width: 100px;
+            max-height: 100px;
           }
 
           p {
@@ -140,18 +144,30 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
         <h1>Thank you for your purchase!</h1>
         <p>Hello, We are thrilled to let you know that your order has been successfully placed. Below are the details of your purchase:</p>
         
-        <ul>
-          ${orderItems
-            .map(
-              (item) => `
-            <li>
-              <img src="${item?.image}" alt="${item?.name}" style="max-width: 100px; max-height: 100px;">
-              <strong>${item?.name} - $${item?.price}</strong> 
-            </li>
-          `
-            )
-            .join("")}
-        </ul>
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Quantity</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orderItems
+              .map(
+                (item) => `
+              <tr>
+                <td><img src="${item?.image}" alt="${item?.name}"></td>
+                <td>${item?.name}</td>
+                <td>$${(item?.price * item?.quantity).toFixed(2)}</td>
+                <td>${item?.quantity}</td>
+              </tr>
+            `
+              )
+              .join("")}
+          </tbody>
+        </table>
 
         <h2>Total: $${total}</h2>
         
@@ -163,7 +179,7 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
   `;
 
   await transporter.sendMail({
-    from: '"Fred Foo 👻" <shop-e-commerce@gmail.com>',
+    from: '"Molla Shop 👻" <shop-e-commerce@gmail.com>',
     to: email,
     subject: "Order Confirmation",
     text: "Thank you for your purchase! Your order details are attached.",

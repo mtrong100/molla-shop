@@ -6,8 +6,32 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { FaRegCreditCard } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { calculateTotal } from "../redux/slices/cartSlice";
+import { PAYMENT_METHOD } from "../utils/constants";
+import { createOrderApi } from "../api/orderApi";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const TABLE_HEAD = ["Product", "Total"];
+
+const validationSchema = yup.object().shape({
+  fullname: yup
+    .string()
+    .min(2, "Full name must be at least 2 characters")
+    .max(50, "Full name must be at most 50 characters")
+    .required("Full name is required"),
+  address: yup
+    .string()
+    .min(5, "Address must be at least 5 characters")
+    .max(100, "Address must be at most 100 characters")
+    .required("Address is required"),
+  phone: yup
+    .string()
+    .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
+    .required("Phone number is required"),
+  email: yup.string().email("Invalid email").required("Email is required"),
+});
 
 const Checkout = () => {
   const {
@@ -16,7 +40,7 @@ const Checkout = () => {
     formState: { isSubmitting, errors },
   } = useForm({
     mode: "onchange",
-    resolver: yupResolver(),
+    resolver: yupResolver(validationSchema),
     defaultValues: {
       fullname: "",
       address: "",
@@ -25,14 +49,36 @@ const Checkout = () => {
     },
   });
 
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
+  const { shippingMethod, cart, couponCode } = useSelector(
+    (state) => state.cart
+  );
+  const total = useSelector(calculateTotal);
+
   const onSubmit = async (values) => {
     try {
       const req = {
-        ...values,
+        shippingAddress: {
+          ...values,
+        },
+        orderItems: cart,
+        paymentMethod: PAYMENT_METHOD.CASH,
+        total,
+        user: currentUser?._id,
       };
+
+      console.log(req);
+
+      const res = await createOrderApi({ userToken: currentUser?.token, req });
+      console.log(res);
+
       //...
+      toast.success("Place an order successfully");
+      navigate("/");
     } catch (error) {
       console.log(error);
+      toast.error("Failed to place an order");
     }
   };
 
@@ -90,10 +136,10 @@ const Checkout = () => {
               <li className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Checkbox color="amber" checked className="rounded-full" />
-                  Standard:
+                  {shippingMethod.name}:
                 </div>
 
-                <p>$10.00</p>
+                <p>${shippingMethod.price}.00</p>
               </li>
             </div>
 
@@ -105,8 +151,8 @@ const Checkout = () => {
               >
                 Coupon code used:
               </Typography>
-              <div className="p-3 mt-2 border-2 border-gray-500  bg-gray-50 text-gray-700 font-bold opacity-60">
-                THIS IS COUPON CODE
+              <div className="p-3 uppercase mt-2 border-2 border-gray-500  bg-gray-50 text-gray-700 font-bold opacity-60">
+                {couponCode}
               </div>
             </div>
 
@@ -120,19 +166,21 @@ const Checkout = () => {
               </Typography>
 
               <Typography variant="h3" color="amber" className="font-semibold">
-                $914,98
+                ${Number(total).toFixed(2)}
               </Typography>
             </div>
           </div>
 
           <div className="mt-5 space-y-3">
             <Button
+              type="submit"
               variant="outlined"
               color="amber"
+              disabled={isSubmitting}
               className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
             >
-              <IoMdCheckmarkCircleOutline size={20} />
-              Place an order
+              {!isSubmitting && <IoMdCheckmarkCircleOutline size={20} />}
+              {isSubmitting ? "Please waiting..." : "Place an order"}
             </Button>
             <Button
               variant="gradient"
@@ -151,7 +199,9 @@ const Checkout = () => {
                 {TABLE_HEAD.map((head) => (
                   <th
                     key={head}
-                    className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+                    className={`${
+                      head === "Product" ? "w-[400px]" : ""
+                    } border-b border-blue-gray-100 bg-blue-gray-50 p-4`}
                   >
                     <Typography
                       variant="small"
@@ -165,16 +215,15 @@ const Checkout = () => {
               </tr>
             </thead>
             <tbody>
-              {Array(6)
-                .fill(0)
-                .map((item, index) => (
-                  <tr key={index} className="even:bg-blue-gray-50/50">
+              {cart.length > 0 &&
+                cart.map((item) => (
+                  <tr key={item.id} className="even:bg-blue-gray-50/50">
                     <td className="p-4">
                       <div className="flex items-center gap-5">
                         <div className="aspect-square w-[40px] h-[40px]">
                           <img
-                            src="https://source.unsplash.com/random"
-                            alt=""
+                            src={item.image}
+                            alt={item.name}
                             className="w-full h-full object-contain"
                           />
                         </div>
@@ -185,15 +234,15 @@ const Checkout = () => {
                             color="blue-gray"
                             className="font-normal"
                           >
-                            Sony – Alpha a5100 Mirrorless Camera
+                            {item.name}
                           </Typography>
 
                           <Typography
                             variant="small"
-                            color="gray"
-                            className="font-normal"
+                            color="amber"
+                            className="font-semibold"
                           >
-                            Quantity: x2
+                            Quantity: x{item.quantity}
                           </Typography>
                         </div>
                       </div>
@@ -202,9 +251,9 @@ const Checkout = () => {
                       <Typography
                         variant="paragraph"
                         color="amber"
-                        className="font-medium"
+                        className="font-semibold"
                       >
-                        $499,99
+                        ${Number(item.price * item.quantity).toFixed(2)}
                       </Typography>
                     </td>
                   </tr>

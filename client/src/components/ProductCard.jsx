@@ -25,6 +25,7 @@ const ProductCard = ({ p }) => {
     try {
       await viewProductApi(p?._id);
       navigate(`/product/${p?._id}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       console.log("Failed to update view count ->", error);
     }

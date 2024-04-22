@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import useGetBlogDetail from "../hooks/useGetProductDetail";
 import { Typography, Button, Rating } from "@material-tailwind/react";
 import { displayRating } from "../components/displayRating";
-import BoxQuantityProduct from "../components/BoxQuantityProduct";
 import { BsCart3 } from "react-icons/bs";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import parse from "html-react-parser";
@@ -32,6 +30,7 @@ import {
   setIsInWishlist,
   setUserWishlist,
 } from "../redux/slices/wishlistSlice";
+import { addProductToCart } from "../redux/slices/cartSlice";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -45,22 +44,25 @@ const ProductDetail = () => {
   const { product: p } = useGetBlogDetail(id);
   const { relatedProducts, isLoading } = useGeRealtedProducts(p?.category);
   const [selectedImage, setSelectedImage] = useState("");
+  const [quantity, setQuantity] = useState(1);
 
-  const addProductToCart = async () => {
-    toast.info("Product added to cart", { position: "top-right" });
+  const handleAddProductToCart = () => {
+    const productData = {
+      id: p?._id,
+      name: p?.name,
+      image: selectedImage || p?.thumbnails[0],
+      price: p?.price,
+      quantity,
+      total: Number(quantity * p?.price),
+    };
+
+    dispatch(addProductToCart(productData));
+
+    toast.info("Product added to cart", {
+      position: "top-right",
+      duration: 1000,
+    });
   };
-
-  async function fetchComments() {
-    try {
-      dispatch(loadingCmt(true));
-      const res = await getCommentsFromProductApi(id, { limit: limit });
-      dispatch(listComments(res));
-      dispatch(loadingCmt(false));
-    } catch (error) {
-      dispatch(listComments([]));
-      dispatch(loadingCmt(false));
-    }
-  }
 
   const handleAddCmt = async () => {
     if (!commentVal.trim()) {
@@ -127,6 +129,17 @@ const ProductDetail = () => {
   }, []);
 
   useEffect(() => {
+    async function fetchComments() {
+      try {
+        dispatch(loadingCmt(true));
+        const res = await getCommentsFromProductApi(id, { limit: limit });
+        dispatch(listComments(res));
+        dispatch(loadingCmt(false));
+      } catch (error) {
+        dispatch(listComments([]));
+        dispatch(loadingCmt(false));
+      }
+    }
     fetchComments();
   }, [dispatch, id, limit]);
 
@@ -193,12 +206,26 @@ const ProductDetail = () => {
 
           <section className="flex items-center gap-5">
             <h1>Quanity: </h1>
-            <BoxQuantityProduct />
+            <div className="border border-gray-500 w-fit rounded-md h-[50px] flex items-center ">
+              <button
+                className="text-2xl font-medium w-[50px] h-[50px]"
+                onClick={() => setQuantity(quantity - 1)}
+              >
+                -
+              </button>
+              <span className="mx-4">{quantity}</span>
+              <button
+                className="text-2xl font-medium w-[50px] h-[50px]"
+                onClick={() => setQuantity(quantity + 1)}
+              >
+                +
+              </button>
+            </div>
           </section>
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={addProductToCart}
+              onClick={handleAddProductToCart}
               variant="outlined"
               color="amber"
               className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"

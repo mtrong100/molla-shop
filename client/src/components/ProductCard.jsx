@@ -13,6 +13,7 @@ import {
   setUserWishlist,
 } from "../redux/slices/wishlistSlice";
 import { toast } from "sonner";
+import { addProductToCart } from "../redux/slices/cartSlice";
 
 const ProductCard = ({ p }) => {
   const dispatch = useDispatch();
@@ -20,6 +21,23 @@ const ProductCard = ({ p }) => {
   const [hovered, setHovered] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
   const { userWishlist } = useSelector((state) => state.wishlist);
+
+  const handleAddProductToCart = () => {
+    const productData = {
+      id: p?._id,
+      name: p?.name,
+      image: p?.thumbnails[0],
+      price: p?.price,
+      quantity: 1,
+    };
+
+    dispatch(addProductToCart(productData));
+
+    toast.info("Product added to cart", {
+      position: "top-right",
+      duration: 1000,
+    });
+  };
 
   const handleViewProduct = async () => {
     try {
@@ -83,8 +101,11 @@ const ProductCard = ({ p }) => {
           </div>
         )}
 
-        <div className="absolute bottom-0 left-0 right-0 text-white text-xl flex items-center justify-evenly h-[45px] bg-black translate-y-[100%] group-hover:opacity-100 group-hover:translate-y-0 transition-all z-20">
-          <FaCartPlus className=" cursor-pointer hover:text-amber-600" />
+      <div className="absolute bottom-0 left-0 right-0 text-white text-xl flex items-center justify-evenly h-[45px] bg-black translate-y-[100%] group-hover:opacity-100 group-hover:translate-y-0 transition-all z-20">
+          <FaCartPlus
+            onClick={handleAddProductToCart}
+            className=" cursor-pointer hover:text-amber-600"
+          />
           <hr className="h-[60%] w-[1px] bg-white" />
           <BiSolidBinoculars
             onClick={handleViewProduct}

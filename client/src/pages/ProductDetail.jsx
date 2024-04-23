@@ -53,7 +53,6 @@ const ProductDetail = () => {
       image: selectedImage || p?.thumbnails[0],
       price: p?.price,
       quantity,
-      total: Number(quantity * p?.price),
     };
 
     dispatch(addProductToCart(productData));

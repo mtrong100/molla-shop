@@ -1,4 +1,10 @@
-import { Button, Card, Checkbox, Typography } from "@material-tailwind/react";
+import {
+  Button,
+  Card,
+  Checkbox,
+  Spinner,
+  Typography,
+} from "@material-tailwind/react";
 import React from "react";
 import FieldInput from "../components/form/FieldInput";
 import { useForm } from "react-hook-form";
@@ -12,6 +18,7 @@ import { PAYMENT_METHOD } from "../utils/constants";
 import { createOrderApi } from "../api/orderApi";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import StripeCheckout from "react-stripe-checkout";
 
 const TABLE_HEAD = ["Product", "Total"];
 
@@ -37,6 +44,7 @@ const Checkout = () => {
   const {
     register,
     handleSubmit,
+    getValues,
     formState: { isSubmitting, errors },
   } = useForm({
     mode: "onchange",
@@ -57,6 +65,7 @@ const Checkout = () => {
   );
   const total = useSelector(calculateTotal);
 
+  /* PLACE AN ORDER */
   const onSubmit = async (values) => {
     try {
       const req = {
@@ -77,6 +86,39 @@ const Checkout = () => {
     } catch (error) {
       console.log(error);
       toast.error("Failed to place an order");
+    }
+  };
+
+  /* PAY WITH CARD */
+  const stripePayment = async () => {
+    try {
+      const values = getValues();
+
+      if (
+        !(values.fullName && values.phone && values.email && values.address)
+      ) {
+        toast.error("You forgot to fill in the form");
+        return;
+      }
+
+      const req = {
+        shippingAddress: {
+          ...values,
+        },
+        orderItems: cart,
+        paymentMethod: PAYMENT_METHOD.CARD,
+        total: total.toFixed(2),
+        user: currentUser?._id,
+      };
+
+      await createOrderApi({ userToken: currentUser?.token, req });
+
+      toast.success("Pay with card successfully");
+      dispatch(resetCart());
+      navigate("/");
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to pay with card");
     }
   };
 
@@ -182,17 +224,34 @@ const Checkout = () => {
               disabled={isSubmitting}
               className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
             >
-              {!isSubmitting && <IoMdCheckmarkCircleOutline size={20} />}
+              {isSubmitting ? (
+                <Spinner color="amber" className="h-4 w-4" />
+              ) : (
+                <IoMdCheckmarkCircleOutline size={20} />
+              )}
               {isSubmitting ? "Please waiting..." : "Place an order"}
             </Button>
-            <Button
-              variant="gradient"
-              color="amber"
-              className="flex rounded-none items-center gap-3  w-full justify-center"
-            >
-              <FaRegCreditCard size={20} />
-              Pay with card
-            </Button>
+            <div>
+              <StripeCheckout
+                token={stripePayment}
+                stripeKey="pk_test_51OmAzrG1T7kyPILea5z6uMUN5VoCKA4yOluRVCMezmlcHYQnMIs7djqN1mmiWbDoFmyt4sCVqlN69H6MekMafLr900ocV4xdiu"
+                name="Exclusive-shop"
+                email={currentUser?.email}
+                amount={Number(total.toFixed(2)) * 100}
+                description="Payment with Stripe"
+              >
+                <Button
+                  type="button"
+                  variant="gradient"
+                  color="amber"
+                  disabled={isSubmitting}
+                  className="flex rounded-none items-center gap-3  w-full justify-center"
+                >
+                  <FaRegCreditCard size={20} />
+                  Pay with card
+                </Button>
+              </StripeCheckout>
+            </div>
           </div>
         </form>
         <Card className=" mt-5 w-full overflow-scroll h-fit">

@@ -15,6 +15,7 @@ import {
 } from "../redux/slices/wishlistSlice";
 import { toast } from "sonner";
 import { FaHeart } from "react-icons/fa";
+import { addProductToCart } from "../redux/slices/cartSlice";
 
 const ProductCardHorizontal = ({ p }) => {
   const navigate = useNavigate();
@@ -22,6 +23,23 @@ const ProductCardHorizontal = ({ p }) => {
   const [hovered, setHovered] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
   const { userWishlist } = useSelector((state) => state.wishlist);
+
+  const handleAddProductToCart = () => {
+    const productData = {
+      id: p?._id,
+      name: p?.name,
+      image: p?.thumbnails[0],
+      price: p?.price,
+      quantity: 1,
+    };
+
+    dispatch(addProductToCart(productData));
+
+    toast.info("Product added to cart", {
+      position: "top-right",
+      duration: 1000,
+    });
+  };
 
   const handleViewProduct = async () => {
     try {
@@ -124,6 +142,7 @@ const ProductCardHorizontal = ({ p }) => {
         </div>
 
         <Button
+          onClick={handleAddProductToCart}
           variant="outlined"
           color="amber"
           className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"

@@ -57,6 +57,16 @@ export const cartSlice = createSlice({
         }
       }
     },
+    resetCart: () => {
+      return {
+        shippingMethod: {
+          name: "Standard",
+          price: 10.0,
+        },
+        cart: [],
+        couponCode: "molla",
+      };
+    },
   },
 });
 
@@ -67,6 +77,7 @@ export const {
   increaseProductQuantity,
   decreaseProductQuantity,
   selectCouponCode,
+  resetCart,
 } = cartSlice.actions;
 
 export const calculateSubTotal = (state) =>

@@ -158,10 +158,14 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
               .map(
                 (item) => `
               <tr>
-                <td><img src="${item?.image}" alt="${item?.name}"></td>
+                <td>
+                  <div style="margin: 0 auto;">
+                    <img src="${item?.image}" alt="${item?.name}">
+                  </div>
+                </td>
                 <td>${item?.name}</td>
-                <td>$${(item?.price * item?.quantity).toFixed(2)}</td>
                 <td>${item?.quantity}</td>
+                <td>$${(item?.price * item?.quantity).toFixed(2)}</td>
               </tr>
             `
               )
@@ -173,7 +177,7 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
         
         <p>Thank you for choosing our products. If you have any questions or concerns, feel free to contact us.</p>
         
-        <p>Best Regards,<br>Your E-Commerce Shop Team</p>
+        <p>Best Regards,<br>Molla Shop Team</p>
       </body>
     </html>
   `;

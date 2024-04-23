@@ -6,8 +6,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { FaRegCreditCard } from "react-icons/fa";
-import { useSelector } from "react-redux";
-import { calculateTotal } from "../redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { calculateTotal, resetCart } from "../redux/slices/cartSlice";
 import { PAYMENT_METHOD } from "../utils/constants";
 import { createOrderApi } from "../api/orderApi";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,7 @@ import { toast } from "sonner";
 const TABLE_HEAD = ["Product", "Total"];
 
 const validationSchema = yup.object().shape({
-  fullname: yup
+  fullName: yup
     .string()
     .min(2, "Full name must be at least 2 characters")
     .max(50, "Full name must be at most 50 characters")
@@ -42,7 +42,7 @@ const Checkout = () => {
     mode: "onchange",
     resolver: yupResolver(validationSchema),
     defaultValues: {
-      fullname: "",
+      fullName: "",
       address: "",
       phone: "",
       email: "",
@@ -50,6 +50,7 @@ const Checkout = () => {
   });
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const { shippingMethod, cart, couponCode } = useSelector(
     (state) => state.cart
@@ -64,17 +65,14 @@ const Checkout = () => {
         },
         orderItems: cart,
         paymentMethod: PAYMENT_METHOD.CASH,
-        total,
+        total: total.toFixed(2),
         user: currentUser?._id,
       };
 
-      console.log(req);
+      await createOrderApi({ userToken: currentUser?.token, req });
 
-      const res = await createOrderApi({ userToken: currentUser?.token, req });
-      console.log(res);
-
-      //...
       toast.success("Place an order successfully");
+      dispatch(resetCart());
       navigate("/");
     } catch (error) {
       console.log(error);
@@ -93,10 +91,10 @@ const Checkout = () => {
           <div className="space-y-5">
             <FieldInput
               labelTitle="Full Name"
-              labelText="Fullname"
+              labelText="full Name"
               register={register}
-              name="fullname"
-              errorMessage={errors?.fullname?.message}
+              name="fullName"
+              errorMessage={errors?.fullName?.message}
             />
             <FieldInput
               labelTitle="Email"
@@ -135,7 +133,12 @@ const Checkout = () => {
 
               <li className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Checkbox color="amber" checked className="rounded-full" />
+                  <Checkbox
+                    color="amber"
+                    checked
+                    className="rounded-full"
+                    onChange={() => {}}
+                  />
                   {shippingMethod.name}:
                 </div>
 

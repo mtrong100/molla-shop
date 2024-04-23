@@ -32,6 +32,7 @@ const TABLE_HEAD = [
   "Name",
   "Category",
   "Price",
+  "Stock",
   "Size",
   "Brand",
   "Color",
@@ -244,6 +245,15 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                   className="font-normal capitalize"
                 >
                   {item?.price}
+                </Typography>
+              </td>
+              <td className="p-4">
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal capitalize"
+                >
+                  {item?.stock}
                 </Typography>
               </td>
               <td className="p-4">

@@ -63,6 +63,7 @@ const Checkout = () => {
   const { shippingMethod, cart, couponCode } = useSelector(
     (state) => state.cart
   );
+
   const total = useSelector(calculateTotal);
 
   /* PLACE AN ORDER */
@@ -73,8 +74,15 @@ const Checkout = () => {
           ...values,
         },
         orderItems: cart,
-        paymentMethod: PAYMENT_METHOD.CASH,
-        total: total.toFixed(2),
+        shippingType: {
+          type: shippingMethod.name,
+          price: shippingMethod.price,
+        },
+        details: {
+          paymentMethod: PAYMENT_METHOD.CASH,
+          totalCost: total.toFixed(2),
+          couponCodeApply: couponCode,
+        },
         user: currentUser?._id,
       };
 
@@ -106,8 +114,15 @@ const Checkout = () => {
           ...values,
         },
         orderItems: cart,
-        paymentMethod: PAYMENT_METHOD.CARD,
-        total: total.toFixed(2),
+        shippingType: {
+          type: shippingMethod.name,
+          price: shippingMethod.price,
+        },
+        details: {
+          paymentMethod: PAYMENT_METHOD.CARD,
+          totalCost: total.toFixed(2),
+          couponCodeApply: couponCode,
+        },
         user: currentUser?._id,
       };
 
@@ -282,7 +297,7 @@ const Checkout = () => {
                   <tr key={item.id} className="even:bg-blue-gray-50/50">
                     <td className="p-4">
                       <div className="flex items-center gap-5">
-                        <div className="aspect-square w-[40px] h-[40px]">
+                        <div className="aspect-square w-[60px] h-[60px]">
                           <img
                             src={item.image}
                             alt={item.name}

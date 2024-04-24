@@ -22,8 +22,15 @@ const orderSchema = new mongoose.Schema(
       phone: { type: String, required: true },
       email: { type: String, required: true },
     },
-    paymentMethod: { type: String, required: true },
-    total: { type: Number, required: true },
+    shippingType: {
+      type: { type: String, required: true },
+      price: { type: Number, required: true },
+    },
+    details: {
+      paymentMethod: { type: String, required: true },
+      totalCost: { type: Number, required: true },
+      couponCodeApply: { type: String },
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

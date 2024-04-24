@@ -96,7 +96,12 @@ export const sendOtpResetPassword = async (email, otp) => {
   });
 };
 
-export const sendEmailCompletePurchase = async (orderItems, email, total) => {
+export const sendEmailCompletePurchase = async (
+  orderItems,
+  shippingAddress,
+  shippingType,
+  details
+) => {
   const htmlContent = `
     <html>
       <head>
@@ -141,7 +146,7 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
         </style>
       </head>
       <body>
-        <h1>Thank you for your purchase!</h1>
+        <h1>Thank you ${shippingAddress?.fullName} for your purchase!</h1>
         <p>Hello, We are thrilled to let you know that your order has been successfully placed. Below are the details of your purchase:</p>
         
         <table>
@@ -173,7 +178,13 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
           </tbody>
         </table>
 
-        <h2>Total: $${total}</h2>
+        <div>Payment Method: ${details?.paymentMethod}</div>
+        <div>Shipping Type: ${shippingType?.type} : ${
+    shippingType?.price
+  }$</div>
+        <div>Coupon Code Apply: ${details?.couponCodeApply}</div>
+
+        <h2>Total: $${details?.totalCost}</h2>
         
         <p>Thank you for choosing our products. If you have any questions or concerns, feel free to contact us.</p>
         
@@ -184,7 +195,7 @@ export const sendEmailCompletePurchase = async (orderItems, email, total) => {
 
   await transporter.sendMail({
     from: '"Molla Shop 👻" <shop-e-commerce@gmail.com>',
-    to: email,
+    to: shippingAddress?.email,
     subject: "Order Confirmation",
     text: "Thank you for your purchase! Your order details are attached.",
     html: htmlContent,

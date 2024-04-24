@@ -75,7 +75,7 @@ export const getUserOrders = async (req, res, next) => {
 };
 
 export const createOrder = async (req, res, next) => {
-  const { orderItems, shippingAddress, total } = req.body;
+  const { orderItems, shippingAddress, shippingType, details } = req.body;
 
   try {
     for (const order of orderItems) {
@@ -97,7 +97,12 @@ export const createOrder = async (req, res, next) => {
     const newOrder = new Order(req.body);
     await newOrder.save();
 
-    await sendEmailCompletePurchase(orderItems, shippingAddress?.email, total);
+    await sendEmailCompletePurchase(
+      orderItems,
+      shippingAddress,
+      shippingType,
+      details
+    );
 
     return res.status(200).json(newOrder);
   } catch (error) {

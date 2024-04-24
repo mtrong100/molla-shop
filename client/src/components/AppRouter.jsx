@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
 import VerifyEmail from "../pages/VerifyEmail";
+import MyOrder from "../pages/MyOrder";
 
 /* MAIN PAGES */
 const Home = lazy(() => import("../pages/Home"));
@@ -32,6 +33,7 @@ const mainRoutes = [
   { path: "/checkout", element: <Checkout /> },
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/product/:id", element: <ProductDetail /> },
+  { path: "/my-orders", element: <MyOrder /> },
 ];
 
 const adminRoutes = [

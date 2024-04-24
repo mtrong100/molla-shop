@@ -8,6 +8,7 @@ import commentSlice from "./slices/commentSlice";
 import wishlistSlice from "./slices/wishlistSlice";
 import productSlice from "./slices/productSlice";
 import cartSlice from "./slices/cartSlice";
+import orderSlice from "./slices/orderSlice";
 
 const rootReducer = combineReducers({
   user: userSlice,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   wishlist: wishlistSlice,
   product: productSlice,
   cart: cartSlice,
+  order: orderSlice,
 });
 
 const persistConfig = {
@@ -29,6 +31,7 @@ const persistConfig = {
     "product",
     "wishlist",
     // "cart",
+    "order",
   ],
 };
 

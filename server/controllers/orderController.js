@@ -2,6 +2,7 @@ import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import { sendEmailCompletePurchase } from "../services/emailService.js";
 import { errorHandler } from "../utils/errorHandler.js";
+import mongoose from "mongoose";
 
 export const getAllOrders = async (req, res, next) => {
   const { page = 1, limit = 20, order = "desc" } = req.query;
@@ -42,23 +43,29 @@ export const getOrderDetail = async (req, res, next) => {
 };
 
 export const getUserOrders = async (req, res, next) => {
-  const { page = 1, limit = 20, order = "desc" } = req.query;
-
   try {
+    const { page = 1, limit = 20, order = "desc", query } = req.query;
+
     const userId = req.params.id;
 
+    const filter = { user: userId };
+
+    if (query) {
+      filter["shippingAddress.fullName"] = { $regex: query, $options: "i" };
+    }
+
     const options = {
-      page,
-      limit,
+      page: parseInt(page),
+      limit: parseInt(limit),
       sort: {
         createdAt: order === "asc" ? 1 : -1,
       },
     };
 
-    const data = await Order.paginate({ user: userId }, options);
+    const data = await Order.paginate(filter, options);
 
     if (!data.docs || data.docs.length === 0) {
-      next(errorHandler(404, "User orders not found"));
+      return res.status(404).json({ error: "User orders not found" });
     }
 
     return res.status(200).json(data);

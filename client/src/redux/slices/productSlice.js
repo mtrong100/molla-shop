@@ -13,7 +13,7 @@ export const productSlice = createSlice({
       state.isLoadingProducts = false;
     },
     loadingProducts: (state, action) => {
-      state.isLoadingWishlist = action.payload;
+      state.isLoadingProducts = action.payload;
     },
     setLimit: (state, action) => {
       state.limit = action.payload;

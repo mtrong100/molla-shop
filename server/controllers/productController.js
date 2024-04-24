@@ -1,6 +1,5 @@
 import { validationResult } from "express-validator";
 import Product from "../models/productModel.js";
-import User from "../models/userModel.js";
 import { errorHandler } from "../utils/errorHandler.js";
 
 export const getAllProducts = async (req, res, next) => {

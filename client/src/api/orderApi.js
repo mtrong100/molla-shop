@@ -23,18 +23,23 @@ export const getOrderDetailApi = async ({ userToken, orderId }) => {
   return res.data;
 };
 
-export const getUserOrdersApi = async ({  
+export const getUserOrdersApi = async ({
   userToken,
   userId,
   page = 1,
   limit = 12,
   order = "desc",
+  query,
 }) => {
   const res = await axios.get(
-    `${
-      import.meta.env.VITE_SERVER_URL
-    }/order/my-orders/${userId}?page=${page}&limit=${limit}&order=${order}`,
+    `${import.meta.env.VITE_SERVER_URL}/order/my-orders/${userId}`,
     {
+      params: {
+        page,
+        limit,
+        order,
+        query,
+      },
       headers: { token: `Bearer ${userToken}` },
     }
   );

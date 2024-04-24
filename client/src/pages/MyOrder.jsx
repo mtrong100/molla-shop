@@ -34,6 +34,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 
 const TABLE_HEAD = [
+  "ID",
   "Customer",
   "Phone",
   "Email",
@@ -71,7 +72,6 @@ const MyOrder = () => {
           userToken: currentUser?.token,
           userId: currentUser?._id,
           order: sortOption,
-          query: searchQuery,
         });
         dispatch(orderList(res));
       } catch (error) {
@@ -89,6 +89,11 @@ const MyOrder = () => {
     dispatch(setNextPage(event.selected + 1));
   };
 
+  // FILTER ORDERS
+  const filterOrders = orders?.docs?.filter((item) =>
+    item?._id.includes(searchQuery)
+  );
+
   // FIX SCROLL BUG
   useEffect(() => {
     document.body.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -97,7 +102,7 @@ const MyOrder = () => {
   return (
     <div className="my-10">
       <div className="flex items-center justify-between">
-        <TitleSection>Manage products</TitleSection>
+        <TitleSection>Manage your orders</TitleSection>
         <DownloadTableExcel
           filename="Product Excel Table"
           sheet="product sheet"
@@ -143,12 +148,12 @@ const MyOrder = () => {
           </p>
         )}
 
-        {!isLoadingOrders && orders?.docs?.length === 0 ? (
+        {!isLoadingOrders && filterOrders?.length === 0 ? (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Product not found
           </p>
         ) : (
-          <TableWithStripedRows ref={tableRef} results={orders?.docs} />
+          <TableWithStripedRows ref={tableRef} results={filterOrders} />
         )}
       </div>
 
@@ -198,6 +203,15 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
         <tbody>
           {results?.map((item) => (
             <tr key={item?._id} className="even:bg-blue-gray-50/50">
+              <td className="p-4">
+                <Typography
+                  variant="small"
+                  color="blue-gray"
+                  className="font-normal"
+                >
+                  {item?._id}
+                </Typography>
+              </td>
               <td className="p-4">
                 <Typography
                   variant="small"

@@ -29,7 +29,6 @@ export const getUserOrdersApi = async ({
   page = 1,
   limit = 12,
   order = "desc",
-  query,
 }) => {
   const res = await axios.get(
     `${import.meta.env.VITE_SERVER_URL}/order/my-orders/${userId}`,
@@ -38,7 +37,6 @@ export const getUserOrdersApi = async ({
         page,
         limit,
         order,
-        query,
       },
       headers: { token: `Bearer ${userToken}` },
     }

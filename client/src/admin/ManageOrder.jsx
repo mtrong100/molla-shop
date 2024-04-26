@@ -150,7 +150,7 @@ const ManageOrder = () => {
 
         {!isLoadingOrders && filterOrders?.length === 0 ? (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
-            Product not found
+            Order not found
           </p>
         ) : (
           <TableWithStripedRows ref={tableRef} results={filterOrders} />

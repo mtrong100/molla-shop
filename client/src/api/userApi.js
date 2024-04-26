@@ -19,3 +19,23 @@ export const updateUserApi = async ({ userId, userToken, req }) => {
 
   return res.data;
 };
+
+export const getAllUserApi = async ({
+  userToken,
+  page = 1,
+  limit = 12,
+  order = "desc",
+  query,
+}) => {
+  const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user/all`, {
+    params: {
+      page,
+      limit,
+      order,
+      query,
+    },
+    headers: { token: `Bearer ${userToken}` },
+  });
+
+  return res.data;
+};

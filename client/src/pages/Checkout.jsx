@@ -68,6 +68,11 @@ const Checkout = () => {
 
   /* PLACE AN ORDER */
   const onSubmit = async (values) => {
+    if (!currentUser) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
       const req = {
         shippingAddress: {
@@ -99,6 +104,11 @@ const Checkout = () => {
 
   /* PAY WITH CARD */
   const stripePayment = async () => {
+    if (!currentUser) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
       const values = getValues();
 

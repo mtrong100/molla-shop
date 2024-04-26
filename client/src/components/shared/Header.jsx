@@ -135,15 +135,17 @@ const Header = () => {
 
             <div className="flex items-center gap-4 justify-end">
               <div className="flex items-center gap-7 text-white">
-                <div
-                  onClick={() => navigate("/wishlist")}
-                  className="relative cursor-pointer"
-                >
-                  <FaRegHeart size={25} className="hover:text-amber-600" />
-                  <span className="absolute -top-2 -right-3 h-5 w-5 flex items-center justify-center bg-amber-600  rounded-full  text-sm text-black font-bold pointer-events-none">
-                    {userWishlist.length || 0}
-                  </span>
-                </div>
+                {currentUser && (
+                  <div
+                    onClick={() => navigate("/wishlist")}
+                    className="relative cursor-pointer"
+                  >
+                    <FaRegHeart size={25} className="hover:text-amber-600" />
+                    <span className="absolute -top-2 -right-3 h-5 w-5 flex items-center justify-center bg-amber-600  rounded-full  text-sm text-black font-bold pointer-events-none">
+                      {userWishlist.length || 0}
+                    </span>
+                  </div>
+                )}
 
                 <div
                   onClick={() => navigate("/cart")}
@@ -185,6 +187,14 @@ const Header = () => {
           <ul className="flex items-center gap-8">
             {NAV_LINKS.map((item) => {
               const isActive = item.link === location.pathname;
+
+              if (item.name === "My Account" && !currentUser) {
+                return null;
+              }
+
+              if (item.name === "Wishlist" && !currentUser) {
+                return null;
+              }
 
               return (
                 <Link
@@ -410,6 +420,8 @@ function GoogleLogin() {
       toast.success(res?.message);
       localStorage.setItem("MOLLA_TOKEN", JSON.stringify(res?.token));
       dispatch(storeCurrentUser({ ...res.results, token: res?.token }));
+
+      window.location.reload();
     } catch (error) {
       toast.error(error?.response?.data?.message);
       console.log("Failed to login with google: ", error);

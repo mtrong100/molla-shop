@@ -50,6 +50,11 @@ const ProductCard = ({ p }) => {
   };
 
   const handleWishlist = async () => {
+    if (!currentUser) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
       const res = await toggleWishlistApi({
         userId: currentUser?._id,
@@ -101,7 +106,7 @@ const ProductCard = ({ p }) => {
           </div>
         )}
 
-      <div className="absolute bottom-0 left-0 right-0 text-white text-xl flex items-center justify-evenly h-[45px] bg-black translate-y-[100%] group-hover:opacity-100 group-hover:translate-y-0 transition-all z-20">
+        <div className="absolute bottom-0 left-0 right-0 text-white text-xl flex items-center justify-evenly h-[45px] bg-black translate-y-[100%] group-hover:opacity-100 group-hover:translate-y-0 transition-all z-20">
           <FaCartPlus
             onClick={handleAddProductToCart}
             className=" cursor-pointer hover:text-amber-600"

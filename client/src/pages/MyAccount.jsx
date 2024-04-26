@@ -162,6 +162,8 @@ function DefaultSidebar() {
     dispatch(storeCurrentUser(null));
   };
 
+  if (!currentUser) return null;
+
   return (
     <Card className="w-full p-4 shadow-xl shadow-blue-gray-900/5 border">
       <div className="p-4">
@@ -180,14 +182,20 @@ function DefaultSidebar() {
         </div>
       </div>
       <List>
-        {PROFILE_SIDEBAR.map((item) => (
-          <Link to={item.link} key={item.name}>
-            <ListItem>
-              <ListItemPrefix>{item.icon}</ListItemPrefix>
-              {item.name}
-            </ListItem>
-          </Link>
-        ))}
+        {PROFILE_SIDEBAR.map((item) => {
+          if (item.name === "Dashboard" && currentUser.role !== "admin") {
+            return null;
+          }
+
+          return (
+            <Link to={item.link} key={item.name}>
+              <ListItem>
+                <ListItemPrefix>{item.icon}</ListItemPrefix>
+                {item.name}
+              </ListItem>
+            </Link>
+          );
+        })}
 
         <ListItem onClick={handleLogout}>
           <ListItemPrefix>

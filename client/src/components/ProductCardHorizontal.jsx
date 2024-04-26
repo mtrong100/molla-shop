@@ -51,6 +51,11 @@ const ProductCardHorizontal = ({ p }) => {
   };
 
   const handleWishlist = async () => {
+    if (!currentUser) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
       const res = await toggleWishlistApi({
         userId: currentUser?._id,

@@ -64,6 +64,11 @@ const ProductDetail = () => {
   };
 
   const handleAddCmt = async () => {
+    if (!currentUser) {
+      toast.error("Please login first");
+      return;
+    }
+
     if (!commentVal.trim()) {
       toast.info("Please type something before send");
       return;
@@ -93,6 +98,11 @@ const ProductDetail = () => {
   };
 
   const handleDeleteCmt = async (cmtId) => {
+    if (!currentUser) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
       await deleteCommentApi(cmtId, currentUser?.token);
       const res = await getCommentsFromProductApi(id, { limit: limit });
@@ -104,6 +114,11 @@ const ProductDetail = () => {
   };
 
   const handleWishlist = async () => {
+    if (!currentUser) {
+      toast.error("Please login first");
+      return;
+    }
+
     try {
       const res = await toggleWishlistApi({
         userId: currentUser?._id,
@@ -415,6 +430,8 @@ const ProductDetail = () => {
 export default ProductDetail;
 
 function UserComment({ item, onDelete }) {
+  const { currentUser } = useSelector((state) => state.user);
+
   return (
     <li className="flex items-start gap-3">
       <div className="flex-shrink-0 w-[50px] h-[50px]">
@@ -436,12 +453,14 @@ function UserComment({ item, onDelete }) {
 
         <Typography variant="paragraph">{item?.comment}</Typography>
 
-        <p
-          onClick={() => onDelete(item?._id)}
-          className=" cursor-pointer text-red-600 hover:underline font-medium"
-        >
-          Delete
-        </p>
+        {item?.user?._id === currentUser?._id && (
+          <p
+            onClick={() => onDelete(item?._id)}
+            className=" cursor-pointer text-red-600 hover:underline font-medium"
+          >
+            Delete
+          </p>
+        )}
       </div>
     </li>
   );

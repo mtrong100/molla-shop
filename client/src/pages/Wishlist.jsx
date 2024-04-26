@@ -54,6 +54,8 @@ const Wishlist = () => {
     fetchProducts();
   }, [dispatch]);
 
+  if (!currentUser) return null;
+
   return (
     <div className="my-10 space-y-20">
       <section>

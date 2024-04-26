@@ -338,7 +338,7 @@ const ProductDetail = () => {
             ))}
         </ul>
 
-        {comments?.docs?.length > 0 && comments?.totalDocs < 5 && (
+        {comments?.totalDocs > 5 && (
           <Button
             onClick={() => dispatch(increaseLimit())}
             color="amber"

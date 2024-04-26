@@ -104,8 +104,8 @@ const MyOrder = () => {
       <div className="flex items-center justify-between">
         <TitleSection>Manage your orders</TitleSection>
         <DownloadTableExcel
-          filename="Product Excel Table"
-          sheet="product sheet"
+          filename="Order Excel Table"
+          sheet="Order sheet"
           currentTableRef={tableRef.current}
         >
           <Button

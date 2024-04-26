@@ -44,15 +44,11 @@ export const getOrderDetail = async (req, res, next) => {
 
 export const getUserOrders = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, order = "desc", query } = req.query;
+    const { page = 1, limit = 20, order = "desc" } = req.query;
 
     const userId = req.params.id;
 
     const filter = { user: userId };
-
-    if (query) {
-      filter["shippingAddress.fullName"] = { $regex: query, $options: "i" };
-    }
 
     const options = {
       page: parseInt(page),

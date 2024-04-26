@@ -45,20 +45,20 @@ export const getUserOrdersApi = async ({
   return res.data;
 };
 
-export const getAllOrdersApi = async (
+export const getAllOrderApi = async ({
   userToken,
   page = 1,
   limit = 12,
-  order = "desc"
-) => {
-  const res = await axios.get(
-    `${
-      import.meta.env.VITE_SERVER_URL
-    }/order/all?page=${page}&limit=${limit}&order=${order}`,
-    {
-      headers: { token: `Bearer ${userToken}` },
-    }
-  );
+  order = "desc",
+}) => {
+  const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/order/all`, {
+    params: {
+      page,
+      limit,
+      order,
+    },
+    headers: { token: `Bearer ${userToken}` },
+  });
 
   return res.data;
 };

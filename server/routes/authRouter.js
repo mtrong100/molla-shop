@@ -2,26 +2,27 @@ import express from "express";
 import {
   googleLogin,
   login,
+  logout,
   register,
   resetPassword,
   sendOtp,
   verifyEmail,
 } from "../controllers/authController.js";
-import {
-  googleLoginValidationRules,
-  loginValidationRules,
-  registerValidationRules,
-  resetPasswordValidationRules,
-  sendOtpValidationRules,
-} from "../validations/authValidationRules.js";
 
 const router = express.Router();
 
-router.post("/register", registerValidationRules(), register);
-router.post("/login", loginValidationRules(), login);
-router.post("/google-login", googleLoginValidationRules(), googleLogin);
-router.post("/reset-password", resetPasswordValidationRules(), resetPassword);
-router.post("/send-otp", sendOtpValidationRules(), sendOtp);
+router.post("/register", register);
+
+router.post("/login", login);
+
+router.post("/google-login", googleLogin);
+
+router.post("/logout", logout);
+
+router.post("/reset-password", resetPassword);
+
+router.post("/send-otp", sendOtp);
+
 router.get("/verify-email", verifyEmail);
 
 export default router;

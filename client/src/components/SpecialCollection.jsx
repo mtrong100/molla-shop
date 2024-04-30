@@ -1,12 +1,15 @@
 import React from "react";
 import { Tabs, TabsHeader, TabsBody, Tab } from "@material-tailwind/react";
-import ProductCard from "./ProductCard";
+import ProductCard, { ProductCardSkeleton } from "./ProductCard";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
+import useGetProduct from "../hooks/useGetProduct";
 
 const SpecialCollection = () => {
   const [activeTab, setActiveTab] = React.useState("Featured");
   const tabTitles = ["Featured", "On Sale", "Top Rated"];
+
+  const { products, loading } = useGetProduct();
 
   return (
     <div className="mt-20">
@@ -87,12 +90,14 @@ const SpecialCollection = () => {
             slidesToSlide={1}
             swipeable
           >
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
-            <ProductCard />
+            {loading &&
+              Array(12)
+                .fill(0)
+                .map((item, index) => <ProductCardSkeleton key={index} />)}
+
+            {!loading &&
+              products.length > 0 &&
+              products.map((item) => <ProductCard key={item?._id} p={item} />)}
           </Carousel>
         </TabsBody>
       </Tabs>

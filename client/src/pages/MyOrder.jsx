@@ -13,25 +13,15 @@ import {
   DialogBody,
   DialogFooter,
 } from "@material-tailwind/react";
-import useDebounce from "../hooks/useDebounce";
 import { DownloadTableExcel } from "react-export-table-to-excel";
-import { useDispatch, useSelector } from "react-redux";
 import { MdOutlineFileDownload } from "react-icons/md";
-import {
-  loadingOrders,
-  orderList,
-  setCurrentPage,
-  setNextPage,
-  setQueryOrder,
-  setSortOptionVal,
-} from "../redux/slices/orderSlice";
-import { getUserOrdersApi } from "../api/orderApi";
 import ReactPaginate from "react-paginate";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { IoEyeOutline } from "react-icons/io5";
 import { formatDate } from "../utils/helper";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import useMyOrder from "../hooks/useMyOrder";
 
 const TABLE_HEAD = [
   "ID",
@@ -57,42 +47,15 @@ const ORDER_OPTIONS = [
 
 const MyOrder = () => {
   const tableRef = useRef(null);
-  const dispatch = useDispatch();
-
-  const { currentUser } = useSelector((state) => state.user);
-  const { orders, isLoadingOrders, query, sortOption, currentPage } =
-    useSelector((state) => state.order);
-  const searchQuery = useDebounce(query, 500);
-
-  useEffect(() => {
-    async function fetchUserOrders() {
-      try {
-        dispatch(loadingOrders(true));
-        const res = await getUserOrdersApi({
-          userToken: currentUser?.token,
-          userId: currentUser?._id,
-          order: sortOption,
-        });
-        dispatch(orderList(res));
-      } catch (error) {
-        console.log("Failed to fetch products: ", error);
-        dispatch(orderList([]));
-        dispatch(loadingOrders(false));
-      }
-    }
-    fetchUserOrders();
-  }, [currentUser?._id, currentUser?.token, dispatch, searchQuery, sortOption]);
-
-  // CLICK PAGE
-  const handlePageClick = (event) => {
-    dispatch(setCurrentPage(event.selected));
-    dispatch(setNextPage(event.selected + 1));
-  };
-
-  // FILTER ORDERS
-  const filterOrders = orders?.docs?.filter((item) =>
-    item?._id.includes(searchQuery)
-  );
+  const {
+    filterOrders,
+    handlePageClick,
+    orders,
+    setFilter,
+    paginate,
+    isLoading,
+    filter,
+  } = useMyOrder();
 
   // FIX SCROLL BUG
   useEffect(() => {
@@ -122,13 +85,13 @@ const MyOrder = () => {
       {/* Action */}
       <div className="w-full grid grid-cols-[minmax(0,_1fr)_250px] gap-3 mt-8">
         <Input
-          value={query}
-          onChange={(e) => dispatch(setQueryOrder(e.target.value))}
           label="Search"
           size="lg"
+          value={filter.query}
+          onChange={(e) => setFilter({ ...filter, query: e.target.value })}
         />
         <Select
-          onChange={(val) => dispatch(setSortOptionVal(val))}
+          onChange={(val) => setFilter({ ...filter, order: val })}
           size="lg"
           label="Order by"
         >
@@ -142,13 +105,13 @@ const MyOrder = () => {
 
       {/* Render orders */}
       <div className="mt-5">
-        {isLoadingOrders && (
+        {isLoading && (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Loading...
           </p>
         )}
 
-        {!isLoadingOrders && filterOrders?.length === 0 ? (
+        {!isLoading && filterOrders?.length === 0 ? (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Product not found
           </p>
@@ -168,7 +131,7 @@ const MyOrder = () => {
             pageCount={orders?.totalPages}
             previousLabel={<LuChevronLeft />}
             renderOnZeroPageCount={null}
-            forcePage={currentPage}
+            forcePage={paginate.currentPage}
           />
         </div>
       )}

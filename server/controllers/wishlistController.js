@@ -1,8 +1,7 @@
 import Product from "../models/productModel.js";
 import Wishlist from "../models/wishlistModel.js";
-import { errorHandler } from "../utils/errorHandler.js";
 
-export const getUserWishlist = async (req, res, next) => {
+export const getUserWishlist = async (req, res) => {
   try {
     const userId = req.params.userId;
 
@@ -12,9 +11,10 @@ export const getUserWishlist = async (req, res, next) => {
 
     const wishlistProducts = userWishlist.map((favorite) => favorite.product);
 
-    res.status(200).json({ success: true, wishlist: wishlistProducts });
+    return res.status(200).json(wishlistProducts);
   } catch (error) {
-    next(error);
+    console.log("Error in getUserWishlist controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -33,10 +33,7 @@ export const toggleWishlist = async (req, res, next) => {
         _id: existingWishlist._id,
       });
 
-      return res.status(200).json({
-        success: true,
-        message: "Product removed from wishlist",
-      });
+      return res.status(200).json({ message: "Product removed from wishlist" });
     } else {
       const newWishlist = new Wishlist({ user: userId, product: productId });
       await newWishlist.save();
@@ -44,16 +41,15 @@ export const toggleWishlist = async (req, res, next) => {
       const productItem = await Product.findById(productId);
 
       if (!productItem) {
-        return next(errorHandler(404, "Product not found"));
+        return res.status(404).json({ error: "Product not found" });
       }
 
-      return res.status(200).json({
-        success: true,
-        message: "Product added to wishlist",
-        result: productItem,
-      });
+      return res
+        .status(200)
+        .json({ message: "New product added to your wishlist" });
     }
   } catch (error) {
-    next(error);
+    console.log("Error in toggleWishlist controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

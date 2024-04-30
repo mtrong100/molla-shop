@@ -1,5 +1,5 @@
 import { Button } from "@material-tailwind/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaRegHeart } from "react-icons/fa6";
 import { BsCart3 } from "react-icons/bs";
 import { BiSolidBinoculars } from "react-icons/bi";
@@ -7,22 +7,17 @@ import { Typography } from "@material-tailwind/react";
 import { displayRating } from "./displayRating";
 import { useNavigate } from "react-router-dom";
 import { viewProductApi } from "../api/productApi";
-import { useDispatch, useSelector } from "react-redux";
-import { getUserWishlistApi, toggleWishlistApi } from "../api/wishlistApi";
-import {
-  setIsInWishlist,
-  setUserWishlist,
-} from "../redux/slices/wishlistSlice";
-import { toast } from "sonner";
+import { useDispatch } from "react-redux";
 import { FaHeart } from "react-icons/fa";
 import { addProductToCart } from "../redux/slices/cartSlice";
+import toast from "react-hot-toast";
+import useFavorite from "../hooks/useFavorite";
 
 const ProductCardHorizontal = ({ p }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [hovered, setHovered] = useState(false);
-  const { currentUser } = useSelector((state) => state.user);
-  const { userWishlist } = useSelector((state) => state.wishlist);
+  const { handleToggleFavorite, userWishlist } = useFavorite();
 
   const handleAddProductToCart = () => {
     const productData = {
@@ -34,11 +29,7 @@ const ProductCardHorizontal = ({ p }) => {
     };
 
     dispatch(addProductToCart(productData));
-
-    toast.info("Product added to cart", {
-      position: "top-right",
-      duration: 1000,
-    });
+    toast.success("Product added to your cart");
   };
 
   const handleViewProduct = async () => {
@@ -47,30 +38,6 @@ const ProductCardHorizontal = ({ p }) => {
       navigate(`/product/${p?._id}`);
     } catch (error) {
       console.log("Failed to update view count ->", error);
-    }
-  };
-
-  const handleWishlist = async () => {
-    if (!currentUser) {
-      toast.error("Please login first");
-      return;
-    }
-
-    try {
-      const res = await toggleWishlistApi({
-        userId: currentUser?._id,
-        productId: p?._id,
-        token: currentUser?.token,
-      });
-      const data = await getUserWishlistApi({
-        userId: currentUser?._id,
-        token: currentUser?.token,
-      });
-      dispatch(setUserWishlist(data?.wishlist));
-      dispatch(setIsInWishlist((prevState) => !prevState));
-      toast.info(res?.message, { position: "top-right" });
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -129,7 +96,7 @@ const ProductCardHorizontal = ({ p }) => {
 
           {isInWishlist ? (
             <div
-              onClick={handleWishlist}
+              onClick={() => handleToggleFavorite(p?._id)}
               className="flex items-center gap-2 hover:opacity-90 text-amber-600 cursor-pointer"
             >
               <FaHeart size={18} />
@@ -137,7 +104,7 @@ const ProductCardHorizontal = ({ p }) => {
             </div>
           ) : (
             <div
-              onClick={handleWishlist}
+              onClick={() => handleToggleFavorite(p?._id)}
               className="flex items-center gap-2 hover:text-amber-600 cursor-pointer"
             >
               <FaRegHeart size={18} />

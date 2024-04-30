@@ -10,7 +10,7 @@ import ContactBanner from "../components/ContactBanner";
 
 const Home = () => {
   const { currentUser } = useSelector((state) => state.user);
-  // console.log("🚀 ~ Home ~ currentUser:", currentUser);
+  console.log("🚀 ~ Home ~ currentUser:", currentUser);
 
   return (
     <div>

@@ -3,16 +3,16 @@ import authRouter from "./authRouter.js";
 import orderRouter from "./orderRouter.js";
 import productRouter from "./productRouter.js";
 import userRouter from "./userRouter.js";
-import commentRouter from "./commentRouter.js";
+import reviewRouter from "./reviewRouter.js";
 import wishlistRouter from "./wishlistRouter.js";
 
 const router = express.Router();
 
 router.use("/auth", authRouter);
-router.use("/product", productRouter);
-router.use("/comment", commentRouter);
 router.use("/user", userRouter);
-router.use("/wishlist", wishlistRouter);
+router.use("/product", productRouter);
 router.use("/order", orderRouter);
+router.use("/review", reviewRouter);
+router.use("/wishlist", wishlistRouter);
 
 export default router;

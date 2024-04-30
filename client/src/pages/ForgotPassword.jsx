@@ -1,27 +1,11 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { toast } from "sonner";
 import FieldInput from "../components/form/FieldInput";
 import { Button, Input } from "@material-tailwind/react";
 import { resetPasswordApi, sendOtpApi } from "../api/authApi";
-
-const schema = yup.object().shape({
-  email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .required("Password is required"),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref("password"), null], "Passwords must match")
-    .required("Confirm password is required"),
-  otp: yup
-    .string()
-    .required("OTP is required")
-    .max(6, "OTP code only has 6 numbers"),
-});
+import toast from "react-hot-toast";
+import { resetPasswordSchema } from "../validations/resetPasswordSchema";
 
 const ForgotPassword = () => {
   const {
@@ -33,7 +17,7 @@ const ForgotPassword = () => {
     formState: { isSubmitting, errors },
   } = useForm({
     mode: "onchange",
-    resolver: yupResolver(schema),
+    resolver: yupResolver(resetPasswordSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -47,28 +31,23 @@ const ForgotPassword = () => {
       await trigger("email");
       const email = getValues("email");
       if (!email) return;
-
-      const res = await sendOtpApi({ email });
-      toast.success(res?.message);
+      await sendOtpApi({ email });
+      toast.success("OTP has been sent to your email");
     } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.log("Failed to reset password: ", error);
+      toast.error(error.message);
+      console.log("Something wrong with handleSendOtp function: ", error);
     }
   };
 
-  const onSubmit = async (values) => {
+  const handleResetPassword = async (values) => {
     try {
-      const req = {
-        ...values,
-      };
-
-      const res = await resetPasswordApi(req);
-      toast.success(res?.message);
-
+      const req = { ...values };
+      await resetPasswordApi(req);
+      toast.success("Reset password successfully");
       reset();
     } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.log("Failed to reset password: ", error);
+      toast.error(error.message);
+      console.log("Something wrong with handleSendOtp function: ", error);
     }
   };
 
@@ -82,10 +61,11 @@ const ForgotPassword = () => {
         />
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(handleResetPassword)} className="space-y-5">
         <h1 className="font-semibold text-3xl">Reset your password</h1>
 
         <FieldInput
+          type="password"
           labelText="Password"
           register={register}
           name="password"
@@ -93,6 +73,7 @@ const ForgotPassword = () => {
         />
 
         <FieldInput
+          type="password"
           labelText="Confirm Password"
           register={register}
           name="confirmPassword"

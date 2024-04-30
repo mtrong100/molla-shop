@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { verifyEmailApi } from "../api/authApi";
-import { toast } from "sonner";
 import { Button } from "@material-tailwind/react";
 
 const VerifyEmail = () => {
@@ -17,12 +16,9 @@ const VerifyEmail = () => {
   async function fetchVerifyEmailApi() {
     try {
       const res = await verifyEmailApi(token);
-      console.log(res);
       setIsVerified(res?.verified);
-      toast.success(res?.message);
     } catch (error) {
       console.log("Failed to fetch verification token ->", error);
-      toast.error("Failed to fetch verification token");
       setIsVerified(false);
     }
   }

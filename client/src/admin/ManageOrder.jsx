@@ -13,25 +13,15 @@ import {
   DialogBody,
   DialogFooter,
 } from "@material-tailwind/react";
-import useDebounce from "../hooks/useDebounce";
 import { DownloadTableExcel } from "react-export-table-to-excel";
-import { useDispatch, useSelector } from "react-redux";
 import { MdOutlineFileDownload } from "react-icons/md";
-import {
-  loadingOrders,
-  orderList,
-  setCurrentPage,
-  setNextPage,
-  setQueryOrder,
-  setSortOptionVal,
-} from "../redux/slices/orderSlice";
-import { getAllOrderApi } from "../api/orderApi";
 import ReactPaginate from "react-paginate";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { IoEyeOutline } from "react-icons/io5";
 import { formatDate } from "../utils/helper";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import useManageOrder from "../hooks/useManageOrder";
 
 const TABLE_HEAD = [
   "ID",
@@ -57,44 +47,16 @@ const ORDER_OPTIONS = [
 
 const ManageOrder = () => {
   const tableRef = useRef(null);
-  const dispatch = useDispatch();
+  const {
+    filterOrders,
+    handlePageClick,
+    orders,
+    setFilter,
+    filter,
+    paginate,
+    isLoading,
+  } = useManageOrder();
 
-  const { currentUser } = useSelector((state) => state.user);
-  const { orders, isLoadingOrders, query, sortOption, currentPage } =
-    useSelector((state) => state.order);
-  const searchQuery = useDebounce(query, 500);
-
-  useEffect(() => {
-    async function fetchUserOrders() {
-      try {
-        dispatch(loadingOrders(true));
-        const res = await getAllOrderApi({
-          userToken: currentUser?.token,
-          userId: currentUser?._id,
-          order: sortOption,
-        });
-        dispatch(orderList(res));
-      } catch (error) {
-        console.log("Failed to fetch products: ", error);
-        dispatch(orderList([]));
-        dispatch(loadingOrders(false));
-      }
-    }
-    fetchUserOrders();
-  }, [currentUser?._id, currentUser?.token, dispatch, searchQuery, sortOption]);
-
-  // CLICK PAGE
-  const handlePageClick = (event) => {
-    dispatch(setCurrentPage(event.selected));
-    dispatch(setNextPage(event.selected + 1));
-  };
-
-  // FILTER ORDERS
-  const filterOrders = orders?.docs?.filter((item) =>
-    item?._id.includes(searchQuery)
-  );
-
-  // FIX SCROLL BUG
   useEffect(() => {
     document.body.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
@@ -122,15 +84,15 @@ const ManageOrder = () => {
       {/* Action */}
       <div className="w-full grid grid-cols-[minmax(0,_1fr)_250px] gap-3 mt-8">
         <Input
-          value={query}
-          onChange={(e) => dispatch(setQueryOrder(e.target.value))}
           label="Search"
           size="lg"
+          value={filter.query}
+          onChange={(e) => setFilter({ ...filter, query: e.target.value })}
         />
         <Select
-          onChange={(val) => dispatch(setSortOptionVal(val))}
           size="lg"
           label="Order by"
+          onChange={(val) => setFilter({ ...filter, order: val })}
         >
           {ORDER_OPTIONS.map((item) => (
             <Option value={item.value} key={item}>
@@ -142,13 +104,13 @@ const ManageOrder = () => {
 
       {/* Render orders */}
       <div className="mt-5">
-        {isLoadingOrders && (
+        {isLoading && (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Loading...
           </p>
         )}
 
-        {!isLoadingOrders && filterOrders?.length === 0 ? (
+        {!isLoading && filterOrders?.length === 0 ? (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Order not found
           </p>
@@ -168,7 +130,7 @@ const ManageOrder = () => {
             pageCount={orders?.totalPages}
             previousLabel={<LuChevronLeft />}
             renderOnZeroPageCount={null}
-            forcePage={currentPage}
+            forcePage={paginate.currentPage}
           />
         </div>
       )}
@@ -280,7 +242,6 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
 
 export function DialogDefault({ order }) {
   const [open, setOpen] = React.useState(false);
-
   const handleOpen = () => setOpen(!open);
 
   const exportToPDF = () => {

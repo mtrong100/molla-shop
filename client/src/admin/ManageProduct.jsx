@@ -1,7 +1,6 @@
 /* eslint-disable react/display-name */
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
 import TitleSection from "../components/TitleSection";
-import useDebounce from "../hooks/useDebounce";
 import {
   Typography,
   Input,
@@ -11,21 +10,14 @@ import {
   Button,
 } from "@material-tailwind/react";
 import { PRODUCT_CATEGORIES } from "../utils/constants";
-import { deleteProductApi, getAllProductsApi } from "../api/productApi";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { displayRating } from "../utils/helper";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
-import { toast } from "sonner";
 import ReactPaginate from "react-paginate";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  checkedCategory,
-  setCurrentPage,
-  setNextPage,
-} from "../redux/slices/sortSlice";
+import useDeleteProduct from "../hooks/useDeleteProduct";
+import useProduct from "../hooks/useProduct";
 
 const TABLE_HEAD = [
   "ID",
@@ -42,44 +34,9 @@ const TABLE_HEAD = [
 
 const ManageProduct = () => {
   const tableRef = useRef(null);
-  const dispatch = useDispatch();
+  const { handlePageClick, products, isLoading, setFilter, filter, paginate } =
+    useProduct();
 
-  const [products, setProducts] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [query, setQuery] = useState("");
-  const searchQuery = useDebounce(query, 500);
-
-  const { category, nextPage, currentPage } = useSelector(
-    (state) => state.sort
-  );
-
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setIsLoading(true);
-        const res = await getAllProductsApi({
-          page: nextPage,
-          category,
-          query: searchQuery,
-        });
-        setProducts(res);
-        setIsLoading(false);
-      } catch (error) {
-        console.log("Failed to fetch products: ", error);
-        setProducts([]);
-        setIsLoading(false);
-      }
-    }
-    fetchProducts();
-  }, [category, nextPage, searchQuery]);
-
-  // CLICK PAGE
-  const handlePageClick = (event) => {
-    dispatch(setCurrentPage(event.selected));
-    dispatch(setNextPage(event.selected + 1));
-  };
-
-  // FIX SCROLL BUG
   useEffect(() => {
     document.body.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
@@ -106,15 +63,15 @@ const ManageProduct = () => {
 
       <div className="w-full grid grid-cols-[minmax(0,_1fr)_250px] gap-3 mt-5">
         <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
           label="Tìm kiếm"
           size="lg"
+          value={filter.query}
+          onChange={(e) => setFilter({ ...filter, query: e.target.value })}
         />
         <Select
-          onChange={(val) => dispatch(checkedCategory(val))}
           size="lg"
           label="Filter"
+          onChange={(val) => setFilter({ ...filter, category: val })}
         >
           {PRODUCT_CATEGORIES.map((item) => (
             <Option value={item} key={item}>
@@ -151,7 +108,7 @@ const ManageProduct = () => {
             pageCount={products?.totalPages}
             previousLabel={<LuChevronLeft />}
             renderOnZeroPageCount={null}
-            forcePage={currentPage}
+            forcePage={paginate.currentPage}
           />
         </div>
       )}
@@ -163,29 +120,7 @@ export default ManageProduct;
 
 const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
   const navigate = useNavigate();
-
-  // DELETE
-  const handleDeleteProduct = (productId) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await deleteProductApi(productId);
-          toast.success(res?.message);
-          Swal.fire("Deleted!", "Your file has been deleted.", "success");
-        } catch (error) {
-          console.log(error);
-        }
-      }
-    });
-  };
+  const { handleDeleteProduct, isDeleting } = useDeleteProduct();
 
   return (
     <Card className="h-full w-full">
@@ -210,7 +145,12 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
         </thead>
         <tbody>
           {results?.map((item) => (
-            <tr key={item?._id} className="even:bg-blue-gray-50/50">
+            <tr
+              key={item?._id}
+              className={`${
+                isDeleting ? "bg-red-50" : ""
+              } even:bg-blue-gray-50/50`}
+            >
               <td className="p-4">
                 <Typography
                   variant="small"

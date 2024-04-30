@@ -1,23 +1,35 @@
-import { validationResult } from "express-validator";
 import Product from "../models/productModel.js";
-import { errorHandler } from "../utils/errorHandler.js";
 
-export const getAllProducts = async (req, res, next) => {
+const PRODUCT_QUERY = {
+  PAGE: 1,
+  LIMIT: 10,
+  SORT: "name",
+  ORDER: "desc",
+  QUERY: "",
+  CATEGORY: "",
+  SIZE: "",
+  COLOR: "",
+  BRAND: "",
+  MIN_PRICE: 0,
+  MAX_PRICE: 1000,
+};
+
+export const getProducts = async (req, res) => {
+  const {
+    page = PRODUCT_QUERY.PAGE,
+    limit = PRODUCT_QUERY.LIMIT,
+    sort = PRODUCT_QUERY.SORT,
+    order = PRODUCT_QUERY.ORDER,
+    query = PRODUCT_QUERY.QUERY,
+    category = PRODUCT_QUERY.CATEGORY,
+    size = PRODUCT_QUERY.SIZE,
+    color = PRODUCT_QUERY.COLOR,
+    brand = PRODUCT_QUERY.BRAND,
+    minPrice = PRODUCT_QUERY.MIN_PRICE,
+    maxPrice = PRODUCT_QUERY.MAX_PRICE,
+  } = req.query;
+
   try {
-    const {
-      page = 1,
-      limit = 10,
-      sort = "name",
-      order = "desc",
-      query,
-      category,
-      size,
-      color,
-      brand,
-      minPrice = 0,
-      maxPrice = 1000,
-    } = req.query;
-
     const filter = {};
 
     if (query) filter.name = new RegExp(query, "i");
@@ -40,55 +52,58 @@ export const getAllProducts = async (req, res, next) => {
     const products = await Product.paginate(filter, options);
 
     if (!products.docs || products.docs.length === 0) {
-      next(errorHandler(404, "Products not found"));
+      return res.status(404).json({ error: "Products not found" });
     }
 
     return res.status(200).json(products);
   } catch (error) {
-    next(error);
+    console.log("Error in send getAllProducts controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const getProductDetail = async (req, res, next) => {
+export const getProductDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
     const product = await Product.findById(id);
 
     if (!product) {
-      return next(errorHandler(404, "Product not found"));
+      return res.status(404).json({ error: "Product not found" });
     }
 
     return res.status(200).json(product);
   } catch (error) {
-    next(error);
+    console.log("Error in send getProductDetail controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const createProduct = async (req, res, next) => {
+export const createProduct = async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+    const userRole = req.user.role;
+
+    if (userRole !== "admin") {
+      return res.status(403).json({ error: "Not have permission" });
     }
 
     const newProduct = new Product(req.body);
 
     await newProduct.save();
 
-    return res
-      .status(201)
-      .json({ message: "Create new product success", results: newProduct });
+    return res.status(201).json(newProduct);
   } catch (error) {
-    next(error);
+    console.log("Error in send createProduct controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const updateProduct = async (req, res, next) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+    const userRole = req.user.role;
+
+    if (userRole !== "admin") {
+      return res.status(403).json({ error: "Not have permission" });
     }
 
     const { id } = req.params;
@@ -98,30 +113,36 @@ export const updateProduct = async (req, res, next) => {
     });
 
     if (!updatedProduct) {
-      return next(errorHandler(404, "Product not found"));
+      return res.status(404).json({ error: "Product not found" });
     }
 
-    return res
-      .status(200)
-      .json({ message: "Update product success", results: updatedProduct });
+    return res.status(200).json(updatedProduct);
   } catch (error) {
-    next(error);
+    console.log("Error in send updateProduct controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const deleteProduct = async (req, res, next) => {
   try {
+    const userRole = req.user.role;
+
+    if (userRole !== "admin") {
+      return res.status(403).json({ error: "Not have permission" });
+    }
+
     const { id } = req.params;
 
     const product = await Product.findByIdAndDelete(id);
 
     if (!product) {
-      return next(errorHandler(404, "Product not found"));
+      return res.status(404).json({ error: "Product not found" });
     }
 
-    return res.status(200).json({ message: "Delete product success" });
+    return res.status(200).json({ message: "Delete product successfully" });
   } catch (error) {
-    next(error);
+    console.log("Error in send deleteProduct controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -140,6 +161,7 @@ export const viewProduct = async (req, res, next) => {
 
     return res.status(200).json({ message: "View count updated" });
   } catch (error) {
-    next(error);
+    console.log("Error in send viewProduct controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

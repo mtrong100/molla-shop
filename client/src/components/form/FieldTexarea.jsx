@@ -10,7 +10,7 @@ const FieldTexarea = ({
 }) => {
   return (
     <div>
-      <h1 className="font-bold text-lg mb-2">{labelTitle}</h1>
+      <h1 className="font-semibold mb-2">{labelTitle}</h1>
       <Textarea
         size="lg"
         {...register(`${name}`)}

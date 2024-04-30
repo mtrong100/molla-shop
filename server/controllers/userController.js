@@ -1,16 +1,29 @@
 import User from "../models/userModel.js";
-import { errorHandler } from "../utils/errorHandler.js";
 
-export const getAllUsers = async (req, res, next) => {
+const USER_QUERY = {
+  PAGE: 1,
+  LIMIT: 10,
+  SORT: "name",
+  ORDER: "desc",
+  QUERY: "",
+};
+
+export const getUsers = async (req, res) => {
   const {
-    page = 1,
-    limit = 20,
-    sort = "name",
-    order = "desc",
-    query,
+    page = USER_QUERY.PAGE,
+    limit = USER_QUERY.LIMIT,
+    sort = USER_QUERY.SORT,
+    order = USER_QUERY.ORDER,
+    query = USER_QUERY.QUERY,
   } = req.query;
 
   try {
+    const userRole = req.user.role;
+
+    if (userRole !== "admin") {
+      return res.status(403).json({ error: "Not have permission" });
+    }
+
     const filter = {};
 
     if (query) {
@@ -25,44 +38,35 @@ export const getAllUsers = async (req, res, next) => {
       },
     };
 
-    const data = await User.paginate(filter, options);
+    const users = await User.paginate(filter, options);
 
-    if (!data.docs || data.docs.length === 0) {
-      next(errorHandler(404, "Users not found"));
+    if (!users.docs || users.docs.length === 0) {
+      return res.status(404).json({ error: "Users not found" });
     }
 
-    return res.status(200).json(data);
+    return res.status(200).json(users);
   } catch (error) {
-    next(error);
+    console.log("Error in getUsers controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const getUserDetail = async (req, res, next) => {
+export const getUserDetail = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findById(id, {
-      _id: 1,
-      name: 1,
-      email: 1,
-      avatar: 1,
-      address: 1,
-      provider: 1,
-      phone: 1,
-      role: 1,
-      verified: 1,
-      favorites: 1,
-      createdAt: 1,
-      updatedAt: 1,
-    });
+    const user = await User.findById(id).select(
+      "-password -verificationToken -resetPasswordOtp -resetPasswordExpires"
+    );
 
     if (!user) {
-      return next(errorHandler(404, "User not found"));
+      return res.status(404).json({ error: "User not found" });
     }
 
     return res.status(200).json(user);
   } catch (error) {
-    next(error);
+    console.log("Error in send getUserDetail controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -76,22 +80,17 @@ export const updateUser = async (req, res, next) => {
       id,
       { name, phone, address, avatar },
       { new: true }
+    ).select(
+      "-password -verificationToken -resetPasswordOtp -resetPasswordExpires"
     );
 
     if (!user) {
-      return next(errorHandler(404, "User not found"));
+      return res.status(404).json({ error: "User not found" });
     }
 
-    const updatedUser = {
-      name: user.name,
-      phone: user.phone,
-      address: user.address,
-    };
-
-    return res
-      .status(200)
-      .json({ message: "Update infomation success", results: updatedUser });
+    return res.status(200).json(user);
   } catch (error) {
-    next(error);
+    console.log("Error ins updateUser controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

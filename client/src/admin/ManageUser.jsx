@@ -11,18 +11,9 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import { MdOutlineFileDownload } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { setCurrentPage, setNextPage } from "../redux/slices/orderSlice";
-import {
-  loadingUsers,
-  setQueryUser,
-  setSortOptionVal,
-  userList,
-} from "../redux/slices/userSlice";
-import { getAllUserApi } from "../api/userApi";
-import useDebounce from "../hooks/useDebounce";
 import ReactPaginate from "react-paginate";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import useManageUser from "../hooks/useManageUser";
 
 const TABLE_HEAD = [
   "ID",
@@ -47,37 +38,8 @@ const ORDER_OPTIONS = [
 
 const ManageUser = () => {
   const tableRef = useRef(null);
-  const dispatch = useDispatch();
-  const { currentUser } = useSelector((state) => state.user);
-  const { users, isLoadingUser, query, sortOption, currentPage } = useSelector(
-    (state) => state.user
-  );
-  const searchQuery = useDebounce(query, 500);
-
-  useEffect(() => {
-    async function fetchUsers() {
-      try {
-        dispatch(loadingUsers(true));
-        const res = await getAllUserApi({
-          userToken: currentUser?.token,
-          order: sortOption,
-          query: searchQuery,
-        });
-        dispatch(userList(res));
-        dispatch(loadingUsers(false));
-      } catch (error) {
-        console.log("Failed to fetch users: ", error);
-        dispatch(loadingUsers(false));
-        dispatch(userList([]));
-      }
-    }
-    fetchUsers();
-  }, [currentUser?.token, dispatch, searchQuery, sortOption]);
-
-  const handlePageClick = (event) => {
-    dispatch(setCurrentPage(event.selected));
-    dispatch(setNextPage(event.selected + 1));
-  };
+  const { handlePageClick, users, isLoading, filter, setFilter, paginate } =
+    useManageUser();
 
   // FIX SCROLL BUG
   useEffect(() => {
@@ -107,15 +69,15 @@ const ManageUser = () => {
       {/* Action */}
       <div className="w-full grid grid-cols-[minmax(0,_1fr)_250px] gap-3 mt-8">
         <Input
-          value={query}
-          onChange={(e) => dispatch(setQueryUser(e.target.value))}
           label="Search"
           size="lg"
+          value={filter.query}
+          onChange={(e) => setFilter({ ...filter, query: e.target.value })}
         />
         <Select
-          onChange={(val) => dispatch(setSortOptionVal(val))}
           size="lg"
           label="Order by"
+          onChange={(val) => setFilter({ ...filter, order: val })}
         >
           {ORDER_OPTIONS.map((item) => (
             <Option value={item.value} key={item}>
@@ -127,13 +89,13 @@ const ManageUser = () => {
 
       {/* Render orders */}
       <div className="mt-5">
-        {isLoadingUser && (
+        {isLoading && (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Loading...
           </p>
         )}
 
-        {!isLoadingUser && users?.docs?.length === 0 ? (
+        {!isLoading && users?.docs?.length === 0 ? (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             User not found
           </p>
@@ -153,7 +115,7 @@ const ManageUser = () => {
             pageCount={users?.totalPages}
             previousLabel={<LuChevronLeft />}
             renderOnZeroPageCount={null}
-            forcePage={currentPage}
+            forcePage={paginate.currentPage}
           />
         </div>
       )}

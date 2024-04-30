@@ -186,7 +186,7 @@ const CreateProduct = () => {
           />
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose category</h1>
+            <h1 className="mb-2 font-semibold">Choose category</h1>
             <Select
               className="capitalize"
               size="lg"
@@ -206,7 +206,7 @@ const CreateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose size</h1>
+            <h1 className="mb-2 font-semibold">Choose size</h1>
             <Select
               className="capitalize"
               size="lg"
@@ -218,7 +218,7 @@ const CreateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose brand</h1>
+            <h1 className="mb-2 font-semibold">Choose brand</h1>
             <Select
               onChange={(val) => setBrand(val)}
               className="capitalize"
@@ -238,7 +238,7 @@ const CreateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose color</h1>
+            <h1 className="mb-2 font-semibold">Choose color</h1>
             <Select
               onChange={(val) => setColor(val)}
               className="capitalize"
@@ -260,7 +260,7 @@ const CreateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Overall rating</h1>
+            <h1 className="mb-2 font-semibold">Overall rating</h1>
             <Select
               onChange={(val) => setRating(val)}
               className="capitalize"
@@ -280,7 +280,7 @@ const CreateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Additional infomation</h1>
+            <h1 className="mb-2 font-semibold">Additional infomation</h1>
             <JoditEditor
               ref={editor}
               value={info}
@@ -325,7 +325,7 @@ function UploadProductImages({ onChange, images = [], setImages }) {
 
   return (
     <div>
-      <h1 className="font-bold text-lg">Product images (max 5 images)</h1>
+      <h1 className="font-semibold">Product images (max 5 images)</h1>
       <input
         type="file"
         id="image-upload"
@@ -429,7 +429,7 @@ function UploadProductThumbnials({ onChange, thumbnails = [], setThumbnails }) {
 
   return (
     <div>
-      <h1 className="font-bold text-lg">Thumbnail (max 2 images)</h1>
+      <h1 className="font-semibold">Thumbnail (max 2 images)</h1>
       <input
         type="file"
         id="thumbnail-upload"

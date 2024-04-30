@@ -7,20 +7,21 @@ export default function useGetBlogDetail(productId) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    async function fetchProduct() {
+    async function fetchProductDetail() {
+      setIsLoading(true);
+
       try {
-        setIsLoading(true);
         const res = await getProductDetailApi(productId);
         setProduct(res);
-        setIsLoading(false);
       } catch (error) {
-        toast.error("Failed to fetch product");
-        console.log(`Failed to fetch product #${productId}  =>`, error);
-        setIsLoading(false);
+        toast.error(error?.response?.data?.error);
+        console.log("Failed to fetchProductDetail: ", error);
         setProduct(null);
+      } finally {
+        setIsLoading(false);
       }
     }
-    fetchProduct();
+    fetchProductDetail();
   }, [productId]);
 
   return { product, setProduct, isLoading };

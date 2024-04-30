@@ -24,20 +24,6 @@ import {
   PRODUCT_SIZES,
   SORT_STATUS,
 } from "../utils/constants";
-import { useSelector, useDispatch } from "react-redux";
-import {
-  checkedBrand,
-  checkedCategory,
-  checkedColor,
-  checkedSize,
-  resetFilter,
-  selectedOrder,
-  setCurrentPage,
-  setMaxPrice,
-  setMinPrice,
-  setNextPage,
-  startFilterPrice,
-} from "../redux/slices/sortSlice";
 import { FaList } from "react-icons/fa6";
 import { FiGrid } from "react-icons/fi";
 import { IoFilterOutline } from "react-icons/io5";
@@ -46,84 +32,23 @@ import ProductCardHorizontal, {
   ProductCardHorizontalSkeleton,
 } from "../components/ProductCardHorizontal";
 import { displayTextColor } from "../utils/helper";
-import { getAllProductsApi } from "../api/productApi";
-import useDebounce from "../hooks/useDebounce";
 import ReactPaginate from "react-paginate";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import useProduct from "../hooks/useProduct";
 
 const Shop = () => {
-  const dispatch = useDispatch();
   const [displayUi, setDisplayUi] = useState("grid");
-  const [isLoading, setIsLoading] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [query, setQuery] = useState("");
-  const searchQuery = useDebounce(query, 500);
-
   const {
-    category,
-    color,
-    size,
-    brand,
-    order,
-    minPrice,
-    maxPrice,
-    filterPrice,
-    nextPage,
-    currentPage,
-  } = useSelector((state) => state.sort);
-
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        setIsLoading(true);
-        let res;
-
-        if (filterPrice) {
-          res = await getAllProductsApi({
-            category,
-            color,
-            size,
-            brand,
-            order,
-            minPrice,
-            maxPrice,
-            query: searchQuery,
-            page: nextPage,
-          });
-        } else {
-          res = await getAllProductsApi({
-            category,
-            color,
-            size,
-            brand,
-            order,
-            query: searchQuery,
-            page: nextPage,
-          });
-        }
-
-        setProducts(res);
-        setIsLoading(false);
-      } catch (error) {
-        console.log("Failed to fetch products: ", error);
-        setProducts([]);
-        setIsLoading(false);
-      }
-    }
-    fetchProducts();
-  }, [
-    brand,
-    category,
-    color,
-    maxPrice,
-    minPrice,
-    order,
-    searchQuery,
-    size,
-    filterPrice,
-    nextPage,
-    dispatch,
-  ]);
+    handdleFilteringPrice,
+    handlePageClick,
+    products,
+    isLoading,
+    isFilteringPrice,
+    setFilter,
+    filter,
+    paginate,
+    handleResetFilter,
+  } = useProduct();
 
   const handleToggleDisplay = () => {
     setDisplayUi((prevDisplayUi) =>
@@ -131,13 +56,6 @@ const Shop = () => {
     );
   };
 
-  // CLICK PAGE
-  const handlePageClick = (event) => {
-    dispatch(setCurrentPage(event.selected));
-    dispatch(setNextPage(event.selected + 1));
-  };
-
-  // FIX SCROLL BUG
   useEffect(() => {
     document.body.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
@@ -145,7 +63,11 @@ const Shop = () => {
   return (
     <div className="mt-10">
       <div className="grid grid-cols-[300px_minmax(0,_1fr)] gap-5">
-        <FilterSidebar />
+        <FilterSidebar
+          setFilter={setFilter}
+          filter={filter}
+          onReset={handleResetFilter}
+        />
 
         <section>
           {/* Order & Layout */}
@@ -159,8 +81,10 @@ const Shop = () => {
                 <p>Order by: </p>
                 <select
                   id="sortby"
-                  value={order}
-                  onChange={(e) => dispatch(selectedOrder(e.target.value))}
+                  value={filter.order}
+                  onChange={(e) =>
+                    setFilter({ ...filter, order: e.target.value })
+                  }
                   className="block w-[120px] text-sm p-2 border border-gray-500 rounded-md focus:outline-none focus:border-indigo-500 capitalize "
                 >
                   {SORT_STATUS.map((option) => (
@@ -201,8 +125,8 @@ const Shop = () => {
               size="lg"
               label="Search"
               placeholder="What are you looking for?"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={filter.query}
+              onChange={(e) => setFilter({ ...filter, query: e.target.value })}
             />
 
             <Popover placement="bottom">
@@ -223,13 +147,15 @@ const Shop = () => {
                 <div className="space-y-6 mt-5">
                   <Input
                     type="number"
-                    min={20}
+                    min={0}
                     max={1000}
                     variant="static"
                     label="Min Price"
                     placeholder="Choose min price"
-                    value={minPrice}
-                    onChange={(e) => dispatch(setMinPrice(e.target.value))}
+                    value={filter.minPrice}
+                    onChange={(e) =>
+                      setFilter({ ...filter, minPrice: e.target.value })
+                    }
                   />
                   <Input
                     type="number"
@@ -238,17 +164,20 @@ const Shop = () => {
                     variant="static"
                     label="Max Price"
                     placeholder="Choose max price"
-                    value={maxPrice}
-                    onChange={(e) => dispatch(setMaxPrice(e.target.value))}
+                    value={filter.maxPrice}
+                    onChange={(e) =>
+                      setFilter({ ...filter, maxPrice: e.target.value })
+                    }
                   />
                 </div>
 
                 <Button
-                  onClick={() => dispatch(startFilterPrice(true))}
+                  disabled={isFilteringPrice}
+                  onClick={handdleFilteringPrice}
                   variant="gradient"
                   className="w-full mt-3"
                 >
-                  Filter
+                  {isFilteringPrice ? "Filtering..." : " Filter price"}
                 </Button>
               </PopoverContent>
             </Popover>
@@ -256,9 +185,9 @@ const Shop = () => {
 
           {/* Render Products */}
           <section className="mt-5">
-            {!isLoading && products?.docs?.length === 0 && (
+            {!isLoading && products?.length === 0 && (
               <p className="text-center my-5 text-lg opacity-50 font-semibold">
-                Product not found
+                Product not found...
               </p>
             )}
 
@@ -302,7 +231,7 @@ const Shop = () => {
                 pageCount={products?.totalPages}
                 previousLabel={<LuChevronLeft />}
                 renderOnZeroPageCount={null}
-                forcePage={currentPage}
+                forcePage={paginate.currentPage}
               />
             </div>
           )}
@@ -314,10 +243,7 @@ const Shop = () => {
 
 export default Shop;
 
-function FilterSidebar() {
-  const dispatch = useDispatch();
-  const { category, color, size, brand } = useSelector((state) => state.sort);
-
+function FilterSidebar({ setFilter, filter, onReset }) {
   const [openAcc1, setOpenAcc1] = useState(true);
   const [openAcc2, setOpenAcc2] = useState(true);
   const [openAcc3, setOpenAcc3] = useState(true);
@@ -331,7 +257,7 @@ function FilterSidebar() {
   function renderSizeOption() {
     let sizeOptions = [];
 
-    switch (category) {
+    switch (filter.category) {
       case "laptop":
         sizeOptions = LAPTOP_SIZES;
         break;
@@ -345,8 +271,8 @@ function FilterSidebar() {
     return sizeOptions.map((item) => (
       <ListItem className="p-0 capitalize" key={item}>
         <Checkbox
-          checked={item === size}
-          onChange={() => dispatch(checkedSize(item))}
+          checked={item === filter.size}
+          onChange={() => setFilter({ ...filter, size: item })}
         />
         {item}
       </ListItem>
@@ -357,10 +283,7 @@ function FilterSidebar() {
     <Card className="p-4 sticky overflow-y-auto top-[90px] border-2 shadow-xl shadow-blue-gray-900/5 h-[700px]">
       <div className="flex items-center justify-between text-sm p-4">
         <p>Filter</p>
-        <div
-          onClick={() => dispatch(resetFilter())}
-          className="text-amber-600 cursor-pointer"
-        >
+        <div onClick={onReset} className="text-amber-600 cursor-pointer">
           Clean All
         </div>
       </div>
@@ -397,8 +320,8 @@ function FilterSidebar() {
               {PRODUCT_CATEGORIES.map((item) => (
                 <ListItem className="p-0 capitalize" key={item}>
                   <Checkbox
-                    checked={item === category}
-                    onChange={() => dispatch(checkedCategory(item))}
+                    checked={item === filter.category}
+                    onChange={() => setFilter({ ...filter, category: item })}
                   />
                   {item}
                 </ListItem>
@@ -474,8 +397,8 @@ function FilterSidebar() {
                 <ListItem className="p-0 capitalize" key={item}>
                   <Checkbox
                     color={item}
-                    checked={item === color}
-                    onChange={() => dispatch(checkedColor(item))}
+                    checked={item === filter.color}
+                    onChange={() => setFilter({ ...filter, color: item })}
                   />
                   <span className={`${displayTextColor(item)}`}>{item}</span>
                 </ListItem>
@@ -517,8 +440,8 @@ function FilterSidebar() {
               {PRODUCT_BRANDS.map((item) => (
                 <ListItem className="p-0 capitalize" key={item}>
                   <Checkbox
-                    checked={item === brand}
-                    onChange={() => dispatch(checkedBrand(item))}
+                    checked={item === filter.brand}
+                    onChange={() => setFilter({ ...filter, brand: item })}
                   />
                   {item}
                 </ListItem>

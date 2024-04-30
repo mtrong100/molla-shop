@@ -1,44 +1,40 @@
 import bcrypt from "bcrypt";
 import User from "../models/userModel.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import { autoGeneratePassword, generateToken } from "../utils/hepler.js";
+import {
+  autoGeneratePassword,
+  generateTokenAndSetCookie,
+} from "../utils/helper.js";
 import {
   sendConfirmationEmail,
   sendOtpResetPassword,
 } from "../services/emailService.js";
-import { validationResult } from "express-validator";
 import { AUTH_PROVIDER } from "../utils/constants.js";
 import crypto from "crypto";
 
-export const register = async (req, res, next) => {
+export const register = async (req, res) => {
   try {
-    // Validate request
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    const { email, password, name, confirmPassword } = req.body;
 
-    const { email, password, name, avatar } = req.body;
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords don't match" });
+    }
 
     const user = await User.findOne({ email });
 
     if (user) {
-      return next(
-        errorHandler(400, "User is already exist, try login instead")
-      );
+      return res.status(400).json({ error: "Account is already existed" });
     }
 
-    // Mã hóa mật khẩu
+    // HASH PASSWORD
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(password, salt);
 
-    // Tạo email token
+    // Create email token for verification
     const token = crypto.randomBytes(20).toString("hex");
 
     const newUser = new User({
       name,
       email,
-      avatar,
       provider: AUTH_PROVIDER.emailAndPassword,
       password: hash,
       verificationToken: token,
@@ -46,76 +42,58 @@ export const register = async (req, res, next) => {
 
     await newUser.save();
 
-    // Send comfirmation email
+    generateTokenAndSetCookie(newUser._id, res);
+
     sendConfirmationEmail(email, token);
 
-    return res
-      .status(201)
-      .json({ message: "Account created, please verify your email to login" });
+    return res.status(201).json({
+      message: "Account created, please verify your email to login",
+    });
   } catch (error) {
-    next(error);
+    console.log("Error in register controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
   try {
-    // Validate request
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return next(errorHandler(404, "Account not found"));
+      return res.status(400).json({ error: "Account not found" });
     }
 
     if (!user.verified) {
-      return next(errorHandler(400, "Email was not verified"));
+      return res.status(400).json({ error: "Account not verified" });
     }
 
     const validPassword = bcrypt.compareSync(password, user.password);
     if (!validPassword) {
-      return next(errorHandler(400, "Wrong password"));
+      return res.status(400).json({ error: "Wrong password" });
     }
 
-    const token = await generateToken({ id: user._id, role: user.role });
+    generateTokenAndSetCookie(user._id, res);
 
-    const userResponse = {
+    return res.status(200).json({
       _id: user._id,
       name: user.name,
       avatar: user.avatar,
       email: user.email,
-      provider: user.provider,
-      address: user.address,
-      phone: user.phone,
       role: user.role,
       verified: user.verified,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      favorites: user.favorites,
-    };
-
-    return res.status(200).json({
-      message: "Login successfully",
-      results: userResponse,
-      token,
+      provider: user.provider,
+      phone: newUser.phone,
+      address: newUser.address,
     });
   } catch (error) {
-    next(error);
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const googleLogin = async (req, res, next) => {
+export const googleLogin = async (req, res) => {
   try {
-    // Validate request
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email, name, avatar } = req.body;
 
     const user = await User.findOne({ email });
@@ -123,6 +101,7 @@ export const googleLogin = async (req, res, next) => {
     if (!user) {
       const generatedPassword = autoGeneratePassword();
 
+      // HASH PASSWORD
       const salt = bcrypt.genSaltSync(10);
       const hash = bcrypt.hashSync(generatedPassword, salt);
 
@@ -137,90 +116,73 @@ export const googleLogin = async (req, res, next) => {
 
       await newUser.save();
 
-      const token = await generateToken({
-        id: newUser._id,
-        role: newUser.role,
-      });
+      generateTokenAndSetCookie(newUser._id, res);
 
-      const userResponse = {
+      return res.status(200).json({
         _id: newUser._id,
         name: newUser.name,
         avatar: newUser.avatar,
         email: newUser.email,
-        provider: newUser.provider,
-        address: newUser.address,
-        phone: newUser.phone,
         role: newUser.role,
         verified: newUser.verified,
-        createdAt: newUser.createdAt,
-        updatedAt: newUser.updatedAt,
-        favorites: newUser.favorites,
-      };
+        provider: newUser.provider,
+        phone: newUser.phone,
+        address: newUser.address,
+      });
+    } else {
+      generateTokenAndSetCookie(user._id, res);
 
-      return res.status(201).json({
-        message: "Account created",
-        results: userResponse,
-        token,
+      return res.status(200).json({
+        _id: user._id,
+        name: user.name,
+        avatar: user.avatar,
+        email: user.email,
+        role: user.role,
+        verified: user.verified,
+        provider: user.provider,
+        phone: newUser.phone,
+        address: newUser.address,
       });
     }
-
-    const token = await generateToken({ id: user._id, role: user.role });
-
-    const userResponse = {
-      _id: user._id,
-      name: user.name,
-      avatar: user.avatar,
-      email: user.email,
-      provider: user.provider,
-      address: user.address,
-      phone: user.phone,
-      role: user.role,
-      verified: user.verified,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      favorites: user.favorites,
-    };
-
-    return res.status(200).json({
-      message: "Login successfully",
-      results: userResponse,
-      token,
-    });
   } catch (error) {
-    next(error);
+    console.log("Error in google login controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const resetPassword = async (req, res, next) => {
+export const logout = (req, res) => {
   try {
-    // Validate request
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
+export const resetPassword = async (req, res) => {
+  try {
     const { email, password, confirmPassword, otp } = req.body;
 
     const user = await User.findOne({ email });
 
-    // Check user
     if (!user) {
-      return next(errorHandler(404, "Account not found"));
+      return res.status(404).json({ error: "Account not found" });
     }
 
     // Check if OTP expired
     if (user.resetPasswordExpires < Date.now()) {
-      return next(errorHandler(400, "OTP expired"));
+      return res.status(400).json({ error: "OTP expired" });
     }
 
     // Check if OTP not match
     if (user.resetPasswordOtp !== otp) {
-      return next(errorHandler(400, "Invalid OTP"));
+      return res.status(400).json({ error: "Invalid OTP" });
     }
 
     // Validate and update the password
     if (password !== confirmPassword) {
-      return next(errorHandler(400, "Confirm password not match"));
+      return res.status(400).json({ error: "Passwords dont't match" });
     }
 
     // Update password and reset OTP & expire time
@@ -230,27 +192,21 @@ export const resetPassword = async (req, res, next) => {
 
     await user.save();
 
-    return res.status(200).json({ message: "Reset password success" });
+    return res.status(200).json({ message: "Reset password successfully" });
   } catch (error) {
-    next(error);
+    console.log("Error in reset password controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const sendOtp = async (req, res, next) => {
+export const sendOtp = async (req, res) => {
   try {
-    // Validate request
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
     const { email } = req.body;
 
     const user = await User.findOne({ email });
 
-    // Check user
     if (!user) {
-      return next(errorHandler(404, "Account not found"));
+      return res.status(404).json({ error: "Account not found" });
     }
 
     // Generate OTP code and expire time
@@ -265,7 +221,8 @@ export const sendOtp = async (req, res, next) => {
 
     return res.status(200).json({ message: "OTP has been sent to your email" });
   } catch (error) {
-    next(error);
+    console.log("Error in send OTP controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -289,6 +246,7 @@ export const verifyEmail = async (req, res, next) => {
       .status(200)
       .json({ message: "Verify email successfully", verified });
   } catch (error) {
-    next(error);
+    console.log("Error in send verify email controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

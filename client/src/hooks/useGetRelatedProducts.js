@@ -2,28 +2,26 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getAllProductsApi } from "../api/productApi";
 
-export default function useGeRealtedProducts(category) {
-  const [relatedProducts, setRelatedProducts] = useState(null);
+export default function useGetRelatedProducts(category) {
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    async function fetchProduct() {
+    async function fetchRelatedProducts() {
+      setIsLoading(true);
+
       try {
-        setIsLoading(true);
         const res = await getAllProductsApi({ category });
         setRelatedProducts(res);
-        setIsLoading(false);
       } catch (error) {
-        toast.error("Failed to fetch products");
-        console.log(
-          `Failed to fetch products with ctegory: ${category}  =>`,
-          error
-        );
+        toast.error(error?.response?.data?.error);
+        console.log("Failed to fetchRelatedProducts: ", error);
+        setRelatedProducts([]);
+      } finally {
         setIsLoading(false);
-        setRelatedProducts(null);
       }
     }
-    fetchProduct();
+    fetchRelatedProducts();
   }, [category]);
 
   return { relatedProducts, setRelatedProducts, isLoading };

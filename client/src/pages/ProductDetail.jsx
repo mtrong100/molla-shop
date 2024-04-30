@@ -7,44 +7,37 @@ import { displayRating } from "../components/displayRating";
 import { BsCart3 } from "react-icons/bs";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import parse from "html-react-parser";
-import useGeRealtedProducts from "../hooks/useGeRealtedProducts";
+import useGetRelatedProducts from "../hooks/useGetRelatedProducts";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
-import { toast } from "sonner";
-import {
-  increaseLimit,
-  listComments,
-  loadingCmt,
-  setCommentVal,
-  setRating,
-} from "../redux/slices/commentSlice";
-import {
-  createCommentApi,
-  deleteCommentApi,
-  getCommentsFromProductApi,
-} from "../api/reviewApi";
 import { formatDate } from "../utils/helper";
-import { getUserWishlistApi, toggleWishlistApi } from "../api/wishlistApi";
-import {
-  setIsInWishlist,
-  setUserWishlist,
-} from "../redux/slices/wishlistSlice";
 import { addProductToCart } from "../redux/slices/cartSlice";
+import useReview from "../hooks/useReview";
+import useFavorite from "../hooks/useFavorite";
+import { toast } from "sonner";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
-
-  const { currentUser } = useSelector((state) => state.user);
-  const { comments, commentVal, rating, limit, isLoadingCmt } = useSelector(
-    (state) => state.comment
-  );
-  const { userWishlist } = useSelector((state) => state.wishlist);
-  const { product: p } = useGetBlogDetail(id);
-  const { relatedProducts, isLoading } = useGeRealtedProducts(p?.category);
   const [selectedImage, setSelectedImage] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const { product: p } = useGetBlogDetail(id);
+  const { relatedProducts, isLoading } = useGetRelatedProducts(p?.category);
+  const { handleToggleFavorite, userWishlist } = useFavorite();
+
+  const {
+    handleDeleteReview,
+    handleWriteReview,
+    handleLoadMoreReview,
+    setVal,
+    val,
+    setRating,
+    rating,
+    reviews,
+    isLoading: isLoadingReviews,
+    isAdding,
+  } = useReview();
 
   const handleAddProductToCart = () => {
     const productData = {
@@ -54,108 +47,13 @@ const ProductDetail = () => {
       price: p?.price,
       quantity,
     };
-
     dispatch(addProductToCart(productData));
-
-    toast.info("Product added to cart", {
-      position: "top-right",
-      duration: 1000,
-    });
+    toast.success("Product added to your cart");
   };
 
-  const handleAddCmt = async () => {
-    if (!currentUser) {
-      toast.error("Please login first");
-      return;
-    }
-
-    if (!commentVal.trim()) {
-      toast.info("Please type something before send");
-      return;
-    }
-
-    if (!rating) {
-      toast.info("Please rate this product");
-      return;
-    }
-
-    try {
-      const req = {
-        user: currentUser?._id,
-        product: id,
-        comment: commentVal.trim(),
-        rate: rating,
-      };
-
-      await createCommentApi(currentUser?.token, req);
-      const res = await getCommentsFromProductApi(id, { limit: limit });
-      dispatch(listComments(res));
-
-      dispatch(setCommentVal(""));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleDeleteCmt = async (cmtId) => {
-    if (!currentUser) {
-      toast.error("Please login first");
-      return;
-    }
-
-    try {
-      await deleteCommentApi(cmtId, currentUser?.token);
-      const res = await getCommentsFromProductApi(id, { limit: limit });
-      dispatch(listComments(res));
-      toast("Comment deleted");
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleWishlist = async () => {
-    if (!currentUser) {
-      toast.error("Please login first");
-      return;
-    }
-
-    try {
-      const res = await toggleWishlistApi({
-        userId: currentUser?._id,
-        productId: p?._id,
-        token: currentUser?.token,
-      });
-      const data = await getUserWishlistApi({
-        userId: currentUser?._id,
-        token: currentUser?.token,
-      });
-      dispatch(setUserWishlist(data?.wishlist));
-      dispatch(setIsInWishlist((prevState) => !prevState));
-      toast.info(res?.message, { position: "top-right" });
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // FIX SCROLL BUG
   useEffect(() => {
     document.body.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
-
-  useEffect(() => {
-    async function fetchComments() {
-      try {
-        dispatch(loadingCmt(true));
-        const res = await getCommentsFromProductApi(id, { limit: limit });
-        dispatch(listComments(res));
-        dispatch(loadingCmt(false));
-      } catch (error) {
-        dispatch(listComments([]));
-        dispatch(loadingCmt(false));
-      }
-    }
-    fetchComments();
-  }, [dispatch, id, limit]);
 
   const isInWishlist = userWishlist.find((item) => item?._id === p?._id);
 
@@ -250,7 +148,7 @@ const ProductDetail = () => {
 
             {isInWishlist ? (
               <Button
-                onClick={handleWishlist}
+                onClick={() => handleToggleFavorite(id)}
                 variant="text"
                 color="amber"
                 className="flex rounded-none items-center gap-3  w-full justify-center"
@@ -260,7 +158,7 @@ const ProductDetail = () => {
               </Button>
             ) : (
               <Button
-                onClick={handleWishlist}
+                onClick={() => handleToggleFavorite(id)}
                 variant="text"
                 color="amber"
                 className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
@@ -283,70 +181,69 @@ const ProductDetail = () => {
           <Typography variant="h5">Write your reviews</Typography>
           <div className="flex items-center gap-2">
             <p className="text-lg">Your rating: </p>
-            <Rating
-              onChange={(val) => dispatch(setRating(val))}
-              value={rating || 1}
-            />
+            <Rating onChange={(val) => setRating(val)} value={rating} />
           </div>
 
           <textarea
-            value={commentVal}
+            value={val}
             required
-            onChange={(e) => dispatch(setCommentVal(e.target.value))}
+            onChange={(e) => setVal(e.target.value)}
             className="min-h-[200px] focus:border-amber-600 border-gray-300 resize-none outline-none w-full border-2 p-4 rounded-lg text-lg"
             placeholder="Write your comments"
           ></textarea>
 
           <Button
-            onClick={handleAddCmt}
+            disabled={isAdding}
+            onClick={() => handleWriteReview(id)}
             color="amber"
             className="ml-auto flex px-14"
             size="lg"
             type="submit"
           >
-            {"Submit"}
+            {isAdding ? "Submitting" : "Submit"}
           </Button>
         </div>
       </div>
 
       <div className="mt-3 space-y-7">
         <Typography variant="lead">
-          Total Reviews ({comments?.totalDocs || 0})
+          Total Reviews ({reviews?.totalDocs || 0})
         </Typography>
 
         <ul className="space-y-5">
-          {isLoadingCmt && (
+          {isLoadingReviews && (
             <p className="text-lg font-medium opacity-60 text-center">
-              Loading comments...
+              Loading reviews...
             </p>
           )}
 
-          {!isLoadingCmt && comments?.docs?.length === 0 && (
+          {!isLoadingReviews && reviews?.docs?.length === 0 && (
             <p className="text-lg font-medium opacity-60 text-center">
-              There is no comments yet
+              There is no reviews yet
             </p>
           )}
 
-          {!isLoadingCmt &&
-            comments?.docs?.length > 0 &&
-            comments?.docs?.map((item) => (
+          {!isLoadingReviews &&
+            reviews?.docs?.length > 0 &&
+            reviews?.docs?.map((item) => (
               <UserComment
                 key={item?._id}
                 item={item}
-                onDelete={handleDeleteCmt}
+                onDelete={handleDeleteReview}
               />
             ))}
         </ul>
 
-        {comments?.totalDocs > 5 && (
+        {reviews?.totalDocs > 5 && (
           <Button
-            onClick={() => dispatch(increaseLimit())}
+            disabled={isLoadingReviews}
+            onClick={handleLoadMoreReview}
             color="amber"
             className="mx-auto flex justify-center items-center"
             size="lg"
             type="submit"
           >
-            {"Load more comments"}
+            {isLoadingReviews ? "Loading..." : "Load more reviews"}
           </Button>
         )}
       </div>
@@ -436,7 +333,7 @@ function UserComment({ item, onDelete }) {
     <li className="flex items-start gap-3">
       <div className="flex-shrink-0 w-[50px] h-[50px]">
         <img
-          src={item?.user?.avatar || "https://source.unsplash.com/random"}
+          src={item?.user?.avatar}
           alt={item?.user?.name}
           className="img-cover rounded-full"
         />
@@ -454,12 +351,12 @@ function UserComment({ item, onDelete }) {
         <Typography variant="paragraph">{item?.comment}</Typography>
 
         {item?.user?._id === currentUser?._id && (
-          <p
+          <button
             onClick={() => onDelete(item?._id)}
             className=" cursor-pointer text-red-600 hover:underline font-medium"
           >
-            Delete
-          </p>
+            {"Delete"}
+          </button>
         )}
       </div>
     </li>

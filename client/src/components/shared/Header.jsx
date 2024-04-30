@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   Button,
   Menu,
@@ -15,27 +15,19 @@ import { GoSearch } from "react-icons/go";
 import { FaRegHeart } from "react-icons/fa";
 import { BsCart3 } from "react-icons/bs";
 import { RxHamburgerMenu } from "react-icons/rx";
-import {
-  DEFAULT_AVATAR,
-  NAV_LINKS,
-  PRODUCT_CATEGORIES,
-} from "../../utils/constants";
+import { NAV_LINKS, PRODUCT_CATEGORIES } from "../../utils/constants";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import FieldInput from "../form/FieldInput";
-import { googleLogin, loginApi, registerApi } from "../../api/authApi";
-import { toast } from "sonner";
-import { storeCurrentUser } from "../../redux/slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "../../utils/firebase";
-import { checkedCategory } from "../../redux/slices/sortSlice";
-import {
-  setLoadingWishlist,
-  setUserWishlist,
-} from "../../redux/slices/wishlistSlice";
-import { getUserWishlistApi } from "../../api/wishlistApi";
+import { loginSchema } from "../../validations/loginSchema";
+import useLoginUser from "../../hooks/useLoginUser";
+import { registerSchema } from "../../validations/registerSchema";
+import useRegisterUser from "../../hooks/useRegisterUser";
+import useGoogleLogin from "../../hooks/useGoogleLogin";
+import useWishlist from "../../hooks/useWishlist";
+import { setCheckedCategory } from "../../redux/slices/globalSlice";
+import useGetProduct from "../../hooks/useGetProduct";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -43,34 +35,21 @@ const Header = () => {
   const location = useLocation();
   const [open, setOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState("login");
-  const { userWishlist } = useSelector((state) => state.wishlist);
   const { currentUser } = useSelector((state) => state.user);
   const { cart } = useSelector((state) => state.cart);
-
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        dispatch(setLoadingWishlist(true));
-        const res = await getUserWishlistApi({
-          userId: currentUser?._id,
-          token: currentUser?.token,
-        });
-        dispatch(setUserWishlist(res?.wishlist));
-        dispatch(setLoadingWishlist(false));
-      } catch (error) {
-        console.log(error);
-        setUserWishlist([]);
-        dispatch(setLoadingWishlist(false));
-      }
-    };
-    fetchWishlist();
-  }, [currentUser?._id, currentUser?.token, dispatch]);
+  const { userWishlist } = useWishlist();
+  const { products, loading, setFilter, filter, searchQuery } = useGetProduct();
 
   const handleOpen = () => setOpen(!open);
 
   const handleSetFilter = (cat) => {
-    dispatch(checkedCategory(cat));
+    dispatch(setCheckedCategory(cat));
     navigate("/shop");
+  };
+
+  const onNavigateToProduct = (id) => {
+    setFilter({ ...filter, query: "" });
+    navigate(`/product/${id}`);
   };
 
   return (
@@ -124,13 +103,59 @@ const Header = () => {
               Molla
             </Link>
 
-            <div className="rounded-full py-3 px-5 flex items-center gap-3 bg-white">
-              <GoSearch size={22} />
-              <input
-                type="text"
-                className="outline-none border-none w-full bg-transparent "
-                placeholder="Search products..."
-              />
+            {/* Search box */}
+            <div className="relative">
+              <div className="rounded-full py-3 px-5 flex items-center gap-3 bg-white">
+                <GoSearch size={22} />
+                <input
+                  type="text"
+                  className="outline-none border-none w-full bg-transparent "
+                  placeholder="Search products..."
+                  value={filter.query}
+                  onChange={(e) =>
+                    setFilter({ ...filter, query: e.target.value })
+                  }
+                />
+              </div>
+
+              {searchQuery && (
+                <div className="absolute h-[400px] overflow-y-auto top-full mt-3 w-full bg-white border rounded-xl border-gray-200 rounded-b-lg shadow-lg z-20">
+                  <ul>
+                    {loading && (
+                      <p className="text-center animate-pulse opacity-50 text-lg">
+                        Looking for your product...
+                      </p>
+                    )}
+
+                    {!loading &&
+                      products.length > 0 &&
+                      products.map((item) => (
+                        <li
+                          key={item?._id}
+                          className="flex items-center p-3 gap-3 h-[70px] hover:bg-amber-50 rounded-lg cursor-pointer"
+                          onClick={() => onNavigateToProduct(item?._id)}
+                        >
+                          <img
+                            src={item?.thumbnails[0]}
+                            alt={item?.name}
+                            className="w-[60px] h-[60px] object-contain"
+                          />
+                          <p className="font-semibold">{item?.name}</p>
+                        </li>
+                      ))}
+                  </ul>
+
+                  <Button
+                    onClick={() => navigate("/shop")}
+                    variant="text"
+                    className="w-full"
+                    size="lg"
+                    color="amber"
+                  >
+                    Show more
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-4 justify-end">
@@ -162,7 +187,7 @@ const Header = () => {
         </section>
       </header>
 
-      <div className="h-[60px] bg-white z-10 sticky top-0 flex items-center border-b border-gray-300 ">
+      <div className="h-[60px] z-50 bg-white z-10 sticky top-0 flex items-center border-b border-gray-300 ">
         <div className="page-container flex items-center justify-between">
           <Menu>
             <MenuHandler>
@@ -220,55 +245,24 @@ const Header = () => {
 export default Header;
 
 const LoginForm = () => {
-  const schema = yup.object().shape({
-    password: yup
-      .string()
-      .min(6, "Password must be at least 6 characters long.")
-      .max(20, "Password must be at most 20 characters long.")
-      .required("Password is required."),
-    email: yup
-      .string()
-      .email("Invalid email format.")
-      .required("Email is required.")
-      .lowercase("Email must be in lowercase."),
-  });
-
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = useForm({
     mode: "onchange",
-    resolver: yupResolver(schema),
+    resolver: yupResolver(loginSchema),
     defaultValues: {
       password: "",
       email: "",
     },
   });
 
-  const dispatch = useDispatch();
-
-  const onSubmit = async (values) => {
-    try {
-      const request = {
-        ...values,
-      };
-
-      const res = await loginApi(request);
-      toast.success(res?.message);
-      localStorage.setItem("MOLLA_TOKEN", JSON.stringify(res?.token));
-      dispatch(storeCurrentUser({ ...res.results, token: res?.token }));
-
-      window.location.reload();
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.log("Failed to login: ", error);
-    }
-  };
+  const { handleLogin, loading } = useLoginUser();
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(handleLogin)} className="space-y-5">
         <GoogleLogin />
 
         <hr className="my-2 border-blue-gray-200" />
@@ -283,6 +277,7 @@ const LoginForm = () => {
           labelText="Password"
           register={register}
           name="password"
+          type="password"
           errorMessage={errors?.password?.message}
         />
 
@@ -296,13 +291,13 @@ const LoginForm = () => {
         </div>
 
         <Button
-          disabled={isSubmitting}
+          disabled={loading}
           color="amber"
           className="w-full"
           size="lg"
           type="submit"
         >
-          {isSubmitting ? "Submitting..." : "Submit"}
+          {loading ? "Submitting..." : "Submit"}
         </Button>
       </form>
     </div>
@@ -310,59 +305,26 @@ const LoginForm = () => {
 };
 
 const RegisterForm = () => {
-  const schema = yup.object().shape({
-    name: yup
-      .string()
-      .min(3, "Username must be at least 3 characters long.")
-      .max(20, "Username must be at most 20 characters long.")
-      .required("Username is required."),
-    password: yup
-      .string()
-      .min(6, "Password must be at least 6 characters long.")
-      .max(20, "Password must be at most 20 characters long.")
-      .required("Password is required."),
-    email: yup
-      .string()
-      .email("Invalid email format.")
-      .required("Email is required.")
-      .lowercase("Email must be in lowercase."),
-  });
-
   const {
     register,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = useForm({
     mode: "onchange",
-    resolver: yupResolver(schema),
+    resolver: yupResolver(registerSchema),
     defaultValues: {
       name: "",
-      password: "",
       email: "",
+      password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values) => {
-    try {
-      const req = {
-        ...values,
-        avatar: DEFAULT_AVATAR,
-      };
-
-      const res = await registerApi(req);
-
-      toast.success(res?.message);
-
-      window.location.reload();
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.log("Failed to register: ", error);
-    }
-  };
+  const { handleRegister, loading } = useRegisterUser();
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      <form onSubmit={handleSubmit(handleRegister)} className="space-y-5">
         <GoogleLogin />
 
         <hr className="my-2 border-blue-gray-200" />
@@ -383,17 +345,25 @@ const RegisterForm = () => {
           labelText="Password"
           register={register}
           name="password"
+          type="password"
           errorMessage={errors?.password?.message}
+        />
+        <FieldInput
+          labelText="Confirm Password"
+          register={register}
+          name="confirmPassword"
+          type="password"
+          errorMessage={errors?.confirmPassword?.message}
         />
 
         <Button
-          disabled={isSubmitting}
+          disabled={loading}
           color="amber"
           className="w-full"
           size="lg"
           type="submit"
         >
-          {isSubmitting ? "Submitting..." : "Submit"}
+          {loading ? "Submitting..." : "Submit"}
         </Button>
       </form>
     </div>
@@ -401,35 +371,11 @@ const RegisterForm = () => {
 };
 
 function GoogleLogin() {
-  const dispatch = useDispatch();
-
-  const handleGoogleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      const results = await signInWithPopup(auth, provider);
-      const user = results.user;
-
-      const req = {
-        name: user?.displayName,
-        email: user?.email,
-        avatar: user?.photoURL,
-      };
-
-      const res = await googleLogin(req);
-
-      toast.success(res?.message);
-      localStorage.setItem("MOLLA_TOKEN", JSON.stringify(res?.token));
-      dispatch(storeCurrentUser({ ...res.results, token: res?.token }));
-
-      window.location.reload();
-    } catch (error) {
-      toast.error(error?.response?.data?.message);
-      console.log("Failed to login with google: ", error);
-    }
-  };
+  const { handleGoogleLogin, loading } = useGoogleLogin();
 
   return (
     <Button
+      disabled={loading}
       onClick={handleGoogleLogin}
       type="button"
       size="lg"

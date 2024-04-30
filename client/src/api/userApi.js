@@ -1,40 +1,38 @@
 import axios from "axios";
 
-export const getUserDetailApi = async (id, token) => {
-  const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user/${id}`, {
-    headers: { token: `Bearer ${token}` },
-  });
+const USER_PARAMS = {
+  PAGE: 1,
+  LIMIT: 12,
+  SORT: "name",
+  ORDER: "desc",
+  QUERY: "",
+};
 
+export const getUserDetailApi = async (id) => {
+  const res = await axios.get(`/api/user/${id}`);
   return res.data;
 };
 
-export const updateUserApi = async ({ userId, userToken, req }) => {
-  const res = await axios.put(
-    `${import.meta.env.VITE_SERVER_URL}/user/update/${userId}`,
-    req,
-    {
-      headers: { token: `Bearer ${userToken}` },
-    }
-  );
-
+export const updateUserApi = async (userId, req) => {
+  const res = await axios.put(`/api/user/update/${userId}`, req);
   return res.data;
 };
 
 export const getAllUserApi = async ({
-  userToken,
-  page = 1,
-  limit = 12,
-  order = "desc",
-  query,
-}) => {
-  const res = await axios.get(`${import.meta.env.VITE_SERVER_URL}/user/all`, {
+  page = USER_PARAMS.PAGE,
+  limit = USER_PARAMS.LIMIT,
+  sort = USER_PARAMS.SORT,
+  order = USER_PARAMS.ORDER,
+  query = USER_PARAMS.QUERY,
+} = {}) => {
+  const res = await axios.get(`/api/user/users`, {
     params: {
       page,
       limit,
       order,
+      sort,
       query,
     },
-    headers: { token: `Bearer ${userToken}` },
   });
 
   return res.data;

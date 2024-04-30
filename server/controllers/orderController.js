@@ -1,13 +1,27 @@
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import { sendEmailCompletePurchase } from "../services/emailService.js";
-import { errorHandler } from "../utils/errorHandler.js";
-import mongoose from "mongoose";
 
-export const getAllOrders = async (req, res, next) => {
-  const { page = 1, limit = 20, order = "desc" } = req.query;
+const ORDER_QUERY = {
+  PAGE: 1,
+  LIMIT: 10,
+  ORDER: "desc",
+};
 
+export const getOrders = async (req, res) => {
   try {
+    const {
+      page = ORDER_QUERY.PAGE,
+      limit = ORDER_QUERY.LIMIT,
+      order = ORDER_QUERY.ORDER,
+    } = req.query;
+
+    const userRole = req.user.role;
+
+    if (userRole !== "admin") {
+      return res.status(403).json({ error: "Not have permission" });
+    }
+
     const options = {
       page,
       limit,
@@ -16,21 +30,24 @@ export const getAllOrders = async (req, res, next) => {
       },
     };
 
-    const data = await Order.paginate({}, options);
+    const orders = await Order.paginate({}, options);
 
-    if (!data.docs || data.docs.length === 0) {
-      next(errorHandler(404, "Orders not found"));
+    if (!orders.docs || orders.docs.length === 0) {
+      return res.status(404).json({ error: "Orders not found" });
     }
 
-    return res.status(200).json(data);
+    return res.status(200).json(orders);
   } catch (error) {
-    next(error);
+    console.log("Error in getOrders controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-export const getOrderDetail = async (req, res, next) => {
+export const getOrderDetail = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
+    const { id } = req.params;
+
+    const order = await Order.findById(id);
 
     if (!order) {
       return res.status(404).json({ message: "Order not found" });
@@ -38,13 +55,18 @@ export const getOrderDetail = async (req, res, next) => {
 
     return res.status(200).json(order);
   } catch (error) {
-    next(error);
+    console.log("Error in getOrderDetail controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const getUserOrders = async (req, res, next) => {
   try {
-    const { page = 1, limit = 20, order = "desc" } = req.query;
+    const {
+      page = ORDER_QUERY.PAGE,
+      limit = ORDER_QUERY.LIMIT,
+      order = ORDER_QUERY.ORDER,
+    } = req.query;
 
     const userId = req.params.id;
 
@@ -58,22 +80,23 @@ export const getUserOrders = async (req, res, next) => {
       },
     };
 
-    const data = await Order.paginate(filter, options);
+    const orders = await Order.paginate(filter, options);
 
-    if (!data.docs || data.docs.length === 0) {
+    if (!orders.docs || orders.docs.length === 0) {
       return res.status(404).json({ error: "User orders not found" });
     }
 
-    return res.status(200).json(data);
+    return res.status(200).json(orders);
   } catch (error) {
-    next(error);
+    console.log("Error in getUserOrders controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const createOrder = async (req, res, next) => {
-  const { orderItems, shippingAddress, shippingType, details } = req.body;
-
   try {
+    const { orderItems, shippingAddress, shippingType, details } = req.body;
+
     for (const order of orderItems) {
       await Product.findOneAndUpdate(
         {
@@ -102,6 +125,7 @@ export const createOrder = async (req, res, next) => {
 
     return res.status(200).json(newOrder);
   } catch (error) {
-    next(error);
+    console.log("Error in createOrder controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };

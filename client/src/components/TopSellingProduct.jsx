@@ -2,9 +2,12 @@ import React from "react";
 import { SORT_CATEGORIES } from "../utils/constants";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import ProductCard from "./ProductCard";
+import ProductCard, { ProductCardSkeleton } from "./ProductCard";
+import useGetProduct from "../hooks/useGetProduct";
 
 const TopSellingProduct = () => {
+  const { products, loading, setFilter, filter } = useGetProduct();
+
   return (
     <div className="mt-20">
       <div className="flex items-center justify-between">
@@ -13,7 +16,12 @@ const TopSellingProduct = () => {
         <ul className="flex items-center gap-5">
           {SORT_CATEGORIES.map((item) => (
             <li
-              className="opacity-50 text-sm uppercase hover:text-amber-600 cursor-pointer transition-all"
+              onClick={() => setFilter({ ...filter, category: item })}
+              className={`${
+                item === filter.category
+                  ? "text-amber-600 opacity-100"
+                  : "hover:text-amber-600 opacity-50"
+              }  text-sm uppercase cursor-pointer transition-all`}
               key={item}
             >
               {item}
@@ -76,12 +84,14 @@ const TopSellingProduct = () => {
           slidesToSlide={1}
           swipeable
         >
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
-          <ProductCard />
+          {loading &&
+            Array(12)
+              .fill(0)
+              .map((item, index) => <ProductCardSkeleton key={index} />)}
+
+          {!loading &&
+            products.length > 0 &&
+            products.map((item) => <ProductCard key={item?._id} p={item} />)}
         </Carousel>
       </div>
     </div>

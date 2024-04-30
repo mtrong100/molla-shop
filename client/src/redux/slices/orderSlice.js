@@ -3,8 +3,10 @@ import { createSlice } from "@reduxjs/toolkit";
 export const orderSlice = createSlice({
   name: "order",
   initialState: {
-    isLoadingOrders: false,
     orders: [],
+    isLoadingOrders: false,
+    isCheckout: false,
+    isPaying: false,
     query: "",
     sortOption: "desc",
     nextPage: 1,
@@ -18,6 +20,12 @@ export const orderSlice = createSlice({
     },
     loadingOrders: (state, action) => {
       state.isLoadingOrders = action.payload;
+    },
+    setIsCheckout: (state, action) => {
+      state.isCheckout = action.payload;
+    },
+    setIsPaying: (state, action) => {
+      state.isPaying = action.payload;
     },
     setQueryOrder: (state, action) => {
       state.query = action.payload;
@@ -45,6 +53,8 @@ export const {
   setTotalPages,
   setNextPage,
   setCurrentPage,
+  setIsCheckout,
+  setIsPaying,
 } = orderSlice.actions;
 
 export default orderSlice.reducer;

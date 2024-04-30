@@ -1,14 +1,13 @@
 import express from "express";
-
-import { verifyToken } from "../middlewares/verifyToken.js";
 import {
   getUserWishlist,
   toggleWishlist,
 } from "../controllers/wishlistController.js";
+import { protectedRoute } from "../middlewares/protectedRoute.js";
 
 const router = express.Router();
 
-router.get("/get/:userId", verifyToken, getUserWishlist);
-router.post("/toggle/:userId/:productId", verifyToken, toggleWishlist);
+router.get("/:userId", protectedRoute, getUserWishlist);
+router.post("/toggle/:userId/:productId", protectedRoute, toggleWishlist);
 
 export default router;

@@ -1,60 +1,21 @@
-import React, { useEffect } from "react";
+import React from "react";
 import TitleSection from "../components/TitleSection";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllProductsApi } from "../api/productApi";
+import { useSelector } from "react-redux";
 import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
-import { loadingProducts, productList } from "../redux/slices/productSlice";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
-import {
-  setLoadingWishlist,
-  setUserWishlist,
-} from "../redux/slices/wishlistSlice";
-import { getUserWishlistApi } from "../api/wishlistApi";
+import { Navigate } from "react-router-dom";
+import useGetProduct from "../hooks/useGetProduct";
+import useWishlist from "../hooks/useWishlist";
 
 const Wishlist = () => {
-  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
-  const { products, isLoadingProducts } = useSelector((state) => state.product);
-  const { userWishlist, isLoadingWishlist } = useSelector(
-    (state) => state.wishlist
-  );
+  const { products, isLoadingProducts } = useGetProduct();
+  const { userWishlist, isLoadingWishlist } = useWishlist();
 
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      try {
-        dispatch(setLoadingWishlist(true));
-        const res = await getUserWishlistApi({
-          userId: currentUser?._id,
-          token: currentUser?.token,
-        });
-        dispatch(setUserWishlist(res?.wishlist));
-        dispatch(setLoadingWishlist(false));
-      } catch (error) {
-        console.log(error);
-        setUserWishlist([]);
-        dispatch(setLoadingWishlist(false));
-      }
-    };
-    fetchWishlist();
-  }, [currentUser?._id, currentUser?.token, dispatch]);
-
-  useEffect(() => {
-    async function fetchProducts() {
-      try {
-        dispatch(loadingProducts(true));
-        const res = await getAllProductsApi();
-        dispatch(productList(res?.docs));
-        dispatch(loadingProducts(false));
-      } catch (error) {
-        dispatch(productList([]));
-        dispatch(loadingProducts(false));
-      }
-    }
-    fetchProducts();
-  }, [dispatch]);
-
-  if (!currentUser) return null;
+  if (!currentUser) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div className="my-10 space-y-20">

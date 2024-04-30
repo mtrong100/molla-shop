@@ -1,24 +1,11 @@
 import axios from "axios";
 
-export const getUserWishlistApi = async ({ userId, token }) => {
-  const res = await axios.get(
-    `${import.meta.env.VITE_SERVER_URL}/wishlist/get/${userId}`,
-    {
-      headers: { token: `Bearer ${token}` },
-    }
-  );
-
+export const getUserWishlistApi = async (id) => {
+  const res = await axios.get(`/api/wishlist/${id}`);
   return res.data;
 };
 
-export const toggleWishlistApi = async ({ userId, productId, token }) => {
-  const res = await axios.post(
-    `${import.meta.env.VITE_SERVER_URL}/wishlist/toggle/${userId}/${productId}`,
-    {},
-    {
-      headers: { token: `Bearer ${token}` },
-    }
-  );
-
+export const toggleWishlistApi = async (userId, productId) => {
+  const res = await axios.post(`/api/wishlist/toggle/${userId}/${productId}`);
   return res.data;
 };

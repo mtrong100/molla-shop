@@ -4,9 +4,13 @@ import mongoosePaginate from "mongoose-paginate-v2";
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    avatar: { type: String, required: true },
+    avatar: {
+      type: String,
+      required: true,
+      default: "https://avatar.iran.liara.run/public/48",
+    },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, minlength: 6 },
     address: { type: String, default: null },
     phone: { type: String, default: null },
     provider: { type: String, required: true },

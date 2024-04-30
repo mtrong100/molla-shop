@@ -8,7 +8,6 @@ import {
 import React from "react";
 import FieldInput from "../components/form/FieldInput";
 import { useForm } from "react-hook-form";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { FaRegCreditCard } from "react-icons/fa";
@@ -17,38 +16,23 @@ import { calculateTotal, resetCart } from "../redux/slices/cartSlice";
 import { PAYMENT_METHOD } from "../utils/constants";
 import { createOrderApi } from "../api/orderApi";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import StripeCheckout from "react-stripe-checkout";
+import { checkoutSchema } from "../validations/checkoutValidation";
+import toast from "react-hot-toast";
+import useCheckout from "../hooks/useCheckout";
+import { setIsPaying } from "../redux/slices/orderSlice";
 
 const TABLE_HEAD = ["Product", "Total"];
-
-const validationSchema = yup.object().shape({
-  fullName: yup
-    .string()
-    .min(2, "Full name must be at least 2 characters")
-    .max(50, "Full name must be at most 50 characters")
-    .required("Full name is required"),
-  address: yup
-    .string()
-    .min(5, "Address must be at least 5 characters")
-    .max(100, "Address must be at most 100 characters")
-    .required("Address is required"),
-  phone: yup
-    .string()
-    .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
-    .required("Phone number is required"),
-  email: yup.string().email("Invalid email").required("Email is required"),
-});
 
 const Checkout = () => {
   const {
     register,
     handleSubmit,
     getValues,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = useForm({
     mode: "onchange",
-    resolver: yupResolver(validationSchema),
+    resolver: yupResolver(checkoutSchema),
     defaultValues: {
       fullName: "",
       address: "",
@@ -63,62 +47,20 @@ const Checkout = () => {
   const { shippingMethod, cart, couponCode } = useSelector(
     (state) => state.cart
   );
-
+  const { isPaying } = useSelector((state) => state.order);
   const total = useSelector(calculateTotal);
+  const { handleCheckout, isCheckout } = useCheckout();
 
-  /* PLACE AN ORDER */
-  const onSubmit = async (values) => {
-    if (!currentUser) {
-      toast.error("Please login first");
+  const handlePayWithCard = async () => {
+    const values = getValues();
+    if (!(values.fullName && values.phone && values.email && values.address)) {
+      toast.error("You forgot to fill in the form");
       return;
     }
 
-    try {
-      const req = {
-        shippingAddress: {
-          ...values,
-        },
-        orderItems: cart,
-        shippingType: {
-          type: shippingMethod.name,
-          price: shippingMethod.price,
-        },
-        details: {
-          paymentMethod: PAYMENT_METHOD.CASH,
-          totalCost: total.toFixed(2),
-          couponCodeApply: couponCode,
-        },
-        user: currentUser?._id,
-      };
-
-      await createOrderApi({ userToken: currentUser?.token, req });
-
-      toast.success("Place an order successfully");
-      dispatch(resetCart());
-      navigate("/");
-    } catch (error) {
-      console.log(error);
-      toast.error("Failed to place an order");
-    }
-  };
-
-  /* PAY WITH CARD */
-  const stripePayment = async () => {
-    if (!currentUser) {
-      toast.error("Please login first");
-      return;
-    }
+    dispatch(setIsPaying(true));
 
     try {
-      const values = getValues();
-
-      if (
-        !(values.fullName && values.phone && values.email && values.address)
-      ) {
-        toast.error("You forgot to fill in the form");
-        return;
-      }
-
       const req = {
         shippingAddress: {
           ...values,
@@ -136,14 +78,15 @@ const Checkout = () => {
         user: currentUser?._id,
       };
 
-      await createOrderApi({ userToken: currentUser?.token, req });
-
+      await createOrderApi(req);
       toast.success("Pay with card successfully");
       dispatch(resetCart());
       navigate("/");
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to pay with card");
+      toast.error(error?.response?.data?.error);
+      console.log("Failed to handlePayWithCard: ", error);
+    } finally {
+      dispatch(setIsPaying(false));
     }
   };
 
@@ -154,7 +97,7 @@ const Checkout = () => {
       </Typography>
 
       <section className="grid grid-cols-2 items-start gap-5 mt-5">
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(handleCheckout)}>
           <div className="space-y-5">
             <FieldInput
               labelTitle="Full Name"
@@ -246,21 +189,21 @@ const Checkout = () => {
               type="submit"
               variant="outlined"
               color="amber"
-              disabled={isSubmitting}
+              disabled={isCheckout}
               className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
             >
-              {isSubmitting ? (
+              {isCheckout ? (
                 <Spinner color="amber" className="h-4 w-4" />
               ) : (
                 <IoMdCheckmarkCircleOutline size={20} />
               )}
-              {isSubmitting ? "Please waiting..." : "Place an order"}
+              {isCheckout ? "Please waiting..." : "Place an order"}
             </Button>
             <div>
               <StripeCheckout
-                token={stripePayment}
+                token={handlePayWithCard}
                 stripeKey="pk_test_51OmAzrG1T7kyPILea5z6uMUN5VoCKA4yOluRVCMezmlcHYQnMIs7djqN1mmiWbDoFmyt4sCVqlN69H6MekMafLr900ocV4xdiu"
-                name="Exclusive-shop"
+                name="Molla-shop"
                 email={currentUser?.email}
                 amount={Number(total.toFixed(2)) * 100}
                 description="Payment with Stripe"
@@ -269,16 +212,21 @@ const Checkout = () => {
                   type="button"
                   variant="gradient"
                   color="amber"
-                  disabled={isSubmitting}
+                  disabled={isPaying}
                   className="flex rounded-none items-center gap-3  w-full justify-center"
                 >
-                  <FaRegCreditCard size={20} />
-                  Pay with card
+                  {isPaying ? (
+                    <Spinner color="amber" className="h-4 w-4" />
+                  ) : (
+                    <FaRegCreditCard size={20} />
+                  )}
+                  {isPaying ? "Please waiting..." : "Pay with card"}
                 </Button>
               </StripeCheckout>
             </div>
           </div>
         </form>
+
         <Card className=" mt-5 w-full overflow-scroll h-fit">
           <table className="w-full min-w-max table-auto text-left">
             <thead>

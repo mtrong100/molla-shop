@@ -51,7 +51,7 @@ export const getProductDetailApi = async (id) => {
   return res.data;
 };
 
-export const createProductApi = async (token, req) => {
+export const createProductApi = async (req) => {
   const res = await axios.post(`/api/product/create`, req);
   return res.data;
 };

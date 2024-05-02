@@ -14,7 +14,7 @@ const DashboardLayout = () => {
   return (
     <section className="relative flex items-start">
       <Sidebar />
-      <main className="p-5 w-full">
+      <main className="p-3 w-full">
         <Outlet />
       </main>
       <Scrolltop />

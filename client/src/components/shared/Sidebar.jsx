@@ -16,6 +16,7 @@ import { GoPlus } from "react-icons/go";
 import { MdManageSearch } from "react-icons/md";
 import { IoMdHome, IoMdLogOut } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -45,9 +46,16 @@ const Sidebar = () => {
 
         <ListItem onClick={() => navigate("/admin/dashboard")}>
           <ListItemPrefix>
-            <LuLayoutDashboard size={20} />
+            <LuLayoutDashboard size={22} />
           </ListItemPrefix>
           Dashboard
+        </ListItem>
+
+        <ListItem onClick={() => navigate("/admin/chat")}>
+          <ListItemPrefix>
+            <IoChatbubbleEllipsesOutline size={23} />
+          </ListItemPrefix>
+          Chat
         </ListItem>
 
         <Accordion

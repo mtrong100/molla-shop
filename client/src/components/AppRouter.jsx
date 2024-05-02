@@ -23,6 +23,7 @@ const ManageProduct = lazy(() => import("../admin/ManageProduct"));
 const ManageUser = lazy(() => import("../admin/ManageUser"));
 const CreateProduct = lazy(() => import("../admin/CreateProduct"));
 const UpdateProduct = lazy(() => import("../admin/UpdateProduct"));
+const Chat = lazy(() => import("../admin/Chat"));
 
 const mainRoutes = [
   { path: "/", element: <Home /> },
@@ -43,6 +44,7 @@ const adminRoutes = [
   { path: "/admin/update-product/:id", element: <UpdateProduct /> },
   { path: "/admin/manage-orders", element: <ManageOrder /> },
   { path: "/admin/manage-users", element: <ManageUser /> },
+  { path: "/admin/chat", element: <Chat /> },
 ];
 
 const AppRouter = () => {

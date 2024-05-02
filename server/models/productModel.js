@@ -17,7 +17,9 @@ const productSchema = new mongoose.Schema(
     brand: { type: String, required: true },
     stock: { type: Number, required: true },
     view: { type: Number, default: 0 },
-    reviews: [{ type: mongoose.Schema.Types.ObjectId, ref: "Review" }],
+    reviews: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Review", required: true },
+    ],
   },
   {
     timestamps: true,

@@ -25,14 +25,15 @@ export default function useGoogleLogin() {
       };
 
       const res = await googleLoginApi(req);
-      dispatch(storeCurrentUser(res));
+      console.log(res);
 
+      dispatch(storeCurrentUser(res));
       toast.success("Google login successfully");
 
       window.location.reload();
     } catch (error) {
       toast.error(error.message);
-      console.log("Something wrong with handleGoogleLogin function: ", error);
+      console.log("Failed to login with google: ", error);
     } finally {
       setLoading(false);
     }

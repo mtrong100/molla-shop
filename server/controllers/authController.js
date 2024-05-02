@@ -129,23 +129,23 @@ export const googleLogin = async (req, res) => {
         phone: newUser.phone,
         address: newUser.address,
       });
-    } else {
-      generateTokenAndSetCookie(user._id, res);
-
-      return res.status(200).json({
-        _id: user._id,
-        name: user.name,
-        avatar: user.avatar,
-        email: user.email,
-        role: user.role,
-        verified: user.verified,
-        provider: user.provider,
-        phone: newUser.phone,
-        address: newUser.address,
-      });
     }
+
+    generateTokenAndSetCookie(user._id, res);
+
+    return res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      avatar: user.avatar,
+      email: user.email,
+      role: user.role,
+      verified: user.verified,
+      provider: user.provider,
+      phone: user.phone,
+      address: user.address,
+    });
   } catch (error) {
-    console.log("Error in google login controller", error.message);
+    console.log("Error in google login controller", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };

@@ -37,6 +37,7 @@
     "redux-persist": "^6.0.0",
     "sass": "^1.72.0",
     "slugify": "^1.6.6",
+    "socket.io-client": "^4.7.5",
     "sonner": "^1.4.41",
     "sweetalert2": "^11.10.7",
     "tailwind-merge": "^2.2.2",

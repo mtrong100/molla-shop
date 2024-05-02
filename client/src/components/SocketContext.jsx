@@ -1,6 +1,7 @@
-import { createContext, useState, useEffect, useContext } from "react";
-import { useSelector } from "react-redux";
+import { createContext, useEffect, useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import io from "socket.io-client";
+import { setOnlineUsers, setSocket } from "../redux/slices/socketSlice";
 
 const SocketContext = createContext();
 
@@ -9,26 +10,27 @@ export const useSocketContext = () => {
 };
 
 export const SocketContextProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null);
-  const [onlineUsers, setOnlineUsers] = useState([]);
+  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
+  const { socket, onlineUsers } = useSelector((state) => state.socket);
 
   console.log("🚀 ~ SocketContextProvider ~ onlineUsers:", onlineUsers);
 
   useEffect(() => {
     if (currentUser) {
       const socket = io("http://localhost:5000");
-      setSocket(socket);
+
+      dispatch(setSocket(socket.id));
 
       socket.on("getOnlineUsers", (users) => {
-        setOnlineUsers(users);
+        dispatch(setOnlineUsers(users));
       });
 
       return () => socket.close();
     } else {
       if (socket) {
         socket.close();
-        setSocket(null);
+        dispatch(setSocket(null));
       }
     }
   }, []);

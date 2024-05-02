@@ -37,7 +37,7 @@ function UserChat() {
             alt=""
             className="img-cover rounded-full"
           />
-          <span className="absolute top-0 right-0 h-4 w-4 flex items-center justify-center bg-green-500  rounded-full"></span>
+          <span className="absolute top-0 right-0 h-3 w-3 flex items-center justify-center bg-green-500  rounded-full"></span>
         </div>
 
         <div>

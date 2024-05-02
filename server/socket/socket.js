@@ -15,11 +15,19 @@ const io = new Server(server, {
 let onlineUsers = [];
 
 io.on("connection", (socket) => {
-  console.log("A user connected - socketId: ", socket.id);
+  console.log("A user connected - socketId: ", socket);
 
-  onlineUsers.push({ id: socket.id });
+  socket.on("addUserIsOnline", (userId) => {
+    if (!userId) return;
 
-  io.emit("getOnlineUsers", onlineUsers);
+    const isExisted = onlineUsers.some((item) => item.userId === userId);
+
+    if (!isExisted) {
+      onlineUsers.push({ userId, socketId: socket.id });
+    }
+
+    io.emit("getOnlineUsers", onlineUsers);
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected - socketId: ", socket.id);

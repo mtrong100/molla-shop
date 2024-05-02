@@ -7,6 +7,7 @@ import orderSlice from "./slices/orderSlice";
 import wishlistSlice from "./slices/wishlistSlice";
 import globalSlice from "./slices/globalSlice";
 import socketSlice from "./slices/socketSlice";
+import chatSlice from "./slices/chatSlice";
 
 const rootReducer = combineReducers({
   user: userSlice,
@@ -15,12 +16,13 @@ const rootReducer = combineReducers({
   wishlist: wishlistSlice,
   global: globalSlice,
   socket: socketSlice,
+  chat: chatSlice,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  blacklist: ["order", "wishlist", "global", "socket"],
+  blacklist: ["order", "wishlist", "global", "socket", "chat"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

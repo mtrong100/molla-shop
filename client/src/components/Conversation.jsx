@@ -2,16 +2,27 @@ import React, { useState } from "react";
 import { IoMdSend } from "react-icons/io";
 import { FaImage } from "react-icons/fa6";
 import Message from "./Message";
+import { useSelector } from "react-redux";
 
 const Conversation = () => {
   const [val, setVal] = useState("");
+  const { selectedConversation: selectedUser } = useSelector(
+    (state) => state.chat
+  );
+  const { onlineUsers } = useSelector((state) => state.socket);
+
+  const isOnline = onlineUsers.some(
+    (user) => user?.userId === selectedUser?._id
+  );
 
   return (
     <div className="w-full bg-white border ">
       <header className="bg-gray-100 shadow-sm border p-4 w-full rounded-sm">
         <div className="flex items-center gap-2 justify-between">
-          <h3 className="font-semibold">Username</h3>
-          <span className="text-green-500 font-medium text-sm">Online</span>
+          <h3 className="font-semibold">{selectedUser?.name}</h3>
+          <span className="text-green-500 font-medium">
+            {isOnline ? "Online" : ""}
+          </span>
         </div>
       </header>
 

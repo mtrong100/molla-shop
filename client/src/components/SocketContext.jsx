@@ -14,26 +14,28 @@ export const SocketContextProvider = ({ children }) => {
   const { currentUser } = useSelector((state) => state.user);
   const { socket, onlineUsers } = useSelector((state) => state.socket);
 
-  console.log("🚀 ~ SocketContextProvider ~ onlineUsers:", onlineUsers);
-
+  // Connect socket io for client and set up event listeners
   useEffect(() => {
     if (currentUser) {
       const socket = io("http://localhost:5000");
 
-      dispatch(setSocket(socket.id));
+      dispatch(setSocket(socket));
+
+      socket.on("connect", () => {
+        socket.emit("addUserIsOnline", currentUser?._id);
+      });
 
       socket.on("getOnlineUsers", (users) => {
         dispatch(setOnlineUsers(users));
       });
 
-      return () => socket.close();
-    } else {
-      if (socket) {
+      return () => {
+        socket.off("getOnlineUsers");
         socket.close();
         dispatch(setSocket(null));
-      }
+      };
     }
-  }, []);
+  }, [currentUser, dispatch]);
 
   return (
     <SocketContext.Provider value={{ socket, onlineUsers }}>

@@ -6,6 +6,7 @@ import userRouter from "./userRouter.js";
 import reviewRouter from "./reviewRouter.js";
 import wishlistRouter from "./wishlistRouter.js";
 import messageRouter from "./messageRouter.js";
+import conversationRouter from "./conversationRouter.js";
 
 const router = express.Router();
 
@@ -16,5 +17,6 @@ router.use("/order", orderRouter);
 router.use("/review", reviewRouter);
 router.use("/wishlist", wishlistRouter);
 router.use("/message", messageRouter);
+router.use("/conversation", conversationRouter);
 
 export default router;

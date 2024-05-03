@@ -6,7 +6,6 @@ const Message = ({ item }) => {
   const { currentUser } = useSelector((state) => state.user);
 
   const fromMe = item?.sender?._id === currentUser?._id;
-  console.log("🚀 ~ Message ~ fromMe:", fromMe);
 
   if (fromMe) {
     return (
@@ -31,11 +30,11 @@ const Message = ({ item }) => {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-start gap-2">
       <img
         className="w-[45px] h-[45px] object-cover rounded-full"
-        src={item?.receiver?.avatar}
-        alt={item?.receiver?.name}
+        src={item?.sender?.avatar}
+        alt={item?.sender?.name}
       />
 
       <div>

@@ -4,53 +4,15 @@ import Message from "./Message";
 import { IoMdSend } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "@material-tailwind/react";
-import { clientGetMessagesApi, clientSendMessageApi } from "../api/chatApi";
-import { setMessages } from "../redux/slices/chatSlice";
+import useMessage from "../hooks/useMessage";
 
 const Chatbox = () => {
   const dispatch = useDispatch();
   const scrollRef = useRef();
   const [isOpen, setIsOpen] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
-  const [loading, setIsLoading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [arrivalMessage, setArrivalMessage] = useState(null);
-  const [val, setVal] = useState("");
-  const { messages } = useSelector((state) => state.chat);
-
-  useEffect(() => {
-    async function fetchMessages() {
-      setIsLoading(true);
-
-      try {
-        const res = await clientGetMessagesApi();
-        dispatch(setMessages(res));
-      } catch (error) {
-        console.log("Failed to fetch messages: ", error);
-        dispatch(setMessages([]));
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchMessages();
-  }, [currentUser?._id, dispatch]);
-
-  const handleSendMessage = async () => {
-    if (!val.trim()) return;
-
-    setIsSending(true);
-
-    try {
-      await clientSendMessageApi({ message: val });
-      const res = await clientGetMessagesApi();
-      dispatch(setMessages(res));
-      setVal("");
-    } catch (error) {
-      console.log("Failed to send a message: ", error);
-    } finally {
-      setIsSending(false);
-    }
-  };
+  const { handleSendMessage, messages, loading, isSending, val, setVal } =
+    useMessage();
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });

@@ -1,11 +1,11 @@
 import React from "react";
 import { GoSearch } from "react-icons/go";
-import useManageUser from "../hooks/useManageUser";
 import { useDispatch, useSelector } from "react-redux";
 import { setSelectedConversation } from "../redux/slices/chatSlice";
+import useGetConversation from "../hooks/useGetConversation";
 
 const ChatSidebar = () => {
-  const { users, isLoading, filter, setFilter } = useManageUser();
+  const { loading, conversation } = useGetConversation();
 
   return (
     <aside className="sticky top-0 max-w-[350px] bg-white overflow-y-auto border-blue-gray-100 border h-screen w-full p-4 shadow-xl shadow-blue-gray-900/5">
@@ -15,27 +15,27 @@ const ChatSidebar = () => {
           type="text"
           className="outline-none border-none w-full bg-transparent "
           placeholder="Search users..."
-          value={filter.query}
-          onChange={(e) => setFilter({ ...filter, query: e.target.value })}
+          // value={filter.query}
+          // onChange={(e) => setFilter({ ...filter, query: e.target.value })}
         />
       </div>
 
       <ul className="mt-5 space-y-1">
-        {isLoading && (
+        {loading && (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             Loading...
           </p>
         )}
 
-        {!isLoading && users?.docs?.length === 0 && (
+        {!loading && conversation.length === 0 && (
           <p className="text-center my-5 text-lg opacity-60 font-semibold">
             User not found
           </p>
         )}
 
-        {!isLoading &&
-          users?.docs?.length > 0 &&
-          users?.docs?.map((item) => <UserChat key={item?._id} item={item} />)}
+        {!loading &&
+          conversation.length > 0 &&
+          conversation.map((item) => <UserChat key={item?._id} item={item} />)}
       </ul>
     </aside>
   );
@@ -47,13 +47,18 @@ function UserChat({ item }) {
   const dispatch = useDispatch();
   const { selectedConversation } = useSelector((state) => state.chat);
   const { onlineUsers } = useSelector((state) => state.socket);
+  const { currentUser } = useSelector((state) => state.user);
+
+  const sender = (item?.participants || []).find(
+    (participant) => participant._id !== currentUser?._id
+  );
 
   const isOnline = onlineUsers.some((user) => user?.userId === item?._id);
   const isSelected = selectedConversation?._id === item?._id;
 
   return (
     <li
-      onClick={() => dispatch(setSelectedConversation(item))}
+      onClick={() => dispatch(setSelectedConversation(sender))}
       className={`${
         isSelected ? "bg-amber-300" : "hover:bg-gray-100"
       }  p-2 cursor-pointer rounded-md`}
@@ -61,14 +66,14 @@ function UserChat({ item }) {
       <div className="flex items-center gap-3 relative">
         <div className="w-[50px] h-[50px] ">
           <img
-            src={item?.avatar}
-            alt={item?.name}
+            src={sender?.avatar}
+            alt={sender?.name}
             className="img-cover rounded-full"
           />
         </div>
 
         <div>
-          <h4 className="font-semibold">{item?.name}</h4>
+          <h4 className="font-semibold">{sender?.name}</h4>
           <p className="opacity-60 font-sm">This is the lastest message...</p>
         </div>
 

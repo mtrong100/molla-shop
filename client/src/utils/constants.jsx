@@ -2,6 +2,8 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { IoCartOutline, IoWalletOutline } from "react-icons/io5";
 import { LuLayoutDashboard } from "react-icons/lu";
 
+export const ADMIN_ID = "66111c2378e7d7db7d0e243b";
+
 export const COUPON_CODES = [
   {
     label: "molla",

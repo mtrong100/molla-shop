@@ -1,14 +1,16 @@
 import axios from "axios";
 
-export const clientSendMessageApi = async (req) => {
-  const res = await axios.post(
-    `/api/message/send/66111c2378e7d7db7d0e243b`,
-    req
-  );
+export const sendMessageApi = async (id, req) => {
+  const res = await axios.post(`/api/message/send/${id}`, req);
   return res.data;
 };
 
-export const clientGetMessagesApi = async () => {
-  const res = await axios.get(`/api/message/66111c2378e7d7db7d0e243b`);
+export const getMessagesApi = async (id) => {
+  const res = await axios.get(`/api/message/${id}`);
+  return res.data;
+};
+
+export const getConversationApi = async () => {
+  const res = await axios.get(`/api/conversation`);
   return res.data;
 };

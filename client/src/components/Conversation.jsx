@@ -1,19 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { IoMdSend } from "react-icons/io";
-import { FaImage } from "react-icons/fa6";
 import Message from "./Message";
 import { useSelector } from "react-redux";
+import useMessage from "../hooks/useMessage";
+import { Spinner } from "@material-tailwind/react";
 
 const Conversation = () => {
-  const [val, setVal] = useState("");
+  const scrollRef = useRef();
+  const { onlineUsers } = useSelector((state) => state.socket);
   const { selectedConversation: selectedUser } = useSelector(
     (state) => state.chat
   );
-  const { onlineUsers } = useSelector((state) => state.socket);
+  const { handleSendMessage, messages, loading, isSending, val, setVal } =
+    useMessage();
 
   const isOnline = onlineUsers.some(
     (user) => user?.userId === selectedUser?._id
   );
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <div className="w-full bg-white border ">
@@ -27,10 +34,14 @@ const Conversation = () => {
       </header>
 
       <main className="p-4 space-y-4 overflow-y-auto h-[640px]">
-        {Array(10)
-          .fill(0)
-          .map((item, index) => (
-            <Message key={index} />
+        {loading && <Spinner className="h-6 w-6" />}
+
+        {!loading &&
+          messages.length > 0 &&
+          messages.map((item) => (
+            <div ref={scrollRef} key={item?._id}>
+              <Message item={item} />
+            </div>
           ))}
       </main>
 
@@ -43,16 +54,12 @@ const Conversation = () => {
             value={val}
             onChange={(e) => setVal(e.target.value)}
           />
-          <div className="flex items-center gap-4">
-            <FaImage
-              className="cursor-pointer hover:text-amber-500 opacity-50 hover:opacity-100"
-              size={22}
-            />
+          <button disabled={isSending} onClick={handleSendMessage}>
             <IoMdSend
               className="cursor-pointer hover:text-amber-500 opacity-50 hover:opacity-100"
               size={25}
             />
-          </div>
+          </button>
         </div>
       </form>
     </div>

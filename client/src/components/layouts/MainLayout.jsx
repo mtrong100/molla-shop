@@ -4,15 +4,18 @@ import { Outlet } from "react-router-dom";
 import Footer from "../shared/Footer";
 import Scrolltop from "../Scrolltop";
 import Chatbox from "../Chatbox";
+import { useSelector } from "react-redux";
 
 const MainLayout = () => {
+  const { currentUser } = useSelector((state) => state.user);
+
   return (
     <>
       <Header />
       <section className="page-container">
         <Outlet />
       </section>
-      <Chatbox />
+      {currentUser?.role === "user" && <Chatbox />}
       <Scrolltop />
       <Footer />
     </>

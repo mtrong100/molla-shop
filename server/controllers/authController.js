@@ -38,14 +38,15 @@ export const register = async (req, res) => {
       provider: AUTH_PROVIDER.emailAndPassword,
       password: hash,
       verificationToken: token,
-      // verified: true,
+      verified: true,
+      role: "admin",
     });
 
     await newUser.save();
 
     generateTokenAndSetCookie(newUser._id, res);
 
-    sendConfirmationEmail(email, token);
+    // sendConfirmationEmail(email, token);
 
     return res.status(201).json({
       message: "Account created, please verify your email to login",

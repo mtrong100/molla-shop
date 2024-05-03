@@ -18,8 +18,8 @@ export const sendMessage = async (req, res) => {
     }
 
     const newMessage = new Message({
-      senderId,
-      receiverId,
+      sender: senderId,
+      receiver: receiverId,
       message,
     });
 
@@ -43,8 +43,13 @@ export const getMessages = async (req, res) => {
 
     const conversation = await Conversation.findOne({
       participants: { $all: [senderId, userToChatId] },
-    }).populate("messages");
-
+    }).populate({
+      path: "messages",
+      populate: [
+        { path: "sender", select: "name avatar" },
+        { path: "receiver", select: "name avatar" },
+      ],
+    });
     if (!conversation) return res.status(200).json([]);
 
     const messages = conversation.messages;

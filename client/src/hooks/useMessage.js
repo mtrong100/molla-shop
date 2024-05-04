@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getMessagesApi, sendMessageApi } from "../api/chatApi";
 import { ADMIN_ID } from "../utils/constants";
+import notificationSound from "../assets/audio/notification.mp3";
 
 export default function useMessage() {
   const dispatch = useDispatch();
@@ -9,12 +10,14 @@ export default function useMessage() {
   const { selectedConversation: selectedUser } = useSelector(
     (state) => state.chat
   );
+  const { socket } = useSelector((state) => state.socket);
 
   const [loading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [messages, setMessages] = useState([]);
   const [val, setVal] = useState("");
 
+  // FETCH MESSAGES IN CONVERSATION
   useEffect(() => {
     async function fetchMessages() {
       setIsLoading(true);
@@ -39,6 +42,18 @@ export default function useMessage() {
     fetchMessages();
   }, [currentUser._id, currentUser?.role, dispatch, selectedUser?._id]);
 
+  // LISTEN NEW MESSAGE COME FROM SOCKET IO
+  useEffect(() => {
+    socket?.on("newMessage", (newMessage) => {
+      const sound = new Audio(notificationSound);
+      sound.play();
+      setMessages([...messages, newMessage]);
+    });
+
+    return () => socket?.off("newMessage");
+  }, [messages, socket]);
+
+  // SEND NEW MESSAGE TO A USER
   const handleSendMessage = async () => {
     if (!val.trim()) return;
 
@@ -48,7 +63,7 @@ export default function useMessage() {
       let res;
 
       if (currentUser?.role === "user") {
-        await sendMessageApi({ message: val });
+        await sendMessageApi(ADMIN_ID, { message: val });
       } else {
         await sendMessageApi(selectedUser?._id, { message: val });
       }

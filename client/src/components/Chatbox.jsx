@@ -2,15 +2,12 @@ import React, { useEffect, useRef, useState } from "react";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import Message from "./Message";
 import { IoMdSend } from "react-icons/io";
-import { useDispatch, useSelector } from "react-redux";
 import { Spinner } from "@material-tailwind/react";
 import useMessage from "../hooks/useMessage";
 
 const Chatbox = () => {
-  const dispatch = useDispatch();
   const scrollRef = useRef();
   const [isOpen, setIsOpen] = useState(false);
-  const { currentUser } = useSelector((state) => state.user);
   const { handleSendMessage, messages, loading, isSending, val, setVal } =
     useMessage();
 

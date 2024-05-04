@@ -29,19 +29,16 @@ io.on("connection", (socket) => {
     io.emit("getOnlineUsers", onlineUsers);
   });
 
-  socket.on("sendMessage", (message, receiverId) => {
-    const user = onlineUsers.find((user) => user.userId === receiverId);
-
-    if (user) {
-      io.to(user.socketId).emit("getMessage", message);
-    }
-  });
-
   socket.on("disconnect", () => {
     console.log("User disconnected - socketId: ", socket.id);
-    onlineUsers = onlineUsers.filter((user) => user.id !== socket.id);
+    onlineUsers = onlineUsers.filter((user) => user.socketId !== socket.id);
     io.emit("getOnlineUsers", onlineUsers);
   });
 });
+
+export const getUserSocketId = (userId) => {
+  const user = onlineUsers.find((user) => user.userId === userId);
+  return user ? user.socketId : null;
+};
 
 export { app, io, server };

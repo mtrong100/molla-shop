@@ -25,7 +25,6 @@ export default function useGoogleLogin() {
       };
 
       const res = await googleLoginApi(req);
-      console.log(res);
 
       dispatch(storeCurrentUser(res));
       toast.success("Google login successfully");

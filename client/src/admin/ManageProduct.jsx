@@ -18,6 +18,8 @@ import ReactPaginate from "react-paginate";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import useDeleteProduct from "../hooks/useDeleteProduct";
 import useProduct from "../hooks/useProduct";
+import { IoEyeOutline, IoTrash } from "react-icons/io5";
+import { MdModeEdit } from "react-icons/md";
 
 const TABLE_HEAD = [
   // "ID",
@@ -234,32 +236,26 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
               </td>
               <td className="p-4 ">
                 <div className="flex items-center gap-3">
-                  <Typography
-                    variant="small"
-                    color="blue"
-                    onClick={() => navigate(`/product/${item?._id}`)}
-                    className="font-medium cursor-pointer"
-                  >
-                    View
-                  </Typography>
-                  <Typography
-                    variant="small"
+                  <IoEyeOutline
+                    size={22}
                     color="green"
+                    onClick={() => navigate(`/product/${item?._id}`)}
+                    className="cursor-pointer"
+                  />
+                  <MdModeEdit
+                    size={22}
+                    color="blue"
                     onClick={() =>
                       navigate(`/admin/update-product/${item?._id}`)
                     }
-                    className="font-medium cursor-pointer"
-                  >
-                    Edit
-                  </Typography>
-                  <Typography
-                    onClick={() => handleDeleteProduct(item?._id)}
-                    variant="small"
+                    className="cursor-pointer"
+                  />
+                  <IoTrash
+                    size={22}
                     color="red"
-                    className="font-medium cursor-pointer"
-                  >
-                    Delete
-                  </Typography>
+                    onClick={() => handleDeleteProduct(item?._id)}
+                    className="cursor-pointer"
+                  />
                 </div>
               </td>
             </tr>

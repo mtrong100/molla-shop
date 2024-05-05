@@ -18,6 +18,11 @@ const ProductCard = ({ p }) => {
   const { handleToggleFavorite, userWishlist } = useFavorite();
 
   const handleAddProductToCart = () => {
+    if (p?.stock === 0) {
+      toast.error("This product is out of stock");
+      return;
+    }
+
     const productData = {
       id: p?._id,
       name: p?.name,

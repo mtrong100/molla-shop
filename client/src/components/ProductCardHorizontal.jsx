@@ -20,6 +20,11 @@ const ProductCardHorizontal = ({ p }) => {
   const { handleToggleFavorite, userWishlist } = useFavorite();
 
   const handleAddProductToCart = () => {
+    if (p?.stock === 0) {
+      toast.error("This product is out of stock");
+      return;
+    }
+
     const productData = {
       id: p?._id,
       name: p?.name,
@@ -113,15 +118,26 @@ const ProductCardHorizontal = ({ p }) => {
           )}
         </div>
 
-        <Button
-          onClick={handleAddProductToCart}
-          variant="outlined"
-          color="amber"
-          className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
-        >
-          <BsCart3 size={20} />
-          Add to cart
-        </Button>
+        {p?.stock === 0 ? (
+          <Button
+            disabled
+            variant="outlined"
+            color="red"
+            className="w-full opacity-50 cursor-not-allowed"
+          >
+            Out of stock
+          </Button>
+        ) : (
+          <Button
+            onClick={handleAddProductToCart}
+            variant="outlined"
+            color="amber"
+            className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
+          >
+            <BsCart3 size={20} />
+            Add to cart
+          </Button>
+        )}
       </div>
     </div>
   );

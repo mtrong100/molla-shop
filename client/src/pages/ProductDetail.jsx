@@ -26,6 +26,8 @@ const ProductDetail = () => {
   const { relatedProducts, isLoading } = useGetRelatedProducts(p?.category);
   const { handleToggleFavorite, userWishlist } = useFavorite();
 
+  console.log(p);
+
   const {
     handleDeleteReview,
     handleWriteReview,
@@ -136,15 +138,26 @@ const ProductDetail = () => {
           </section>
 
           <div className="flex items-center gap-2">
-            <Button
-              onClick={handleAddProductToCart}
-              variant="outlined"
-              color="amber"
-              className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
-            >
-              <BsCart3 size={20} />
-              Add to cart
-            </Button>
+            {p?.stock === 0 ? (
+              <Button
+                disabled
+                variant="outlined"
+                color="red"
+                className="w-full opacity-50 cursor-not-allowed"
+              >
+                Out of stock
+              </Button>
+            ) : (
+              <Button
+                onClick={handleAddProductToCart}
+                variant="outlined"
+                color="amber"
+                className="flex rounded-none items-center gap-3 hover:bg-amber-600 hover:text-white w-full justify-center"
+              >
+                <BsCart3 size={20} />
+                Add to cart
+              </Button>
+            )}
 
             {isInWishlist ? (
               <Button

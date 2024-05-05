@@ -70,8 +70,8 @@ export default function useUpdateProduct() {
     try {
       const req = {
         ...values,
-        discount: Number(values.discount) || 0,
-        stock: Number(values.stock) || 1000,
+        discount: Number(values.discount),
+        stock: Number(values.stock),
         price: Number(values.price),
         images,
         thumbnails,

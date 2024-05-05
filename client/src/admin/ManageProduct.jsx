@@ -20,7 +20,7 @@ import useDeleteProduct from "../hooks/useDeleteProduct";
 import useProduct from "../hooks/useProduct";
 
 const TABLE_HEAD = [
-  "ID",
+  // "ID",
   "Name",
   "Category",
   "Price",
@@ -151,7 +151,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 isDeleting ? "bg-red-50" : ""
               } even:bg-blue-gray-50/50`}
             >
-              <td className="p-4">
+              {/* <td className="p-4">
                 <Typography
                   variant="small"
                   color="blue-gray"
@@ -159,7 +159,7 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
                 >
                   {item?._id}
                 </Typography>
-              </td>
+              </td> */}
               <td className="p-4">
                 <Typography
                   variant="small"
@@ -234,6 +234,14 @@ const TableWithStripedRows = forwardRef(({ results = [] }, ref) => {
               </td>
               <td className="p-4 ">
                 <div className="flex items-center gap-3">
+                  <Typography
+                    variant="small"
+                    color="blue"
+                    onClick={() => navigate(`/product/${item?._id}`)}
+                    className="font-medium cursor-pointer"
+                  >
+                    View
+                  </Typography>
                   <Typography
                     variant="small"
                     color="green"

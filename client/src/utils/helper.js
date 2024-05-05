@@ -48,8 +48,6 @@ export const displayTextColor = (color) => {
       return "text-blue-600";
     case "red":
       return "text-red-600";
-    case "green":
-      return "text-green-600";
     case "amber":
       return "text-amber-600";
     case "teal":
@@ -69,6 +67,6 @@ export const displayTextColor = (color) => {
     case "orange":
       return "text-orange-600";
     default:
-      return "";
+      return "text-black";
   }
 };

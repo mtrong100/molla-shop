@@ -11,7 +11,7 @@ import useGetRelatedProducts from "../hooks/useGetRelatedProducts";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
-import { formatDate } from "../utils/helper";
+import { displayTextColor, formatDate } from "../utils/helper";
 import { addProductToCart } from "../redux/slices/cartSlice";
 import useReview from "../hooks/useReview";
 import useFavorite from "../hooks/useFavorite";
@@ -118,24 +118,37 @@ const ProductDetail = () => {
             {p?.desc}
           </p>
 
-          <section className="flex items-center gap-5">
-            <h1>Quanity: </h1>
-            <div className="border border-gray-500 w-fit rounded-md h-[50px] flex items-center ">
-              <button
-                className="text-2xl font-medium w-[50px] h-[50px]"
-                onClick={() => setQuantity(quantity - 1)}
-              >
-                -
-              </button>
-              <span className="mx-4">{quantity}</span>
-              <button
-                className="text-2xl font-medium w-[50px] h-[50px]"
-                onClick={() => setQuantity(quantity + 1)}
-              >
-                +
-              </button>
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-5">
+              <h1>Quanity: </h1>
+              <div className="border border-gray-500 w-fit rounded-md h-[50px] flex items-center ">
+                <button
+                  className="text-2xl font-medium w-[50px] h-[50px]"
+                  onClick={() => setQuantity(quantity - 1)}
+                >
+                  -
+                </button>
+                <span className="mx-4">{quantity}</span>
+                <button
+                  className="text-2xl font-medium w-[50px] h-[50px]"
+                  onClick={() => setQuantity(quantity + 1)}
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </section>
+
+            <div className="flex items-center gap-4">
+              <h1>Color: </h1>
+              <p
+                className={`${displayTextColor(
+                  p?.color
+                )} capitalize font-semibold text-lg`}
+              >
+                {p?.color}
+              </p>
+            </div>
+          </div>
 
           <div className="flex items-center gap-2">
             {p?.stock === 0 ? (

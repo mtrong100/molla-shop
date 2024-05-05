@@ -396,11 +396,11 @@ function FilterSidebar({ setFilter, filter, onReset }) {
               {PRODUCT_COLORS.map((item) => (
                 <ListItem className="p-0 capitalize" key={item}>
                   <Checkbox
-                    color={item}
                     checked={item === filter.color}
                     onChange={() => setFilter({ ...filter, color: item })}
+                    className="rounded-full"
                   />
-                  <span className={`${displayTextColor(item)}`}>{item}</span>
+                  <span className={`text-black`}>{item}</span>
                 </ListItem>
               ))}
             </List>

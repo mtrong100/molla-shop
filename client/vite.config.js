@@ -8,8 +8,7 @@ export default defineConfig({
     port: 3000,
     proxy: {
       "/api": {
-        target: "https://molla-shop-api.onrender.com",
-        changeOrigin: true,
+        target: "http://localhost:5000",
       },
     },
   },

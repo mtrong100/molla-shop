@@ -17,7 +17,7 @@ export const SocketContextProvider = ({ children }) => {
   // Connect socket io for client and set up event listeners
   useEffect(() => {
     if (currentUser) {
-      const socket = io("http://localhost:5000");
+      const socket = io(`${import.meta.env.VITE_SOCKET_URL}`);
 
       dispatch(setSocket(socket));
 

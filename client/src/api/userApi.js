@@ -9,12 +9,17 @@ const USER_PARAMS = {
 };
 
 export const getUserDetailApi = async (id) => {
-  const res = await axios.get(`/api/user/${id}`);
+  const res = await axios.get(
+    `${import.meta.env.VITE_SERVER_URL}/api/user/${id}`
+  );
   return res.data;
 };
 
 export const updateUserApi = async (userId, req) => {
-  const res = await axios.put(`/api/user/update/${userId}`, req);
+  const res = await axios.put(
+    `${import.meta.env.VITE_SERVER_URL}/api/user/update/${userId}`,
+    req
+  );
   return res.data;
 };
 
@@ -25,15 +30,18 @@ export const getAllUserApi = async ({
   order = USER_PARAMS.ORDER,
   query = USER_PARAMS.QUERY,
 } = {}) => {
-  const res = await axios.get(`/api/user/users`, {
-    params: {
-      page,
-      limit,
-      order,
-      sort,
-      query,
-    },
-  });
+  const res = await axios.get(
+    `${import.meta.env.VITE_SERVER_URL}/api/user/users`,
+    {
+      params: {
+        page,
+        limit,
+        order,
+        sort,
+        query,
+      },
+    }
+  );
 
   return res.data;
 };

@@ -12,28 +12,39 @@ export const getReviewsFromProductApi = async ({
   limit = REVIEW_QUERY.LIMIT,
   order = REVIEW_QUERY.ORDER,
 } = {}) => {
-  const res = await axios.get(`/api/review/${productId}`, {
-    params: {
-      page,
-      limit,
-      order,
-    },
-  });
+  const res = await axios.get(
+    `${import.meta.env.VITE_SERVER_URL}/api/review/${productId}`,
+    {
+      params: {
+        page,
+        limit,
+        order,
+      },
+    }
+  );
 
   return res.data;
 };
 
 export const createReviewApi = async (req) => {
-  const res = await axios.post(`/api/review/create`, req);
+  const res = await axios.post(
+    `${import.meta.env.VITE_SERVER_URL}/api/review/create`,
+    req
+  );
   return res.data;
 };
 
 export const updateReviewApi = async (id, req) => {
-  const res = await axios.put(`/api/review/update/${id}`, req);
+  const res = await axios.put(
+    `${import.meta.env.VITE_SERVER_URL}/api/review/update/${id}`,
+    req
+  );
   return res.data;
 };
 
 export const deleteReviewApi = async (id) => {
-  const res = await axios.delete(`/api/review/delete/${id}`);
+  const res = await axios.delete(
+    `${import.meta.env.VITE_SERVER_URL}/api/review/delete/${id}`
+  );
   return res.data;
 };

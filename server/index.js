@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["https://molla-shop-sigma.vercel.app/", "http://localhost:3000/"],
+    origin: ["https://molla-shop-sigma.vercel.app", "http://localhost:3000"],
     credentials: true,
   })
 );

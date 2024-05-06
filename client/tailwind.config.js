@@ -10,12 +10,12 @@ module.exports = withMT({
   theme: {
     extend: {
       backgroundImage: {
-        "slide-1": "url('./src/assets/slides/slide-1.jpg')",
-        "slide-2": "url('./src/assets/slides/slide-2.jpg')",
-        "banner-1": "url('./src/assets/banners/banner-1.jpg')",
-        "banner-2": "url('./src/assets/banners/banner-2.jpg')",
-        "banner-3": "url('./src/assets/banners/banner-3.jpg')",
-        "banner-4": "url('./src/assets/images/bg-1.jpg')",
+        "slide-1": "url('../client/src/assets/slides/slide-1.jpg')",
+        "slide-2": "url('../client/src/assets/slides/slide-2.jpg')",
+        "banner-1": "url('../client/src/assets/banners/banner-1.jpg')",
+        "banner-2": "url('../client/src/assets/banners/banner-2.jpg')",
+        "banner-3": "url('../client/src/assets/banners/banner-3.jpg')",
+        "banner-4": "url('../client/src/assets/images/bg-1.jpg')",
       },
     },
   },

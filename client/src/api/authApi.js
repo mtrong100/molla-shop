@@ -35,10 +35,7 @@ export const googleLoginApi = async (req) => {
 
 export const logOutApi = async () => {
   const res = await axios.post(
-    `${import.meta.env.VITE_SERVER_URL}/api/auth/logout`,
-    {
-      withCredentials: true,
-    }
+    `${import.meta.env.VITE_SERVER_URL}/api/auth/logout`
   );
   return res.data;
 };

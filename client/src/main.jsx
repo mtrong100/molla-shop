@@ -16,7 +16,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <ThemeProvider>
           <SocketContextProvider>
             <App />
-            <Toaster position="top-center" reverseOrder={false} />
+            <Toaster
+              position="top-center"
+              reverseOrder={false}
+              containerStyle={{
+                zIndex: "999999",
+              }}
+            />
           </SocketContextProvider>
         </ThemeProvider>
       </PersistGate>

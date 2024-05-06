@@ -44,6 +44,8 @@ const CreateProduct = () => {
     handleUploadImages,
     handleUploadThumbnails,
     handleCreateProduct,
+    handleDeleteThumbnails,
+    handleDeleteImage,
     setForm,
     form,
     loading,
@@ -235,15 +237,15 @@ const CreateProduct = () => {
           <UploadProductThumbnials
             onChange={handleUploadThumbnails}
             thumbnails={thumbnails}
-            setThumbnails={setThumbnails}
             uploading={loadingThumbnails}
+            onDelete={handleDeleteThumbnails}
           />
 
           <UploadProductImages
             onChange={handleUploadImages}
             images={images}
-            setImages={setImages}
             uploading={loadingImages}
+            onDelete={handleDeleteImage}
           />
 
           <Button

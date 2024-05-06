@@ -67,8 +67,8 @@ export default function useCreateProduct() {
     try {
       const req = {
         ...values,
-        discount: Number(values.discount) || 0,
-        stock: Number(values.stock) || 1000,
+        discount: Number(values.discount),
+        stock: Number(values.stock),
         price: Number(values.price),
         images,
         thumbnails,
@@ -152,10 +152,22 @@ export default function useCreateProduct() {
     }
   };
 
+  const handleDeleteThumbnails = (url) => {
+    const newImages = thumbnails.filter((item) => item !== url);
+    setThumbnails(newImages);
+  };
+
+  const handleDeleteImage = (url) => {
+    const newImages = images.filter((item) => item !== url);
+    setImages(newImages);
+  };
+
   return {
     handleUploadImages,
     handleUploadThumbnails,
     handleCreateProduct,
+    handleDeleteThumbnails,
+    handleDeleteImage,
     setForm,
     form,
     loading,

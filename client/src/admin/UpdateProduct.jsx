@@ -151,7 +151,7 @@ const UpdateProduct = () => {
           />
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose category</h1>
+            <h1 className="mb-2 font-medium">Choose category</h1>
             <Select
               className="capitalize"
               size="lg"
@@ -172,7 +172,7 @@ const UpdateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose size</h1>
+            <h1 className="mb-2 font-medium">Choose size</h1>
             {form.size && (
               <Select
                 className="capitalize"
@@ -187,7 +187,7 @@ const UpdateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose brand</h1>
+            <h1 className="mb-2 font-medium">Choose brand</h1>
             <Select
               className="capitalize"
               size="lg"
@@ -208,7 +208,7 @@ const UpdateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Choose color</h1>
+            <h1 className="mb-2 font-medium">Choose color</h1>
             <Select
               className="capitalize"
               size="lg"
@@ -231,7 +231,7 @@ const UpdateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Overall rating</h1>
+            <h1 className="mb-2 font-medium">Overall rating</h1>
             <Select
               className="capitalize"
               size="lg"
@@ -252,7 +252,7 @@ const UpdateProduct = () => {
           </div>
 
           <div>
-            <h1 className="mb-2 font-bold text-lg">Additional infomation</h1>
+            <h1 className="mb-2 font-medium">Additional infomation</h1>
             <JoditEditor
               ref={editor}
               value={form.info}

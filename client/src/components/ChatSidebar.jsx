@@ -15,8 +15,6 @@ const ChatSidebar = () => {
           type="text"
           className="outline-none border-none w-full bg-transparent "
           placeholder="Search users..."
-          // value={filter.query}
-          // onChange={(e) => setFilter({ ...filter, query: e.target.value })}
         />
       </div>
 

@@ -29,7 +29,10 @@ export const getReviewsFromProductApi = async ({
 export const createReviewApi = async (req) => {
   const res = await axios.post(
     `${import.meta.env.VITE_SERVER_URL}/api/review/create`,
-    req
+    req,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
@@ -37,14 +40,20 @@ export const createReviewApi = async (req) => {
 export const updateReviewApi = async (id, req) => {
   const res = await axios.put(
     `${import.meta.env.VITE_SERVER_URL}/api/review/update/${id}`,
-    req
+    req,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
 
 export const deleteReviewApi = async (id) => {
   const res = await axios.delete(
-    `${import.meta.env.VITE_SERVER_URL}/api/review/delete/${id}`
+    `${import.meta.env.VITE_SERVER_URL}/api/review/delete/${id}`,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };

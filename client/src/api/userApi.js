@@ -10,7 +10,10 @@ const USER_PARAMS = {
 
 export const getUserDetailApi = async (id) => {
   const res = await axios.get(
-    `${import.meta.env.VITE_SERVER_URL}/api/user/${id}`
+    `${import.meta.env.VITE_SERVER_URL}/api/user/${id}`,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
@@ -18,7 +21,10 @@ export const getUserDetailApi = async (id) => {
 export const updateUserApi = async (userId, req) => {
   const res = await axios.put(
     `${import.meta.env.VITE_SERVER_URL}/api/user/update/${userId}`,
-    req
+    req,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
@@ -40,6 +46,7 @@ export const getAllUserApi = async ({
         sort,
         query,
       },
+      withCredentials: true,
     }
   );
 

@@ -9,14 +9,20 @@ const ORDER_QUERY = {
 export const createOrderApi = async (req) => {
   const res = await axios.post(
     `${import.meta.env.VITE_SERVER_URL}/api/order/create`,
-    req
+    req,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
 
 export const getOrderDetailApi = async (id) => {
   const res = await axios.get(
-    `${import.meta.env.VITE_SERVER_URL}/api/order/${id}`
+    `${import.meta.env.VITE_SERVER_URL}/api/order/${id}`,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
@@ -35,6 +41,7 @@ export const getUserOrdersApi = async ({
         limit,
         order,
       },
+      withCredentials: true,
     }
   );
 
@@ -54,6 +61,7 @@ export const getAllOrderApi = async ({
         limit,
         order,
       },
+      withCredentials: true,
     }
   );
 

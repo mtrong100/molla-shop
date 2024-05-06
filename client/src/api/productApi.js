@@ -59,7 +59,10 @@ export const getProductDetailApi = async (id) => {
 export const createProductApi = async (req) => {
   const res = await axios.post(
     `${import.meta.env.VITE_SERVER_URL}/api/product/create`,
-    req
+    req,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
@@ -67,21 +70,20 @@ export const createProductApi = async (req) => {
 export const updateProductApi = async (id, req) => {
   const res = await axios.put(
     `${import.meta.env.VITE_SERVER_URL}/api/product/update/${id}`,
-    req
+    req,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };
 
 export const deleteProductApi = async (id) => {
   const res = await axios.delete(
-    `${import.meta.env.VITE_SERVER_URL}/api/product/delete/${id}`
-  );
-  return res.data;
-};
-
-export const favoriteProductApi = async (id) => {
-  const res = await axios.post(
-    `${import.meta.env.VITE_SERVER_URL}/api/product/favorite/${id}`
+    `${import.meta.env.VITE_SERVER_URL}/api/product/delete/${id}`,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };

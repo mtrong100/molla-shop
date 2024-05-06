@@ -2,7 +2,10 @@ import axios from "axios";
 
 export const getUserWishlistApi = async (id) => {
   const res = await axios.get(
-    `${import.meta.env.VITE_SERVER_URL}/api/wishlist/${id}`
+    `${import.meta.env.VITE_SERVER_URL}/api/wishlist/${id}`,
+    {
+      withCredentials: true,
+    }
   );
   return res.data;
 };

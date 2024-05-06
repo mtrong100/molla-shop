@@ -187,7 +187,7 @@ const Header = () => {
         </section>
       </header>
 
-      <div className="h-[60px] z-50 bg-white z-10 sticky top-0 flex items-center border-b border-gray-300 ">
+      <div className="h-[60px] bg-white z-10 sticky top-0 flex items-center border-b border-gray-300 ">
         <div className="page-container flex items-center justify-between">
           <Menu>
             <MenuHandler>

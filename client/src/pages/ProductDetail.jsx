@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import useGetBlogDetail from "../hooks/useGetProductDetail";
-import { Typography, Button, Rating } from "@material-tailwind/react";
+import { Typography, Button, Rating, Chip } from "@material-tailwind/react";
 import { displayRating } from "../components/displayRating";
 import { BsCart3 } from "react-icons/bs";
 import { FaHeart, FaRegHeart } from "react-icons/fa6";
@@ -26,8 +26,6 @@ const ProductDetail = () => {
   const { relatedProducts, isLoading } = useGetRelatedProducts(p?.category);
   const { handleToggleFavorite, userWishlist } = useFavorite();
 
-  console.log(p);
-
   const {
     handleDeleteReview,
     handleWriteReview,
@@ -42,10 +40,15 @@ const ProductDetail = () => {
   } = useReview();
 
   const handleAddProductToCart = () => {
+    if (p?.stock === 0) {
+      toast.error("This product is out of stock");
+      return;
+    }
+
     const productData = {
       id: p?._id,
       name: p?.name,
-      image: selectedImage || p?.thumbnails[0],
+      image: p?.thumbnails[0],
       price: p?.price,
       quantity,
     };
@@ -61,7 +64,7 @@ const ProductDetail = () => {
 
   return (
     <div className="my-10">
-      <section className="grid grid-cols-2 gap-5">
+      <section className="grid grid-cols-2 gap-10">
         {/* LEFT */}
         <div className="flex items-center gap-5">
           <div className="flex flex-col gap-2">
@@ -84,26 +87,29 @@ const ProductDetail = () => {
             ))}
           </div>
 
-          <div className="group overflow-hidden flex items-center justify-center">
+          <div className="flex items-center justify-center h-[600px] mx-auto">
             <img
               src={selectedImage || p?.thumbnails[0]}
               alt=""
-              className="object-contain group-hover:scale-110 transition-all"
+              className="object-contain w-full h-full"
             />
           </div>
         </div>
 
         {/* RIGHT */}
         <div className="space-y-3">
-          <span className="hover:underline hover:text-amber-600 capitalize transition-all cursor-pointer">
-            {p?.category}
-          </span>
+          <Chip
+            size="lg"
+            variant="gradient"
+            value={p?.category}
+            className="w-fit"
+          />
 
-          <Typography className="font-medium text-2xl hover:text-amber-600 transition-all">
+          <Typography className="font-medium text-2xl ">
             {p?.name || ""}
           </Typography>
 
-          <div className="flex items-center gap-5 opacity-50">
+          <div className="flex items-center gap-5 ">
             <div className="flex items-center gap-1 text-lg text-amber-600">
               {displayRating(p?.rating)}
             </div>
@@ -112,7 +118,7 @@ const ProductDetail = () => {
             </span>
           </div>
 
-          <h2 className="text-4xl text-amber-600 font-bold">${p?.price}</h2>
+          <h2 className="text-5xl text-amber-600 font-bold">${p?.price}</h2>
 
           <p className="mt-2 opacity-60 font-normal line-clamp-5 text-justify">
             {p?.desc}

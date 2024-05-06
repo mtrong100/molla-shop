@@ -1,4 +1,4 @@
-import { Button } from "@material-tailwind/react";
+import { Button, Chip } from "@material-tailwind/react";
 import React, { useState } from "react";
 import { FaRegHeart } from "react-icons/fa6";
 import { BsCart3 } from "react-icons/bs";
@@ -65,12 +65,16 @@ const ProductCardHorizontal = ({ p }) => {
         </div>
 
         <div>
-          <span className="opacity-50 text-sm hover:text-amber-600 capitalize transition-all cursor-pointer">
-            {p?.category}
-          </span>
+          <Chip
+            size="md"
+            color="amber"
+            variant="ghost"
+            value={p?.category}
+            className="w-fit"
+          />
           <h1
             onClick={handleViewProduct}
-            className="text-xl hover:text-amber-600 transition-all cursor-pointer line-clamp-2 capitalize"
+            className="text-xl hover:text-amber-600  mt-2 transition-all cursor-pointer line-clamp-2 capitalize"
           >
             {p?.name}
           </h1>

@@ -63,7 +63,7 @@ export const LAPTOP_SIZES = [
   "32GB RAM, 1TB SSD",
 ];
 
-export const PRODUCT_COLORS = ["black", "white", "blue", "gray"];
+export const PRODUCT_COLORS = ["black", "white", "blue", "gray", "purple"];
 
 export const PRODUCT_BRANDS = [
   "apple",
@@ -74,9 +74,6 @@ export const PRODUCT_BRANDS = [
   "acer",
   "msi",
   "hp",
-  "microsoft",
-  "sony",
-  "bose",
   "razer",
   "corsair",
   "logitech",

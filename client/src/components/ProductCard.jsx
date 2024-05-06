@@ -3,7 +3,7 @@ import { FaCartPlus, FaHeart } from "react-icons/fa";
 import { BiSolidBinoculars } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { displayRating } from "./displayRating";
-import { Typography } from "@material-tailwind/react";
+import { Chip, Typography } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
 import { viewProductApi } from "../api/productApi";
 import { useDispatch } from "react-redux";
@@ -92,9 +92,13 @@ const ProductCard = ({ p }) => {
 
       {/* Content */}
       <div className="flex flex-col gap-2 p-5 bg-gray-50">
-        <span className="opacity-50 text-sm hover:text-amber-600 transition-all cursor-pointer capitalize">
-          {p?.category}
-        </span>
+        <Chip
+          size="md"
+          color="amber"
+          variant="ghost"
+          value={p?.category}
+          className="w-fit"
+        />
         <h1
           onClick={handleViewProduct}
           className="text-lg hover:text-amber-600 transition-all cursor-pointer line-clamp-2 capitalize"

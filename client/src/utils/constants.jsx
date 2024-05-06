@@ -101,7 +101,7 @@ export const PROFILE_SIDEBAR = [
   {
     name: "My Cart",
     icon: <IoCartOutline size={20} />,
-    link: "/my-cart",
+    link: "/cart",
   },
 ];
 

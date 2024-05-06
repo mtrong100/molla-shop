@@ -38,8 +38,6 @@ export const register = async (req, res) => {
       provider: AUTH_PROVIDER.emailAndPassword,
       password: hash,
       verificationToken: token,
-      // verified: true,
-      // role: "admin",
     });
 
     await newUser.save();

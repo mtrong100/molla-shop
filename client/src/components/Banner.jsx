@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Carousel, IconButton } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
+import { SAMPLE_IMAGES } from "../utils/project-images";
 
 const Banner = () => {
   return (
@@ -62,11 +63,13 @@ const Banner = () => {
             caption="Daily Deals"
             title="Airpods Earphones"
             price="247.99"
+            image={SAMPLE_IMAGES.slide1}
           />
           <SlideCard
             caption="Deals and Promotions"
             title="Echo Dot 3rd Gen"
             price="29.99"
+            image={SAMPLE_IMAGES.slide2}
           />
         </Carousel>
 
@@ -76,16 +79,19 @@ const Banner = () => {
             className="bg-banner-1"
             smallText="Top product"
             title="Edifier Stereo Bluetooth"
+            image={SAMPLE_IMAGES.banner1}
           />
           <BannerCard
             className="bg-banner-2"
             smallText="Clearance"
             title="GoPro - Fusion 360, DarkCoal"
+            image={SAMPLE_IMAGES.banner2}
           />
           <BannerCard
             className="bg-banner-3"
             smallText="Featured"
             title="Apple Watch 4, Pink Lotus"
+            image={SAMPLE_IMAGES.banner3}
           />
         </div>
       </div>
@@ -95,11 +101,12 @@ const Banner = () => {
 
 export default Banner;
 
-function BannerCard({ smallText, title, className }) {
+function BannerCard({ smallText, title, className, image }) {
   const navigate = useNavigate();
 
   return (
     <div
+      style={{ backgroundImage: `url(${image})` }}
       className={`${className} bg-cover bg-center bg-no-repeat py-5 px-7  rounded-lg`}
     >
       <span className="text-sm opacity-70">{smallText}</span>
@@ -132,11 +139,14 @@ function BannerCard({ smallText, title, className }) {
   );
 }
 
-function SlideCard({ caption, title, price }) {
+function SlideCard({ caption, title, price, image }) {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col justify-center h-full items-start bg-slide-1 bg-cover bg-center bg-no-repeat px-24 rounded-lg">
+    <div
+      style={{ backgroundImage: `url(${image})` }}
+      className="flex flex-col justify-center h-full items-start  bg-cover bg-center bg-no-repeat px-24 rounded-lg"
+    >
       <span className="text-amber-600 text-xl font-medium">{caption}</span>
       <h1 className="text-5xl font-extrabold mt-1 w-full max-w-[250px] leading-tight">
         {title}

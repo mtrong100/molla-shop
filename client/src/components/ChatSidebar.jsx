@@ -49,11 +49,14 @@ function UserChat({ item }) {
   const { onlineUsers } = useSelector((state) => state.socket);
   const { currentUser } = useSelector((state) => state.user);
 
-  const sender = (item?.participants || []).find(
+  const sender = item?.participants?.find(
     (participant) => participant._id !== currentUser?._id
   );
 
-  const isOnline = onlineUsers.some((user) => user?.userId === item?._id);
+  const isOnline = onlineUsers.some(
+    (user) => user?.userId === item?.participants?.[0]?._id
+  );
+
   const isSelected = selectedConversation?._id === item?._id;
 
   return (
@@ -78,7 +81,7 @@ function UserChat({ item }) {
         </div>
 
         {isOnline && (
-          <span className="absolute top-0 right-0 h-4 w-4 flex items-center justify-center bg-green-300  rounded-full"></span>
+          <span className="absolute top-0 right-0 h-4 w-4 flex items-center justify-center bg-green-500  rounded-full"></span>
         )}
       </div>
     </li>

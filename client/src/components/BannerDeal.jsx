@@ -1,13 +1,17 @@
 import { Button } from "@material-tailwind/react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { SAMPLE_IMAGES } from "../utils/project-images";
 
 const BannerDeal = () => {
   const navigate = useNavigate();
 
   return (
     <div className="mt-20">
-      <div className="bg-cover bg-center bg-no-repeat bg-banner-4 p-3 ">
+      <div
+        style={{ backgroundImage: `url(${SAMPLE_IMAGES.banner4})` }}
+        className="bg-cover bg-center bg-no-repeat bg-banner-4 p-3 "
+      >
         <div className=" bg-white px-5 py-12 grid grid-cols-3 items-center w-full">
           <div className="text-2xl font-bold text-right pr-5">
             <span className="text-amber-600">New Deals</span>

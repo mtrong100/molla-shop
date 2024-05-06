@@ -2,6 +2,7 @@ import React from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { RiTwitterXLine } from "react-icons/ri";
 import { IoIosArrowRoundForward } from "react-icons/io";
+import { SAMPLE_IMAGES } from "../utils/project-images";
 
 const ICONS = [
   {
@@ -25,7 +26,10 @@ const ICONS = [
 const ContactBanner = () => {
   return (
     <div className="mt-20">
-      <div className="bg-cover bg-center bg-no-repeat bg-banner-4 p-3 ">
+      <div
+        style={{ backgroundImage: `url(${SAMPLE_IMAGES.banner4})` }}
+        className="bg-cover bg-center bg-no-repeat bg-banner-4 p-3 "
+      >
         <div className="bg-white px-10 py-20 grid grid-cols-2 items-center place-items-center">
           <div className="flex flex-col justify-center items-center gap-5">
             <h1 className="font-medium text-3xl">Shop Social</h1>

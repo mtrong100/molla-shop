@@ -7,6 +7,7 @@ import banner1 from "../assets/banners/banner-1.jpg";
 import banner2 from "../assets/banners/banner-2.jpg";
 import banner3 from "../assets/banners/banner-3.jpg";
 import banner4 from "../assets/images/bg-1.jpg";
+import banner5 from "../assets/images/bg-3.png";
 
 export const SAMPLE_IMAGES = {
   sampleProduct,
@@ -18,4 +19,5 @@ export const SAMPLE_IMAGES = {
   banner2,
   banner3,
   banner4,
+  banner5,
 };

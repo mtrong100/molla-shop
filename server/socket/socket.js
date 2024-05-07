@@ -15,8 +15,6 @@ const io = new Server(server, {
 let onlineUsers = [];
 
 io.on("connection", (socket) => {
-  console.log("A user connected - socketId: ", socket);
-
   socket.on("addUserIsOnline", (userId) => {
     if (!userId) return;
 

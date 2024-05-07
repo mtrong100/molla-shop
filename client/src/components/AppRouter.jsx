@@ -15,6 +15,8 @@ const Wishlist = lazy(() => import("../pages/Wishlist"));
 const Checkout = lazy(() => import("../pages/Checkout"));
 const ForgotPassword = lazy(() => import("../pages/ForgotPassword"));
 const ProductDetail = lazy(() => import("../pages/ProductDetail"));
+const About = lazy(() => import("../pages/About"));
+const Faq = lazy(() => import("../pages/Faq"));
 
 /* ADMIN PAGES */
 const Dashboard = lazy(() => import("../admin/Dashboard"));
@@ -35,6 +37,8 @@ const mainRoutes = [
   { path: "/forgot-password", element: <ForgotPassword /> },
   { path: "/product/:id", element: <ProductDetail /> },
   { path: "/my-orders", element: <MyOrder /> },
+  { path: "/about", element: <About /> },
+  { path: "/faq", element: <Faq /> },
 ];
 
 const adminRoutes = [

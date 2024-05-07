@@ -31,7 +31,6 @@ import ProductCard, { ProductCardSkeleton } from "../components/ProductCard";
 import ProductCardHorizontal, {
   ProductCardHorizontalSkeleton,
 } from "../components/ProductCardHorizontal";
-import { displayTextColor } from "../utils/helper";
 import ReactPaginate from "react-paginate";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import useProduct from "../hooks/useProduct";

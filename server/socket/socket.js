@@ -10,7 +10,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: [process.env.CLIENT_URL, process.env.LOCAL_URL],
+    origin: ["https://molla-shop-sigma.vercel.app/", "http://localhost:3000"],
     methods: ["GET", "POST"],
   },
 });

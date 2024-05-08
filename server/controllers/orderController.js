@@ -8,6 +8,21 @@ const ORDER_QUERY = {
   ORDER: "desc",
 };
 
+export const getOrderCollection = async (req, res) => {
+  try {
+    const orders = await Order.find();
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ error: "orders not found" });
+    }
+
+    return res.status(200).json(orders);
+  } catch (error) {
+    console.log("Error in send getOrderCollection controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const getOrders = async (req, res) => {
   try {
     const {

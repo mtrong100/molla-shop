@@ -8,6 +8,21 @@ const USER_QUERY = {
   QUERY: "",
 };
 
+export const getUserCollection = async (req, res) => {
+  try {
+    const users = await User.find();
+
+    if (!users || users.length === 0) {
+      return res.status(404).json({ error: "users not found" });
+    }
+
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log("Error in send getUserCollection controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const getUsers = async (req, res) => {
   const {
     page = USER_QUERY.PAGE,

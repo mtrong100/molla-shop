@@ -14,6 +14,21 @@ const PRODUCT_QUERY = {
   MAX_PRICE: 1000,
 };
 
+export const getProductCollection = async (req, res) => {
+  try {
+    const products = await Product.find();
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({ error: "Products not found" });
+    }
+
+    return res.status(200).json(products);
+  } catch (error) {
+    console.log("Error in send getProductCollection controller", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export const getProducts = async (req, res) => {
   const {
     page = PRODUCT_QUERY.PAGE,
